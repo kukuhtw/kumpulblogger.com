@@ -23,6 +23,8 @@ Platform KumpulBlogger menerapkan sistem reward yang adil dan transparan untuk s
 
 Dengan sistem ini, KumpulBlogger memastikan bahwa setiap pihak mendapatkan kompensasi sesuai kontribusi mereka dalam ekosistem periklanan yang terdesentralisasi. Ini menciptakan motivasi dan kesempatan lebih besar bagi setiap jaringan untuk memperluas kolaborasi dan menciptakan nilai lebih bagi pengiklan dan publisher di seluruh platform.
 
+https://kukuhtw.medium.com/kumpulblogger-com-542f2b01347e - Kumpulblogger.com Dirilis Sebagai Open Source dengan Lisensi Apache 2.0: Membuka Potensi Ad Network Terdesentralisasi di Indonesia
+
 https://kukuhtw.medium.com/membangun-masa-depan-bisnis-tanpa-batas-sinergi-digital-di-kumpulblogger-com-4507cc922fac
 
 https://kukuhtw.medium.com/kumpulblogger-com-1f492838054d
