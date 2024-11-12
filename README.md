@@ -37,5 +37,8 @@ https://kukuhtw.medium.com/kumpulblogger-com-1f492838054d
 4.  masuk ke folder setup_deletethis_after_setup , jalankan entry_your_provider.php , isikan nama brand ppc network anda sendiri dan url domain
 5.  hapus folder dan semua file di folder setup_deletethis_after_setup
 6.  buka dan edit file settings_all.php , isikan SMTP dan recaptcha anda
+7.  Kini anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC
 
+   
+9. 
    
