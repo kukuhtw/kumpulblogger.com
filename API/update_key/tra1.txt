@@ -1,0 +1,1 @@
+{"signature":"7ef8253c542ce3812cdc592f095067854f09bdb8","providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB","newPublicKey":"e8eaad621afcc0db9f492f4286cfa412433db768","newSecretKey":"cc499ac094443ef7c904b6edf7514de66f133fc1","secret_key_request":"6f6be5d5e93d1889dfda4342efcbeaf2b20f7f11"}

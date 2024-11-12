@@ -1,0 +1,1 @@
+{"providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB","email":"adminb@admin.com","whatsapp":"bbbb","account_name":"bbbbbbbbbbbbb","account_bank":"BCA","account_number":"25525","last_update":"2024-08-24 10:34:06"}

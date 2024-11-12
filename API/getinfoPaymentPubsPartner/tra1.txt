@@ -1,0 +1,1 @@
+{"providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB","id":"2","publisher_local_id":"1","pubs_providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetA","email_pubs":"kukuhtw@gmail.com","nominal":"51.00","payment_description":"sasa","payment_date":"2024-08-23 12:12:53","payment_by":"http:\/\/localhost\/adnetwork_baru\/adnetB"}

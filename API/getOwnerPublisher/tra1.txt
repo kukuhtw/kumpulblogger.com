@@ -1,0 +1,1 @@
+{"pub_id":"2","providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB","pubs_providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetA"}

@@ -1,0 +1,4 @@
+[10-Aug-2024 13:32:58 Europe/Berlin] PHP Warning:  Undefined variable $target_partner_network_domain in C:\xampp\htdocs\adnetwork_baru\adnetA\API\request_join\index.php on line 86
+[10-Aug-2024 13:33:00 Europe/Berlin] PHP Warning:  Undefined variable $target_partner_network_domain in C:\xampp\htdocs\adnetwork_baru\adnetA\API\request_join\index.php on line 86
+[10-Aug-2024 13:33:01 Europe/Berlin] PHP Warning:  Undefined variable $target_partner_network_domain in C:\xampp\htdocs\adnetwork_baru\adnetA\API\request_join\index.php on line 86
+[10-Aug-2024 13:33:01 Europe/Berlin] PHP Warning:  Undefined variable $target_partner_network_domain in C:\xampp\htdocs\adnetwork_baru\adnetA\API\request_join\index.php on line 86

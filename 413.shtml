@@ -1,0 +1,4 @@
+<!--#set var="code" value="413" -->
+<!--#set var="reason" value="Request Entity Too Large" -->
+<!--#set var="msg" value="The request exceeds the capacity limit" -->
+<!--#include virtual="cp_errordocument.shtml" -->

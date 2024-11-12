@@ -1,0 +1,7 @@
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 9
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 10
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 11
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 12
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 13
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 14
+[23-Aug-2024 10:31:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_pubs\index.php on line 15

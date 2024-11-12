@@ -1,0 +1,1 @@
+{"providers_name":"Adnetwork A","providers_domain_url":"http:\/\/localhost\/adnetworkbaru\/adnetA","advertisers_name":"John","advertisers_email":"johndoe@example.com","advertisers_whatsapp":"1234567890","secret_key_request":"1710d3cd37ddc277e7b66247fb08a3ced3335e02"}

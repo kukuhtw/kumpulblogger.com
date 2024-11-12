@@ -1,0 +1,1 @@
+{"providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB","id":"3","is_approved_by_advertiser":"1","local_ads_id":2,"publishers_site_local_id":1,"pubs_providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetA","ads_providers_domain_url":"http:\/\/localhost\/adnetwork_baru\/adnetB"}

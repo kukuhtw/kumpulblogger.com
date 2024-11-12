@@ -1,0 +1,140 @@
+[28-Oct-2024 23:50:58 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php on line 10
+[28-Oct-2024 23:50:58 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php:10
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php(10): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php on line 10
+[29-Oct-2024 02:30:39 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2005] Unknown MySQL server host 'afragola-db.id.domainesia.com' (-3) in /home/kumpulbl/public_html/cronjob/calculate_budgetspentads.php:15
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/calculate_budgetspentads.php(15): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/calculate_budgetspentads.php on line 15
+[29-Oct-2024 02:31:20 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php on line 137
+[29-Oct-2024 02:31:20 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php:137
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(137): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 137
+[29-Oct-2024 02:31:57 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2005] Unknown MySQL server host 'afragola-db.id.domainesia.com' (-3) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[29-Oct-2024 02:35:37 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php on line 14
+[29-Oct-2024 02:35:37 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php:14
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/rekap_harian_local.php(14): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php on line 14
+[29-Oct-2024 02:41:03 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 28
+[29-Oct-2024 02:41:03 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:28
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(28): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 28
+[29-Oct-2024 02:41:04 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2005] Unknown MySQL server host 'afragola-db.id.domainesia.com' (-3) in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php:10
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/rekap_harian_local.php(10): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php on line 10
+[29-Oct-2024 02:42:12 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php on line 137
+[29-Oct-2024 02:42:12 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php:137
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(137): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 137
+[29-Oct-2024 02:55:51 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php on line 70
+[29-Oct-2024 02:55:51 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php:70
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(70): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 70
+[29-Oct-2024 03:57:45 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2005] Unknown MySQL server host 'afragola-db.id.domainesia.com' (-3) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[29-Oct-2024 03:58:36 UTC] PHP Warning:  mysqli::__construct(): php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[29-Oct-2024 03:58:36 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: php_network_getaddresses: getaddrinfo for afragola-db.id.domainesia.com failed: Temporary failure in name resolution in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[29-Oct-2024 20:44:02 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2003] Can't connect to MySQL server on 'afragola-db.id.domainesia.com:3306' (111) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[29-Oct-2024 20:44:02 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[31-Oct-2024 19:01:03 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2003] Can't connect to MySQL server on 'afragola-db.id.domainesia.com:3306' (111) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[31-Oct-2024 19:01:03 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[02-Nov-2024 18:06:03 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[02-Nov-2024 18:06:03 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2003] Can't connect to MySQL server on 'afragola-db.id.domainesia.com:3306' (111) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[04-Nov-2024 01:07:06 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/kumpulbl/public_html/cronjob/click_audit.php:137
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(137): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 137
+[07-Nov-2024 18:55:05 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=2599180 in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: MySQL server has gone away in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2013] Lost connection to MySQL server at 'reading initial communication packet', system error: 0 in /home/kumpulbl/public_html/cronjob/rekap_harian_publisher.php:69
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/rekap_harian_publisher.php(69): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/rekap_harian_publisher.php on line 69
+[07-Nov-2024 18:55:05 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=2546383 in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher.php on line 24
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: MySQL server has gone away in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/mapping_ads_publisher.php(24): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher.php on line 24
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2013] Lost connection to MySQL server at 'reading initial communication packet', system error: 104 in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php:10
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/rekap_harian_local.php(10): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/rekap_harian_local.php on line 10
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2013] Lost connection to MySQL server at 'reading initial communication packet', system error: 0 in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24
+[07-Nov-2024 18:55:05 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=2456214 in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php on line 10
+[07-Nov-2024 18:55:05 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: MySQL server has gone away in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php:10
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php(10): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/mapping_ads_publisher_check_rate.php on line 10
+[09-Nov-2024 20:44:01 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /home/kumpulbl/public_html/cronjob/click_audit.php:13
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/click_audit.php(13): mysqli->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/click_audit.php on line 13
+[09-Nov-2024 20:44:01 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2003] Can't connect to MySQL server on 'afragola-db.id.domainesia.com:3306' (111) in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php:24
+Stack trace:
+#0 /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php(24): PDO->__construct()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/cronjob/update_titleads_sitename_clickads.php on line 24

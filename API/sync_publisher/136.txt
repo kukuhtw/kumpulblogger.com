@@ -1,0 +1,2 @@
+SELECT id FROM publishers_site_partners 
+                  WHERE local_id = :local_id AND publishers_local_id = :publishers_local_id AND providers_domain_url = :providers_domain_url
