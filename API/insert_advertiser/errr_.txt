@@ -1,9 +1,0 @@
-[09-Aug-2024 17:22:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 9
-[09-Aug-2024 17:22:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 10
-[09-Aug-2024 17:22:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 11
-[09-Aug-2024 17:22:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 36
-[09-Aug-2024 17:22:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 37
-[09-Aug-2024 17:23:12 Europe/Berlin] PHP Warning:  Undefined array key "advertisers_password" in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 37
-[09-Aug-2024 17:23:13 Europe/Berlin] PHP Warning:  Undefined array key "advertisers_password" in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 37
-[09-Aug-2024 17:23:13 Europe/Berlin] PHP Warning:  Undefined array key "advertisers_password" in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 37
-[09-Aug-2024 17:23:13 Europe/Berlin] PHP Warning:  Undefined array key "advertisers_password" in C:\xampp\htdocs\adnetwork_baru\adnetA\API\insert_advertiser\index.php on line 37

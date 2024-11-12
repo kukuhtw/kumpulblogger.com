@@ -1,4 +1,0 @@
-query:SELECT loginemail, whatsapp, bank, account_name  , account_number , 'http://localhost/adnetwork_baru/adnetA' as 'pubs_providers_domain_url' , '1' as 'publishers_local_id' , '2' as 'pub_id'
-
-
-    FROM msusers WHERE id = :publishers_local_id
