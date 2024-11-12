@@ -57,7 +57,5 @@ Dengan menggabungkan pendekatan open-source dengan model bisnis yang tepat, Kump
 5.  hapus folder dan semua file di folder setup_deletethis_after_setup
 6.  buka dan edit file settings_all.php , isikan SMTP dan recaptcha anda
 7.  Kini anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC
-
    
-9. 
    
