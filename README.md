@@ -18,6 +18,11 @@ KumpulBlogger.com hadir kembali dengan konsep revolusioner sebagai platform open
 Para pemilik jaringan iklan yang menggunakan KumpulBlogger ini akan saling terhubung dalam ekosistem yang terdesentralisasi. Sebagai contoh, Amir yang menjalankan *AmirAds* bisa terhubung dengan jaringan lain seperti *BudiAds*, *CicaAds*, *DudungAds*, dan *EmanAds*. Hal ini memungkinkan publisher yang terdaftar di *AmirAds* untuk menerima iklan dari pengiklan yang tergabung di jaringan *BudiAds*, *CicaAds*, dan sebagainya, menciptakan ekosistem periklanan yang terintegrasi dan saling menguntungkan.
 
 
+**System Sharing Revenue Adil dan Transparant**
+Platform KumpulBlogger menerapkan sistem reward yang adil dan transparan untuk setiap jaringan iklan dan publisher yang berkontribusi. Setiap pemilik ad network memiliki kewajiban membayarkan rewards kepada publisher dan partner jaringan iklan. Misalnya, jika seorang publisher A di jaringan *AmirAds* menampilkan iklan dari pengiklan yang berasal dari *BudiAds*, maka *BudiAds* wajib memberikan reward yang adil kepada publisher A dan kepada *AmirAds* sebagai partner network ads.
+
+Dengan sistem ini, KumpulBlogger memastikan bahwa setiap pihak mendapatkan kompensasi sesuai kontribusi mereka dalam ekosistem periklanan yang terdesentralisasi. Ini menciptakan motivasi dan kesempatan lebih besar bagi setiap jaringan untuk memperluas kolaborasi dan menciptakan nilai lebih bagi pengiklan dan publisher di seluruh platform.
+
 
 **CARA PENGGUNAAN**
 
