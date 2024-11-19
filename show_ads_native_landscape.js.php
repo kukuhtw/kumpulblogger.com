@@ -195,7 +195,8 @@ foreach ($ads as $ad) {
         <div>
             <a href='$click_url' target='_blank'><strong>{$ad['title_ads']}</strong></a><br>
             <p>{$limited_description}</p>
-            <small><em>Ads by {$ads_providers_name}</em></small>
+            <small><em>Ads by <a href='$ads_providers_domain_url' target='_blank'>{$ads_providers_name}</a></em></small>
+
         </div>
         <a href='$click_url' target='_blank'><img src='$image_url' alt='Ad Image'></a>
     </div>`);
