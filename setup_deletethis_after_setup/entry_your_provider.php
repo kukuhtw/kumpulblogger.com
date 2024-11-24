@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $json_data = json_encode([$data], JSON_PRETTY_PRINT);
 
-        $folders = ['../API', '../', '../cronjob', '../JSON'];
+        $folders = ['../API', '../', '../cronjob', '../JSON', '../admin'];
         foreach ($folders as $folder) {
             file_put_contents($folder . '/providers_data.json', $json_data);
         }
