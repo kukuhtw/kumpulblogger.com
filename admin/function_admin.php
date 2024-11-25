@@ -3,6 +3,21 @@
 function_admin.php
 */
 
+
+
+// Fungsi untuk ambil user pemilik iklan
+function getuser($mysqli, $user_id) {
+   $query = "SELECT `loginemail` FROM  msusers WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    return $row['loginemail'];
+}
+
+
 // Fungsi untuk menghitung jumlah total iklan yang dimiliki oleh user
 function countTotalAds($mysqli, $user_id) {
    $query = "SELECT COUNT(*) AS total_ads FROM advertisers_ads WHERE advertisers_id = ?";

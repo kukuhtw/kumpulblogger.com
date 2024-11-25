@@ -255,6 +255,9 @@ $providers_domain_url  = $row['providers_domain_url'];
         echo "<br>".htmlspecialchars($row['providers_name']);
         echo "<br>".htmlspecialchars($row['landingpage_ads']); 
         
+        $pemilik_iklan = getuser($conn,  $advertisers_id);
+        echo "<br>Advertisers_id: ".$pemilik_iklan;
+
         $current_click = $row['current_click'];
         $current_click_partner = $row['current_click_partner'];
         $total_click = $row['total_click'];
@@ -427,7 +430,9 @@ data-budget="<?php echo $row['budget_per_click_textads']; ?>"
         <p><strong>Paid:</strong> <span id="paid"></span></p>
         <p><strong>Paid Date:</strong> <span id="paid-date"></span></p>
         <p><strong>Paid Description:</strong> <span id="paid-desc"></span></p>
-        <p><strong>Total Clicks:</strong> <span id="total-click"></span></p>
+        
+        <!--<p><strong>Total Clicks:</strong> <span id="total-click"></span></p>-->
+
         <p><strong>Current Clicks:</strong> <span id="current-click"></span></p>
         <p><strong>Current Clicks from Partner:</strong> <span id="current-click-partner"></span></p>
         <p><strong>Expired:</strong> <span id="expired"></span></p>
