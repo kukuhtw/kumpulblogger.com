@@ -1,0 +1,12 @@
+0,30 * * * * curl https://your_own_domain.com/cronjob/rekap_total_publisher.php >/dev/null 2>&1
+* * * * * curl https://your_own_domain.com/cronjob/update_titleads_sitename_clickads.php >/dev/null 2>&1
+0,30 * * * * curl https://your_own_domain.com/cronjob/calculate_budgetspentads.php >/dev/null 2>&1
+0,30 * * * * curl https://your_own_domain.com/genJSON/last10publishers.php >/dev/null 2>&1
+
+* * * * * curl https://your_own_domain.com/cronjob/click_audit.php >/dev/null 2>&1
+*/5 * * * * curl https://your_own_domain.com/cronjob/mapping_ads_publisher.php >/dev/null 2>&1
+*/5 * * * * curl https://your_own_domain.com/cronjob/mapping_ads_publisher_check_rate.php >/dev/null 2>&1
+*/5 * * * * curl https://your_own_domain.com/cronjob/rekap_harian_local.php >/dev/null 2>&1
+*/5 * * * * curl https://your_own_domain.com/cronjob/rekap_harian_publisher.php >/dev/null 2>&1
+0,30 * * * * curl https://your_own_domain.com/cronjob/rekap_total_publisher.php >/dev/null 2>&1
+
