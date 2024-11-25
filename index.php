@@ -1,184 +1,692 @@
+<?php 
+include("function.php");
+$pubs_providers_domain_url = get_providers_domain_url_json("providers_data.json", 1);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="KumpulBlogger open-source platform for decentralized, federated, and distributed ad networks">
-    <title>KumpulBlogger - Decentralized Pay Per Click Ad Network Platform</title>
-
+    <title> - </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #e0f7ff; /* Light sky blue color */
-            color: #003366; /* Dark blue text color */
-        }
+     body {
+    font-family: Arial, sans-serif;
+    background-color: #e0f7fa; /* Latar belakang biru laut muda */
+    color: #004d40; /* Warna teks hijau gelap */
+    margin: 0;
+    padding: 20px;
+}
 
-        header {
-            background-color: #0099ff; /* Sky blue color */
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-        }
+h2, h4 {
+    color: #006064; /* Warna heading biru laut tua */
+    border-bottom: 2px solid #006064;
+    padding-bottom: 10px;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
+.navbar {
+    background-color: #00796b; /* Navbar biru laut */
+}
 
-        nav {
-            background-color: #006bb3; /* Darker sky blue color */
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-        }
+.navbar-brand, .nav-link {
+    color: #e0f7fa !important; /* Warna teks navbar biru laut muda */
+}
 
-        nav a {
-            color: #e0f7ff; /* Light sky blue color for links */
-            margin: 0 15px;
-            text-decoration: none;
-        }
+.nav-link:hover {
+    color: #004d40 !important; /* Warna teks navbar saat hover hijau gelap */
+}
 
-        nav a:hover {
-            color: #b3e0ff; /* Lighter hover link color */
-        }
+.hero-section {
+    background: url('kb5.png') no-repeat center center;
+    background-size: cover;
+    color: #e0f7fa;
+    height: 700px;
+    padding: 4rem 0;
+    text-shadow: 12px 12px 15px rgba(0, 0, 0, 0.5);
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    background-color: #b2ebf2; /* Warna kartu biru laut muda */
+}
 
-        h2 {
-            color: #006bb3; /* Darker sky blue heading color */
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
 
-        p {
-            margin-bottom: 20px;
-        }
+.card-title {
+    color: #004d40; /* Warna judul kartu hijau gelap */
+}
 
-        .section {
-            margin-bottom: 40px;
-        }
+.card-text {
+    color: #004d40; /* Warna teks kartu hijau gelap */
+}
 
-        footer {
-            background-color: #003366; /* Dark blue */
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
+.section-heading {
+    margin-bottom: 2rem;
+    font-weight: bold;
+    font-size: 2rem;
+    color: #004d40; /* Warna heading biru laut */
+}
 
-        footer p {
-            margin: 0;
-        }
+.text-muted {
+    font-size: 1rem;
+    color: #004d40; /* Warna teks muted hijau gelap */
+}
+
+.bg-primary {
+    background-color: #00796b !important; /* Warna latar belakang utama biru laut */
+}
+
+footer {
+    background-color: #004d40; /* Latar belakang footer hijau gelap */
+    padding: 2rem 0;
+    color: #e0f7fa; /* Warna teks footer biru laut muda */
+}
+
+footer a {
+    color: #b2dfdb; /* Warna link footer hijau muda */
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #e0f7fa; /* Warna link saat hover biru laut muda */
+}
+
+.content-container {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 1rem;
+}
+
+.main-content {
+    padding-right: 1rem;
+}
+
+.sidebar-content {
+    padding-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .content-container {
+        grid-template-columns: 1fr;
+    }
+}
+
     </style>
 </head>
 
 <body>
-    <header>
-        <h1>KumpulBlogger</h1>
-        <p>Open Source Platform for Decentralized, Federated, and Distributed Pay Per Click Ad Networks</p>
-    </header>
 
-    <nav>
-        <a href="#">August 29, 2024 [dom]</a>
-        <a href="idn.html">Bahasa Indonesia</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">KumpulBlogger</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#carakerja">How it works?</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reg.php">Daftar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.php">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
 
-    <div class="container">
-        <div class="section">
-            <h2>Introduction</h2>
-            <p>KumpulBlogger.com will be revived with a revolutionary concept, introducing an open-source platform that allows anyone to own their own digital ads Pay Per Click network business. With features of decentralization, federation, and distribution, this platform offers broader freedom and collaboration for ad network entrepreneurs.</p>
+    <!-- Hero Section -->
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4">Selamat Datang di </h1>
+            <p class="lead">Menghadirkan Konsep baru<br> dalam dunia jaringan iklan digital</p>
+            <a href="reg.php" class="btn btn-light btn-lg">Mulai Sekarang</a>
         </div>
+    </header>
 
-        <div class="section">
-            <h2>What are Open Source, Decentralization, Federation, and Distributed?</h2>
-            <p>Open source means that this platform can be accessed and modified by anyone. Every ad network entrepreneur can use and develop this platform without licensing restrictions, creating greater flexibility and innovation.</p>
-            <p>Decentralization means that control is not centralized in a single entity. Each ad network using this platform operates independently and has full freedom to manage their advertisers and publishers. There is no central authority controlling the ecosystem, allowing each ad network to operate autonomously.</p>
-            <p>Federation refers to the concept where ad networks can collaborate with each other, enabling the sharing of ads and content across different networks. Through federation, advertisers from one ad network can reach publishers in other ad networks, creating far broader exposure.</p>
-            <p>Distributed refers to the distribution of data and systems across various servers or entities. This ensures that the platform remains functional even if one ad network experiences technical issues. There is no single point of failure that can disrupt the entire system, creating stronger stability.</p>
-        </div>
 
-        <div class="section">
-            <h2>How Does This Benefit All Parties?</h2>
-            <p>With this concept, every ad network entrepreneur using the KumpulBlogger platform can share advertisers and publishers. This means that native digital ads from one advertiser can be spread across multiple ad networks at once, giving the advertiser much wider exposure.</p>
-            <p>The benefit for publishers is that they are not dependent on just one ad network to obtain ads. By participating in this distributed network, they can access more ads from various ad networks, increasing their revenue opportunities. Each publisher can also set their own ad pricing, tailored to the value and traffic of their site.</p>
-            <p>On the other hand, advertisers can set the cost-per-click allocation that matches their budget. Through this decentralized system, there will be a transparent price balance between the ad costs set by publishers and the budget allocated by advertisers.</p>
-        </div>
 
-        <div class="section">
-            <h2>Collaboration Between Networks for Wider Ad Distribution</h2>
-            <p>Imagine a network of ad networks collaborating with each other to distribute native digital ads across all the participating networks. Ads are no longer limited to one ad network but can appear across the entire interconnected ad network ecosystem, offering immense benefits for both advertisers and publishers. Anyone using this open-source platform can build their own ad network business, participate in a broader network, and create new opportunities in the digital advertising world.</p>
-            <p>With KumpulBlogger, we are entering a new era where anyone can become a successful ad network entrepreneur in an open, collaborative, and interconnected ecosystem.</p>
-        </div>
+    <!-- Main Content with Sidebar -->
+    <div class="container py-5">
+        <div class="content-container">
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Features Section -->
+                <section>
+                    <<div class="text-center">
+                        <h2 class="section-heading text-uppercase">Apa yang  Baru dari KumpulBlogger ?</h2>
+                        <p class="text-muted">
+KumpulBlogger.com adalah platform <b>pay per click</b> yang menggunakan format <b>native ads</b>, di mana iklan tampil secara alami dan selaras dengan konten situs penerbit. Selain itu, KumpulBlogger juga menawarkan fitur <b>pay per post</b>, yang memungkinkan pengguna media sosial seperti X/Twitter, Instagram, Facebook, TikTok, YouTube, LinkedIn, Threads, serta blog, untuk memonetisasi konten mereka, seperti status atau video, dengan mudah. Platform ini membantu penerbit dan kreator menghasilkan pendapatan dari setiap interaksi dengan iklan yang ditampilkan.
+</p>
+<p>
+<a target="_2" href="https://github.com/kukuhtw/kumpulblogger.com/tree/master">Bikin bisnis PPC sendiri, ambil code nya disini - https://github.com/kukuhtw/kumpulblogger.com/tree/master</a>
+</p>
+<p class="text-muted">
+KumpulBlogger.com - Monetisasi Media Sosial dan Blog Anda dengan KumpulBlogger.com
+</p>
+                    </div>
+                     <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Pay Per Post - Monetize Status dan Video Anda</h5>
+                                    <p class="card-text">Berdayakan..... 
 
-        <div class="section">
-            <h2>New Features of KumpulBlogger</h2>
-            <p>The new KumpulBlogger comes with a more innovative and flexible concept compared to its previous version. This transformation offers fresh opportunities for ad network entrepreneurs, advertisers, and publishers by providing full control and transparency in every aspect of their business.</p>
-            <ul>
-                <li><strong>Open Source:</strong> Fully own, set up, and build the ad platform under your own business name. No longer dependent on a single provider; everything is in your hands.</li>
-                <li><strong>Decentralization:</strong> A dynamic advertising system with decentralized ad distribution through partner ad networks, creating a broader reach and greater revenue potential.</li>
-                <li><strong>Flexible Pricing:</strong> Publishers can set their own ad prices to maximize revenue based on traffic and audience quality.</li>
-                <li><strong>Advertiser Flexibility:</strong> Advertisers can adjust prices according to their budget and choose specific publishers for their ad campaigns.</li>
-                <li><strong>Full Control for All Parties:</strong> Publishers can reject ads that don't align with their site’s policies or niche, while advertisers can also choose to reject displaying their ads on irrelevant sites.</li>
-                <li><strong>Transparency in Click Transactions:</strong> Transparency in every click transaction with an audit process visible to both publishers and advertisers, creating complete trust between parties.</li>
-                <li><strong>Transparent Click Reports:</strong> Track every click transparently to ensure integrity and accuracy in the reporting process.</li>
-                <li><strong>Collaboration Without Competition:</strong> Ad network owners can collaborate without competing, sharing advertisers and publishers to create an ecosystem that supports and benefits all parties.</li>
-            </ul>
-        </div>
+Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="section">
-            <h2>Target Market: Who Should Become an Ad Network Owner, Advertiser, or Publisher?</h2>
-            <p>KumpulBlogger offers opportunities for various types of users, depending on their goals and business focus. Here are the target markets for each role:</p>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">....</h5>
+                                    <p class="card-text">..... <br><a href="reg.php">Daftar segera di !</a></p>
+                                </div>
+                            </div>
+                        </div>
 
-            <h3>Who Should Become an Ad Network Owner?</h3>
-            <p>Ad network ownership is ideal for:</p>
-            <ul>
-                <li><strong>Entrepreneurs:</strong> Individuals looking to enter the digital advertising industry and manage their own ad business, benefiting from decentralization and collaboration.</li>
-                <li><strong>Agencies:</strong> Advertising agencies that want to offer a more independent and customizable service to their clients, with full control over their ad network and transparent click transactions.</li>
-                <li><strong>Tech Startups:</strong> Technology startups or SaaS providers aiming to create new revenue streams by building ad networks or integrating digital ads into their existing platforms.</li>
-                <li><strong>Media Companies:</strong> Publishers and media companies seeking to diversify revenue streams by creating their own ad networks and managing ads across multiple sites.</li>
-            </ul>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title"></h5>
+                                    <p class="card-text">......<br><a href="reg.php">Daftar segera di ...!</a></p>
+                                </div>
+                            </div>
+                        </div>
 
-            <h3>Who Should Become an Advertiser?</h3>
-            <p>KumpulBlogger’s decentralized platform is well-suited for advertisers who want broader reach, including:</p>
-            <ul>
-                <li><strong>E-commerce Businesses:</strong> Online stores and marketplaces seeking greater visibility by displaying ads across multiple networks, targeting relevant publishers to maximize ROI.</li>
-                <li><strong>SMEs and Startups:</strong> Small to medium-sized enterprises looking to increase their brand visibility and traffic without relying on large, centralized ad networks.</li>
-                <li><strong>App Developers:</strong> Mobile app developers aiming to attract more users through targeted digital ads placed on websites with relevant audiences.</li>
-                <li><strong>Local Businesses:</strong> Brick-and-mortar businesses or regional companies wanting to promote products or services to niche markets in specific regions.</li>
-            </ul>
 
-            <h3>Who Should Become a Publisher?</h3>
-            <p>As a publisher, you can earn revenue by displaying ads from a variety of networks. Suitable target markets include:</p>
-            <ul>
-                <li><strong>Bloggers and Content Creators:</strong> Individuals running blogs or websites that regularly attract traffic and are looking to monetize their content by hosting relevant ads.</li>
-                <li><strong>News Portals:</strong> Local or regional news websites that generate consistent page views and want to increase ad revenue by participating in multiple ad networks.</li>
-                <li><strong>Forum and Community Site Owners:</strong> Websites with active forums or community engagement that can generate clicks from highly relevant ads, increasing overall ad revenue.</li>
-                <li><strong>Educational Platforms:</strong> Online education platforms that offer niche content and attract specific audiences, allowing for targeted ads that match their user demographics.</li>
-            </ul>
-        </div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">White Label (Coming soon)</h5>
+                                    <p class="card-text">Miliki, atur, dan bangun platform iklan dengan nama bisnis Anda sendiri. Kontrol penuh ada di tangan Anda.</p>
+                                    <a class="nav-link" href="#whitelabel">Info detail</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Desentralisasi (Coming soon)</h5>
+                                    <p class="card-text">Sistem periklanan yang dinamis dengan distribusi iklan terdesentralisasi untuk jangkauan yang lebih luas.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Penetapan Harga Fleksibel</h5>
+                                    <p class="card-text">Penerbit dapat menetapkan harga iklan mereka sendiri untuk memaksimalkan pendapatan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Fleksibilitas Pengiklan</h5>
+                                    <p class="card-text">Pengiklan dapat menyesuaikan harga sesuai anggaran dan memilih penerbit untuk kampanye iklan mereka.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Kendali Penuh</h5>
+                                    <p class="card-text">Penerbit dan pengiklan memiliki kendali penuh untuk menolak iklan yang tidak sesuai dengan kebijakan mereka.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Transparansi dalam Klik</h5>
+                                    <p class="card-text">Transparansi dalam transaksi klik dengan proses audit yang dapat dilihat oleh penerbit dan pengiklan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Payout Lebih Cepat</h5>
+                                    <p class="card-text">Gajian setiap akhir pekan Jumat, Sabtu, Minggu. Minimal payout Rp 5,000.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Alternate Code</h5>
+                                    <p class="card-text">Belum ada iklan masuk? Penerbit dapat menyisipkan script dari adnetwork lain bila sedang tidak ada iklan masuk.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Satu Dashboard</h5>
+                                    <p class="card-text">Publisher dan pemasang iklan disediakan satu dashboard untuk mengelola blog, website, ataupun iklan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-        <div class="section">
-            <h2>Try Becoming an Ad Network Owner or Join as an Advertiser and Publisher</h2>
-            <p>If you are interested in trying the ad network business as an ad network owner, advertiser, or publisher/blogger, you can contact Kukuh TW to start testing the platform. With KumpulBlogger, you can build your own ad network or advertise on existing networks to gain broader exposure.</p>
-            <p>Contact Kukuh TW via email at <a href="mailto:kukuhtw@gmail.com">kukuhtw@gmail.com</a> for more information or to start testing.</p>
+                <!-- How It Works Section -->
+                <a name="carakerja"></a>
+                <section class="bg-light py-5">
+                    <div class="container">
+                        <div class="text-center mb-4">
+                            <h2 class="section-heading text-uppercase">Cara Kerja ......com</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="text-center">1. Pendaftaran Pengguna Sebagai Publisher dan Advertiser di Satu Dashboard</h4>
+                                <p>.....com memberikan kemudahan bagi pengguna untuk mendaftar sebagai <strong>publisher</strong> (penerbit) atau <strong>advertiser</strong> (pengiklan) dalam satu dashboard yang terintegrasi. Dengan satu akun, pengguna dapat beralih peran sesuai kebutuhan, baik untuk memasang iklan maupun menampilkan iklan di blog atau media online mereka.</p>
+
+                                <h4 class="text-center">2. Pendaftaran Publisher dan Penentuan Harga Iklan</h4>
+                                <p>Sebagai publisher, pengguna dapat mendaftarkan blog atau media online mereka di KumpulBlogger.com. Dalam proses ini, publisher perlu memberikan informasi penting, seperti:</p>
+
+                                <ul>
+                                    <li><strong>Rate harga per klik:</strong> Publisher bebas menentukan berapa biaya per klik yang ingin mereka tetapkan untuk iklan yang tayang di situs mereka.</li>
+                                    <li><strong>Deskripsi blog:</strong> Menyertakan deskripsi blog atau media online untuk memberikan gambaran kepada advertiser tentang konten dan audiens yang dituju.</li>
+                                    <li><strong>Jenis iklan yang disetujui:</strong> Publisher dapat menentukan jenis iklan apa saja yang dapat tayang di situs mereka, seperti iklan gambar, teks, atau video.</li>
+                                    <li><strong>Jenis iklan yang tidak disetujui:</strong> Publisher juga memiliki hak untuk menolak jenis iklan tertentu yang tidak sesuai dengan kebijakan atau audiens blog.</li>
+                                </ul>
+                                <p><a target="_blank" href="https://.....com/data/list_publisher_site.php">Daftar Blog/Website/Media yang sudah bergabung</a></p>
+
+                                <h4 class="text-center">3. Pendaftaran Advertiser dan Pengaturan Kampanye Iklan</h4>
+                                <p>Sebagai advertiser, pengguna dapat mendaftarkan iklan mereka yang akan didistribusikan ke jaringan .....com. Dalam pengaturan iklan, advertiser diminta untuk mengisi beberapa detail berikut:</p>
+                                <ul>
+                                    <li><strong>Judul iklan:</strong> Nama atau topik iklan yang akan tayang.</li>
+                                    <li><strong>Deskripsi iklan:</strong> Informasi singkat tentang produk atau layanan yang diiklankan.</li>
+                                    <li><strong>Alokasi budget:</strong> Total dana yang ingin dialokasikan untuk kampanye iklan.</li>
+                                    <li><strong>Biaya per klik:</strong> Besaran rupiah yang dialokasikan untuk setiap klik yang didapatkan dari iklan tersebut.</li>
+                                </ul>
+
+                                <p><a target="_blank" href="https://.....com/data/rekap_ads_harian.php">Daftar Iklan yang sedang berjalan</a></p>
+
+                                <p><a target="_blank" href="https://.....com/preview.php">Contoh Tampilan Iklan</a></p>
+
+                                <h4 class="text-center">4. Kontrol Penuh Terhadap Konten Iklan</h4>
+                                <p>Baik publisher maupun advertiser memiliki kontrol penuh atas iklan yang akan tayang. Publisher dapat menolak atau menyetujui iklan yang akan muncul di situs mereka, sementara advertiser juga dapat memilih situs atau blog tempat iklan mereka akan tampil.</p>
+
+                                <h4 class="text-center">5. Laporan dan Penyesuaian Iklan Secara Real-Time</h4>
+                                <p>.....com menyediakan laporan secara real-time yang mencakup <strong>biaya iklan yang berjalan</strong> dan <strong>jumlah klik yang terjadi</strong>. Fitur ini memungkinkan advertiser untuk:</p>
+                                <ul>
+                                    <li>Menyesuaikan harga iklan dengan menaikkan atau menurunkan biaya per klik sesuai situasi pasar.</li>
+                                    <li>Melakukan optimalisasi kampanye berdasarkan performa iklan.</li>
+                                </ul>
+                                <p>Di sisi lain, publisher juga dapat memantau jumlah klik yang dihasilkan dan menyesuaikan rate harga iklan mereka untuk memaksimalkan pendapatan.</p>
+
+                                <h4 class="text-center">6. Markup Harga Iklan oleh Provider dan Partner AdNetwork</h4>
+                                <p>Harga iklan yang ditentukan oleh publisher akan secara otomatis dimarkup oleh <strong>provider adnetwork lokal</strong> sebesar 50% dan oleh <strong>partner adnetwork</strong> juga sebesar 50%. Hal ini memungkinkan adanya distribusi pendapatan yang adil di antara berbagai pihak yang terlibat dalam ekosistem iklan KumpulBlogger.com.</p>
+
+                                <h4 class="text-center">7. Payout yang Mudah dan Fleksibel</h4>
+                                <p>Publisher dapat melakukan payout atau penarikan pendapatan setiap hari Jumat, Sabtu, dan Minggu dengan syarat minimum payout sebagai berikut:</p>
+                                <ul>
+                                    <li><strong>Rp 5.000</strong> untuk transfer melalui BCA dan GoPay.</li>
+                                    <li><strong>Rp 10.000</strong> untuk bank lain seperti BNI dan Mandiri.</li>
+                                </ul>
+                                <p>Fleksibilitas ini memberikan kemudahan bagi publisher untuk menarik pendapatan mereka sesuai jadwal yang telah ditentukan.</p>
+
+                                <p><script type='text/javascript' src='<?php echo $pubs_providers_domain_url ?>//sample_landscape.js.php?maxads=5&column=1'></script></p>
+
+                                <h4 class="text-center">8. Masa Uji Coba dan Rencana Implementasi Desentralisasi</h4>
+                                <p>....<strong>desentralized</strong>, <strong>distributed</strong>, dan <strong>federated</strong> akan diterapkan secara penuh di KumpulBlogger.com, menciptakan ekosistem iklan yang lebih luas dan terdesentralisasi.</p>
+                                <p>KumpulBlogger.com bertujuan untuk menciptakan lingkungan iklan yang adil dan transparan bagi publisher dan advertiser, sekaligus meningkatkan jangkauan iklan secara lebih luas melalui jaringan yang terintegrasi.</p>
+
+                                <h2 class="section-heading text-uppercase">Iklan youtube video</h2>
+
+                                <p>.....</p>
+                                 <div id="youtube-video-container"></div>
+
+
+<?php
+// Define the URL to fetch the JSON data
+$json_url = "https://Youurowndomain.com/JSON/last10publishers.json";
+
+// Fetch the JSON data
+$json_data = file_get_contents($json_url);
+
+in$publishers = json_decode($json_data, true);
+
+// Check if the data was successfully fetched and decoded
+if (is_array($publishers)) {
+    echo "<style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f8ff; /* Light blue background */
+                color: #333;
+                margin: 0;
+                padding: 20px;
+            }
+            h2 {
+                color: #0073e6; /* Dark blue heading */
+                border-bottom: 2px solid #0073e6;
+                padding-bottom: 10px;
+            }
+            .publisher-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .publisher {
+                width: calc(50% - 20px);
+                background-color: #e6f7ff; /* Light blue card background */
+                border: 1px solid #0073e6;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 2px 5px rgba(0, 115, 230, 0.3);
+            }
+            .publisher a {
+                color: #0073e6;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .publisher a:hover {
+                text-decoration: underline;
+            }
+            .publisher strong {
+                color: #005bb5;
+            }
+        </style>";
+
+    echo "<h2>Daftar Publisher Terbaru</h2>";
+    echo "<div class='publisher-container'>";
+
+    // Loop through each publisher and display their details in two columns
+    foreach ($publishers as $publisher) {
+        // Format the rate_text_ads as currency
+        $formatted_rate = "Rp " . number_format($publisher['rate_text_ads'], 2, ',', '.');
+
+        echo "<div class='publisher'>";
+        echo "<strong>Nama Situs:</strong> " . htmlspecialchars($publisher['site_name']) . "<br>";
+        echo "<strong>Domain Situs:</strong> <a href='" . htmlspecialchars($publisher['site_domain']) . "' target='_blank'>" . htmlspecialchars($publisher['site_domain']) . "</a><br>";
+        echo "<strong>Deskripsi:</strong> " . htmlspecialchars($publisher['site_desc']) . "<br>";
+        echo "<strong>Tarif Iklan Teks:</strong> " . $formatted_rate . "<br>";
+        echo "<strong>Tanggal Registrasi:</strong> " . htmlspecialchars($publisher['regdate']) . "<br>";
+        echo "</div>";
+    }
+
+    echo "</div>";
+} else {
+    // If there was an error fetching or decoding the data
+    echo "Gagal mengambil data publisher.";
+}
+?>
+ <p><a target="_blank" href="https://kumpulblogger.com/data/list_publisher_site.php">Daftar Blog/Website/Media yang sudah bergabung</a></p>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div class="sidebar-content">
+                <!-- White Label Section -->
+                <a name="whitelabel"></a>
+                <section class="py-5">
+                    <div class="container">
+                        <div class="text-center">
+                            <h2 class="section-heading text-uppercase">White Label dalam KumpulBlogger</h2>
+                            <p class="text-muted">White label dalam jaringan periklanan KumpulBlogger adalah solusi bagi mereka yang ingin memiliki platform pay-per-click dengan merek sendiri, tetapi tetap menggunakan kode dari platform KumpulBlogger.</p>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-md-12">
+                                <p class="text-muted">Dalam konsep ini, jaringan white label tidak akan saling bersaing, melainkan saling berbagi publisher dan advertiser, sehingga eksposur bagi publisher dan advertiser menjadi lebih luas.</p>
+                                <p class="text-muted">Publisher dapat menerima iklan dari jaringan white label mana pun yang menggunakan platform KumpulBlogger, dan advertiser dapat menampilkan iklan mereka di seluruh jaringan white label tersebut. Dengan demikian, tercipta kolaborasi dan sinergi tanpa adanya kompetisi.</p>
+                                <p class="text-muted">Keuntungan dari usaha ini berkisar antara 25% hingga 33%. Pemilik white label wajib melakukan pembayaran kepada blogger dalam jaringannya, maupun kepada blogger di luar jaringannya.</p>
+                                <p class="text-muted">Selain itu, setiap white label juga bisa mendapatkan revenue tambahan, tidak hanya dari advertiser tetapi juga dari partner white label lainnya. Hal ini terjadi apabila ada transaksi klik dari advertiser di luar jaringannya. Sebaliknya, jika iklan dari advertiser lokal diklik oleh jaringan white label lain, maka white label tersebut juga wajib melakukan pembayaran kepada partner providernya.</p>
+                                <p>
+<a target="_2" href="https://github.com/kukuhtw/kumpulblogger.com/tree/master">Bikin bisnis PPC sendiri,<br> ambil code nya disini <br>https://github.com/kukuhtw/kumpulblogger.com/tree/master</a>
+</p>
+                                
+                              
+
+                                <p><script type='text/javascript' src='<?php echo $pubs_providers_domain_url ?>//sample.js.php?maxads=5&column=1'></script></p>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 
+<script>
+    (function() {
+        let startTime, videoId, token, player;
+          let lastRecordedTime = 0;
+         let timer; // Timer variable to track the 30 seconds
+         let isPlaying = false; // Flag to check if the video is playing
+
+      function loadYouTubeVideo(videoId, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+
+
+            // Clear the container
+            container.innerHTML = '';
+
+            // Create a div to host the YouTube player
+            const playerDiv = document.createElement('div');
+            playerDiv.id = 'youtube-player';
+            container.appendChild(playerDiv);
+
+            // Initialize YouTube API
+            if (typeof YT === 'undefined' || !YT.loaded) {
+                const tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                window.onYouTubeIframeAPIReady = createYouTubePlayer;
+            } else {
+                createYouTubePlayer();
+            }
+        }
+
+        function createYouTubePlayer() {
+            player = new YT.Player('youtube-player', {
+                height: '315',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                     'mute': 1 // Menambahkan mute pada parameter
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+
+
+       
+    function onPlayerReady(event) {
+        startTime = new Date();
+        event.target.playVideo();
+    }
+
+
+    function recordCurrentTime() {
+        if (player && player.getCurrentTime) {
+            lastRecordedTime = Math.round(player.getCurrentTime());
+        }
+    }
+
+
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !isPlaying) {
+            isPlaying = true;
+            startTime = new Date();
+            // Start the timer to send duration after 30 seconds of uninterrupted play
+            timer = setTimeout(sendDurationToServer, 30000);
+        } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.BUFFERING) {
+            clearTimeout(timer); // Stop the timer if the video is paused or buffering
+            isPlaying = false;
+        } else if (event.data == YT.PlayerState.ENDED) {
+            sendDurationToServer(); // Send duration when the video ends
+        }
+    }
+
+
+
+               function fetchVideoId(pubid, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `<?php echo $pubs_providers_domain_url ?>/videojs.php?pubid=${pubid}`, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    videoId = response.videoId;
+                    token = response.token;
+                    callback(videoId);
+                }
+            };
+            xhr.send();
+        }
+
+
+     function getReferrerInfo() {
+            let referrer = document.referrer;
+            if (!referrer) {
+                referrer = 'direct';
+            }
+            return referrer;
+        }
+
+    
+
+      function sendDurationToServer() {
+        alert('sendDurationToServer to');
+
+            const duration = Math.round((new Date() - startTime) / 1000);
+            const formData = new FormData();
+            formData.append('startTime', startTime);
+             formData.append('duration', duration);
+            formData.append('pubid', '2');
+            formData.append('token', token);
+            formData.append('referrer', getReferrerInfo());
+            formData.append('url', window.location.href);
+
+            fetch('<?php echo $pubs_providers_domain_url ?>/videojs.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => console.log('Server Response:', result))
+            .catch(error => console.error('Error:', error));
+        }
+
+        const pubid = 2; // Replace with the appropriate public ID
+
+        fetchVideoId(pubid, function(videoId) {
+            if (videoId) {
+                loadYouTubeVideo(videoId, 'youtube-video-container');
+            } else {
+                console.error('No video ID received.');
+            }
+        });
+
+        window.addEventListener('beforeunload', sendDurationToServer);
+    })();
+    </script>
+
+    <!-- Add this before the Footer section -->
+<section class="carousel-section py-5">
+    <div class="container">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="5"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="6"></li>
+                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="7"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="kb7.png" class="d-block w-100" alt="Slide 1">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb6.png" class="d-block w-100" alt="Slide 2">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb5.png" class="d-block w-100" alt="Slide 3">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb4.png" class="d-block w-100" alt="Slide 4">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb8.png" class="d-block w-100" alt="Slide 5">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb9.png" class="d-block w-100" alt="Slide 6">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb10.png" class="d-block w-100" alt="Slide 7">
+                </div>
+                <div class="carousel-item">
+                    <img src="kb11.png" class="d-block w-100" alt="Slide 8">
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2024 KumpulBlogger. All rights reserved.</p>
+        <div class="container text-center">
+            <p>&copy; 2024 ----- All rights reserved.</p>
+            <p><a href="reg.php">Daftar</a> | <a href="login.php">Login</a></p>
+        </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
 </body>
 
 </html>
