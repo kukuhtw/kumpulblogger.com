@@ -68,11 +68,9 @@ Dengan menggabungkan pendekatan open-source dengan model bisnis yang tepat, Kump
    
    📣 Stay Connected
 📖 Article: KumpulBlogger.com Dirilis sebagai Open Source
-
 🌐 Website: https://kumpulblogger.com
-
 📧 Contact: kukuhtw@gmail.com
-
 📱 WhatsApp: https://wa.me/628129893706
 
+https://kumpulblogger.com/blog/kukuhtw
 
