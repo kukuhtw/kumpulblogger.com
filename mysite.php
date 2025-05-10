@@ -159,7 +159,7 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? intval($_GET['page']
 $offset = ($page - 1) * $records_per_page;
 
 // Prepare the SQL query to select data securely, including site_desc, filtered by publishers_local_id
-$stmt = $mysqli->prepare("SELECT id, providers_name, providers_domain_url, site_name, site_domain, site_desc, rate_text_ads, isbanned , advertiser_allowed , advertiser_rejected , alternate_code
+$stmt = $mysqli->prepare("SELECT id, providers_name, providers_domain_url, site_name, site_domain, site_desc, rate_text_ads, isbanned , advertiser_allowed , advertiser_rejected , alternate_code , internal_blog
                           FROM publishers_site 
                           WHERE publishers_local_id = ?
                            ORDER BY last_updated desc
@@ -371,11 +371,20 @@ $mysqli->close();
                             </a>
 
                             <!-- Delete Button -->
+
+<?php
+ if ($publisher['internal_blog']==0 ) {
+?>
 <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
     data-id="<?php echo $publisher['id']; ?>"
     data-providers_domain_url="<?php echo htmlspecialchars($publisher['providers_domain_url']); ?>">
     Delete
 </button>
+<?php
+
+ }
+ 
+?>
 
 
                         </div>

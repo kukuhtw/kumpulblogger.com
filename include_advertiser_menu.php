@@ -6,14 +6,7 @@
     <a href="view_rate_publisher_partner.php" class="btn btn-info"><i class="fas fa-handshake"></i> View Rate Publisher Partner</a>
 </div>
 
- <h3>Sub Menu Influencer</h3>
-<a href="listmedia.php" class="btn btn-info"><i class="fas fa-handshake"></i> View Rate Influencer</a>
- <br> <br>
-<a href="list_invoice_payment.php" class="btn btn-info"><i class="fas fa-handshake"></i> View Invoice Influencer</a>
 
-
-
-</div>
 
 
 <!-- Include Font Awesome -->

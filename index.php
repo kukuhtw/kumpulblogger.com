@@ -9,7 +9,7 @@ $pubs_providers_domain_url = get_providers_domain_url_json("providers_data.json"
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> - </title>
+    <title>KumpulBlogger.com - Monetisasi Media Sosial dan Blog Anda dengan KumpulBlogger.com</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
      body {
@@ -154,7 +154,7 @@ footer a:hover {
     <!-- Hero Section -->
     <header class="hero-section text-center">
         <div class="container">
-            <h1 class="display-4">Selamat Datang di </h1>
+            <h1 class="display-4">Selamat Datang di KumpulBlogger v3.0</h1>
             <p class="lead">Menghadirkan Konsep baru<br> dalam dunia jaringan iklan digital</p>
             <a href="reg.php" class="btn btn-light btn-lg">Mulai Sekarang</a>
         </div>
@@ -169,11 +169,23 @@ footer a:hover {
             <div class="main-content">
                 <!-- Features Section -->
                 <section>
-                    <<div class="text-center">
+                    <div class="text-center">
                         <h2 class="section-heading text-uppercase">Apa yang  Baru dari KumpulBlogger ?</h2>
-                        <p class="text-muted">
-KumpulBlogger.com adalah platform <b>pay per click</b> yang menggunakan format <b>native ads</b>, di mana iklan tampil secara alami dan selaras dengan konten situs penerbit. Selain itu, KumpulBlogger juga menawarkan fitur <b>pay per post</b>, yang memungkinkan pengguna media sosial seperti X/Twitter, Instagram, Facebook, TikTok, YouTube, LinkedIn, Threads, serta blog, untuk memonetisasi konten mereka, seperti status atau video, dengan mudah. Platform ini membantu penerbit dan kreator menghasilkan pendapatan dari setiap interaksi dengan iklan yang ditampilkan.
-</p>
+                        
+<p class="text-muted">
+        KumpulBlogger.com adalah platform <b>pay per click</b> yang menggunakan format <b>native ads</b>, di mana iklan tampil secara alami dan selaras dengan konten situs penerbit. Kini hadir fitur terbaru: <b>Blog Engine AI</b> — sebuah sistem cerdas yang membantu publisher membuat artikel dengan lebih mudah dan cepat.
+
+        Dengan Blog Engine AI, publisher dapat:
+        <ul class="text-start">
+            <li>Memilih <b>topik</b> dari ribuan ide yang tersedia, seperti teknologi, sejarah, ekonomi, lifestyle, parenting, wisata, hingga opini sosial.</li>
+            <li>Menentukan <b>deskripsi pembahasan</b> untuk memperjelas arah tulisan.</li>
+            <li>Memilih <b>bahasa</b> (Indonesia, Inggris) dan <b>gaya penulisan</b> (formal, santai, akademis, satiris, atau SEO-friendly).</li>
+        </ul>
+
+        Setelah itu, AI akan menuliskan artikelnya secara otomatis sesuai preferensi publisher. Artikel ini bisa langsung diterbitkan di blog milik publisher dalam platform KumpulBlogger, lengkap dengan iklan yang bisa menghasilkan pendapatan dari setiap klik pengunjung.
+    </p>
+
+
 <p>
 <a target="_2" href="https://github.com/kukuhtw/kumpulblogger.com/tree/master">Bikin bisnis PPC sendiri, ambil code nya disini - https://github.com/kukuhtw/kumpulblogger.com/tree/master</a>
 </p>
@@ -185,10 +197,15 @@ KumpulBlogger.com - Monetisasi Media Sosial dan Blog Anda dengan KumpulBlogger.c
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">Pay Per Post - Monetize Status dan Video Anda</h5>
-                                    <p class="card-text">Berdayakan..... 
+                                    <h5 class="card-title">Blog Engine AI – Tulis Artikel dengan Bantuan Kecerdasan Buatan</h5>
+                                    <p class="card-text">
+Perkenalkan fitur terbaru dari KumpulBlogger: <b>Blog Engine AI</b>! Kini, publisher bisa dengan mudah membuat artikel yang menarik dan siap tayang hanya dengan beberapa klik.
 
-Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
+AI akan menuliskan artikel secara otomatis sesuai dengan instruksi Anda. Artikel bisa langsung Anda terbitkan di blog Anda di KumpulBlogger, lengkap dengan iklan native yang siap menghasilkan pendapatan dari setiap klik pengunjung.
+
+Let’s get started! <br>
+<a href="reg.php">Daftar segera di KumpulBlogger.com!</a>
+</p>
                                 </div>
                             </div>
                         </div>
@@ -196,8 +213,25 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">....</h5>
-                                    <p class="card-text">..... <br><a href="reg.php">Daftar segera di !</a></p>
+                                    
+<h5 class="card-title">Punya Blog Sendiri di KumpulBlogger.com</h5>
+<p class="card-text">
+Kini Anda bisa memiliki blog pribadi di <b>KumpulBlogger.com</b> tanpa ribet! Dilengkapi dengan fitur <b>Blog Engine AI</b>, Anda dapat membuat artikel secara otomatis hanya dengan memilih topik, deskripsi singkat, bahasa, dan gaya penulisan.
+
+Manfaat memiliki blog di KumpulBlogger:
+<ul>
+    <li><b>Tulis artikel dibantu AI</b> – Tak perlu bingung kehabisan ide atau repot menulis panjang, cukup berikan arahannya, dan AI akan menulis untuk Anda.</li>
+    <li><b>Monetisasi langsung</b> – Blog Anda akan otomatis menampilkan <b>native ads</b> yang menghasilkan uang setiap kali diklik pengunjung.</li>
+    <li><b>Bangun personal brand</b> – Cocok untuk penulis, pebisnis, kreator, atau siapa pun yang ingin membangun reputasi online.</li>
+    <li><b>Gratis & mudah digunakan</b> – Tidak perlu keahlian teknis. Semua tersedia dalam satu dashboard praktis.</li>
+</ul>
+
+Tulis. Terbitkan. Hasilkan uang. <br>
+<a href="reg.php">Daftar segera di KumpulBlogger.com!</a>
+</p>
+
+
+
                                 </div>
                             </div>
                         </div>
@@ -205,8 +239,24 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title"></h5>
-                                    <p class="card-text">......<br><a href="reg.php">Daftar segera di ...!</a></p>
+                                  
+<h5 class="card-title">Bikin Blog di KumpulBlogger – Tulis, Sebarkan, Dapat Gaji!</h5>
+<p class="card-text">
+Saatnya punya blog sendiri di <b>KumpulBlogger.com</b>! Tulis artikel menarik dengan bantuan AI, lalu sebarkan ke teman-teman dan media sosial Anda. Semakin banyak yang membaca dan klik iklan di blog Anda, semakin besar penghasilan yang Anda dapatkan.
+
+✨ <b>Keuntungannya:</b>
+<ul>
+    <li><b>Tulis artikel otomatis</b> dengan bantuan AI, cukup pilih topik dan gaya penulisan.</li>
+    <li><b>Sebarkan link blog Anda</b> ke teman atau komunitas.</li>
+    <li><b>Dapatkan gaji mingguan</b> dari klik iklan yang tampil di blog Anda.</li>
+</ul>
+
+Mudah, gratis, dan bisa jadi sumber penghasilan tambahan! <br>
+<a href="reg.php">Daftar sekarang dan mulai blogging di KumpulBlogger.com!</a>
+</p>
+
+
+                                  
                                 </div>
                             </div>
                         </div>
@@ -298,12 +348,12 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                 <section class="bg-light py-5">
                     <div class="container">
                         <div class="text-center mb-4">
-                            <h2 class="section-heading text-uppercase">Cara Kerja ......com</h2>
+                            <h2 class="section-heading text-uppercase">Cara Kerja KumpulBlogger.com</h2>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <h4 class="text-center">1. Pendaftaran Pengguna Sebagai Publisher dan Advertiser di Satu Dashboard</h4>
-                                <p>.....com memberikan kemudahan bagi pengguna untuk mendaftar sebagai <strong>publisher</strong> (penerbit) atau <strong>advertiser</strong> (pengiklan) dalam satu dashboard yang terintegrasi. Dengan satu akun, pengguna dapat beralih peran sesuai kebutuhan, baik untuk memasang iklan maupun menampilkan iklan di blog atau media online mereka.</p>
+                                <p>KumpulBlogger.com memberikan kemudahan bagi pengguna untuk mendaftar sebagai <strong>publisher</strong> (penerbit) atau <strong>advertiser</strong> (pengiklan) dalam satu dashboard yang terintegrasi. Dengan satu akun, pengguna dapat beralih peran sesuai kebutuhan, baik untuk memasang iklan maupun menampilkan iklan di blog atau media online mereka.</p>
 
                                 <h4 class="text-center">2. Pendaftaran Publisher dan Penentuan Harga Iklan</h4>
                                 <p>Sebagai publisher, pengguna dapat mendaftarkan blog atau media online mereka di KumpulBlogger.com. Dalam proses ini, publisher perlu memberikan informasi penting, seperti:</p>
@@ -314,10 +364,10 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                                     <li><strong>Jenis iklan yang disetujui:</strong> Publisher dapat menentukan jenis iklan apa saja yang dapat tayang di situs mereka, seperti iklan gambar, teks, atau video.</li>
                                     <li><strong>Jenis iklan yang tidak disetujui:</strong> Publisher juga memiliki hak untuk menolak jenis iklan tertentu yang tidak sesuai dengan kebijakan atau audiens blog.</li>
                                 </ul>
-                                <p><a target="_blank" href="https://.....com/data/list_publisher_site.php">Daftar Blog/Website/Media yang sudah bergabung</a></p>
+                                <p><a target="_blank" href="https://kumpulblogger.com/data/list_publisher_site.php">Daftar Blog/Website/Media yang sudah bergabung</a></p>
 
                                 <h4 class="text-center">3. Pendaftaran Advertiser dan Pengaturan Kampanye Iklan</h4>
-                                <p>Sebagai advertiser, pengguna dapat mendaftarkan iklan mereka yang akan didistribusikan ke jaringan .....com. Dalam pengaturan iklan, advertiser diminta untuk mengisi beberapa detail berikut:</p>
+                                <p>Sebagai advertiser, pengguna dapat mendaftarkan iklan mereka yang akan didistribusikan ke jaringan KumpulBlogger.com. Dalam pengaturan iklan, advertiser diminta untuk mengisi beberapa detail berikut:</p>
                                 <ul>
                                     <li><strong>Judul iklan:</strong> Nama atau topik iklan yang akan tayang.</li>
                                     <li><strong>Deskripsi iklan:</strong> Informasi singkat tentang produk atau layanan yang diiklankan.</li>
@@ -325,15 +375,15 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                                     <li><strong>Biaya per klik:</strong> Besaran rupiah yang dialokasikan untuk setiap klik yang didapatkan dari iklan tersebut.</li>
                                 </ul>
 
-                                <p><a target="_blank" href="https://.....com/data/rekap_ads_harian.php">Daftar Iklan yang sedang berjalan</a></p>
+                                <p><a target="_blank" href="https://kumpulblogger.com/data/rekap_ads_harian.php">Daftar Iklan yang sedang berjalan</a></p>
 
-                                <p><a target="_blank" href="https://.....com/preview.php">Contoh Tampilan Iklan</a></p>
+                                <p><a target="_blank" href="https://kumpulblogger.com/preview.php">Contoh Tampilan Iklan</a></p>
 
                                 <h4 class="text-center">4. Kontrol Penuh Terhadap Konten Iklan</h4>
                                 <p>Baik publisher maupun advertiser memiliki kontrol penuh atas iklan yang akan tayang. Publisher dapat menolak atau menyetujui iklan yang akan muncul di situs mereka, sementara advertiser juga dapat memilih situs atau blog tempat iklan mereka akan tampil.</p>
 
                                 <h4 class="text-center">5. Laporan dan Penyesuaian Iklan Secara Real-Time</h4>
-                                <p>.....com menyediakan laporan secara real-time yang mencakup <strong>biaya iklan yang berjalan</strong> dan <strong>jumlah klik yang terjadi</strong>. Fitur ini memungkinkan advertiser untuk:</p>
+                                <p>KumpulBlogger.com menyediakan laporan secara real-time yang mencakup <strong>biaya iklan yang berjalan</strong> dan <strong>jumlah klik yang terjadi</strong>. Fitur ini memungkinkan advertiser untuk:</p>
                                 <ul>
                                     <li>Menyesuaikan harga iklan dengan menaikkan atau menurunkan biaya per klik sesuai situasi pasar.</li>
                                     <li>Melakukan optimalisasi kampanye berdasarkan performa iklan.</li>
@@ -354,23 +404,24 @@ Let’s get started! <br><a href="reg.php">Daftar segera di </a></p>
                                 <p><script type='text/javascript' src='<?php echo $pubs_providers_domain_url ?>//sample_landscape.js.php?maxads=5&column=1'></script></p>
 
                                 <h4 class="text-center">8. Masa Uji Coba dan Rencana Implementasi Desentralisasi</h4>
-                                <p>....<strong>desentralized</strong>, <strong>distributed</strong>, dan <strong>federated</strong> akan diterapkan secara penuh di KumpulBlogger.com, menciptakan ekosistem iklan yang lebih luas dan terdesentralisasi.</p>
+                                <p>Selama 3 bulan pertama, KumpulBlogger.com akan menjalani masa uji coba untuk memastikan efektivitas platform. Setelah masa uji coba selesai, KumpulBlogger.com akan mulai menjalin kemitraan dengan adnetwork lain yang menggunakan platform serupa. Jika kolaborasi ini berhasil, konsep <strong>desentralized</strong>, <strong>distributed</strong>, dan <strong>federated</strong> akan diterapkan secara penuh di KumpulBlogger.com, menciptakan ekosistem iklan yang lebih luas dan terdesentralisasi.</p>
                                 <p>KumpulBlogger.com bertujuan untuk menciptakan lingkungan iklan yang adil dan transparan bagi publisher dan advertiser, sekaligus meningkatkan jangkauan iklan secara lebih luas melalui jaringan yang terintegrasi.</p>
 
                                 <h2 class="section-heading text-uppercase">Iklan youtube video</h2>
 
-                                <p>.....</p>
+                                <p>Iklan youtube video sedang masa development</p>
                                  <div id="youtube-video-container"></div>
 
 
 <?php
 // Define the URL to fetch the JSON data
-$json_url = "https://Youurowndomain.com/JSON/last10publishers.json";
+$json_url = "https://kumpulblogger.com/JSON/last10publishers.json";
 
 // Fetch the JSON data
 $json_data = file_get_contents($json_url);
 
-in$publishers = json_decode($json_data, true);
+// Decode the JSON data into a PHP array
+$publishers = json_decode($json_data, true);
 
 // Check if the data was successfully fetched and decoded
 if (is_array($publishers)) {
@@ -680,7 +731,7 @@ if (is_array($publishers)) {
     <!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p>&copy; 2024 ----- All rights reserved.</p>
+            <p>&copy; 2024 KumpulBlogger. All rights reserved.</p>
             <p><a href="reg.php">Daftar</a> | <a href="login.php">Login</a></p>
         </div>
     </footer>
