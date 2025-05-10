@@ -30,6 +30,9 @@ if ($mysqli->connect_error) {
 
 // Ambil data dari tabel advertisers_ads yang ispublished = 1 dan is_expired = 0
 $sql_ads = "SELECT * FROM advertisers_ads WHERE ispublished = 1 AND is_expired = 0";
+
+ echo "<div class='alert alert-success'>sql_ads: ". $sql_ads."</div>";
+
 $result_ads = $mysqli->query($sql_ads);
 
 if ($result_ads->num_rows > 0) {
@@ -62,7 +65,11 @@ if ($result_ads->num_rows > 0) {
 
         // Ambil data dari tabel publishers_site
         $sql_site = "SELECT * FROM publishers_site";
-        echo "<h4 class='text-primary'>Pasangkan Iklan ini ke publisher</h4>";
+
+ echo "<div class='alert alert-success'>sql_ads: ". $sql_site."</div>";
+
+
+        echo "<h4 class='text-primary'>Pasangkan Iklan ini $landingpage_ads ke publisher</h4>";
         $result_site = $mysqli->query($sql_site);
 
         if ($result_site->num_rows > 0) {
@@ -73,6 +80,8 @@ if ($result_ads->num_rows > 0) {
                 $site_name = $row_site['site_name'];
                 $site_domain = $row_site['site_domain'];
                 $site_desc = $row_site['site_desc'];
+                $site_desc = str_replace("'","",$site_desc);
+
                 $pubs_providers_name = $row_site['providers_name'];
                 $pubs_providers_domain_url = $row_site['providers_domain_url'];
 
@@ -91,7 +100,7 @@ if ($result_ads->num_rows > 0) {
 
                 // Cek apakah budget_per_click_textads memenuhi syarat
                 if ($budget_per_click_textads >= $rate_text_ads_with_markup) {
-                    echo "<div class='alert alert-success'>Oke, Harga Cocok.</div>";
+                    echo "<div class='alert alert-success'>Oke, Harga Cocok. ads: $landingpage_ads untuk site  $site_domain </div>";
 
                     $check_sql = "SELECT * FROM mapping_advertisers_ads_publishers_site 
                                   WHERE local_ads_id = $local_ads_id 
@@ -99,7 +108,7 @@ if ($result_ads->num_rows > 0) {
                                     AND ads_providers_domain_url = '$ads_providers_domain_url'";
                     $check_result = $mysqli->query($check_sql);
 
-                    echo "<div class='alert alert-success'>". $check_sql."</div>";
+                    echo "<div class='alert alert-success'>check_sql: ". $check_sql."</div>";
 
 
                     if ($check_result->num_rows > 0) {
@@ -148,7 +157,7 @@ if ($result_ads->num_rows > 0) {
                         $mysqli->query($insert_sql);
                     }
                 } else {
-                    echo "<div class='alert alert-danger'>Harga Tidak Cocok.</div>";
+                    echo "<div class='alert alert-danger'>Harga Tidak Cocok. ads $landingpage_ads di site $site_domain  </div>";
                 }
             }
         }
@@ -156,6 +165,13 @@ if ($result_ads->num_rows > 0) {
 }
 
 echo "</div></body></html>";
+
+
+
+
+echo "<h2>SELESAI</h2>";
+
+
 // Close connection
 $mysqli->close();
 ?>

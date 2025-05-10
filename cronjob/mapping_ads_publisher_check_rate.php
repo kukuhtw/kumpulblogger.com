@@ -43,6 +43,9 @@ echo "<h2>Tahap 1: Memeriksa Rate Iklan dari Publisher</h2>";
 $sql = "SELECT id, rate_text_ads, publishers_local_id , site_domain FROM publishers_site";
 $result = $mysqli->query($sql);
 
+
+ echo "<div class='alert alert-success'>sql: ". $sql."</div>";
+
 if ($result->num_rows > 0) {
     echo "<table>";
     echo "<tr><th>Website Publisher</th><th>Harga Publisher (Rp)</th><th>Harga Jual + Margin (Rp)</th></tr>";
@@ -59,6 +62,12 @@ if ($result->num_rows > 0) {
                         FROM mapping_advertisers_ads_publishers_site 
                         WHERE publishers_local_id = {$row['publishers_local_id']} 
                         AND site_domain = '$site_domain'";
+
+                         //echo "<br>sql_mapping: ".$sql_mapping;
+
+                        
+ echo "<div class='alert alert-success'>sql_mapping: ". $sql_mapping."</div>";
+
 
         $result_mapping = $mysqli->query($sql_mapping);
         if ($result_mapping->num_rows > 0) {
