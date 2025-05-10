@@ -1,0 +1,28 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /kumpulblogger/blog/
+
+    ### 1. Redirect legacy query → pretty URLs (hanya sekali, berdasarkan THE_REQUEST)
+    # view_article.php?user=xxx&id=32&title=slug → /kumpulblogger/blog/xxx/32/slug
+    RewriteCond %{THE_REQUEST} \s/kumpulblogger/blog/view_article\.php\?user=([^&]+)&id=([0-9]+)&title=([^&\s]+)\s [NC]
+    RewriteRule ^view_article\.php$ %1/%2/%3? [R=301,L]
+
+    # view_all.php?user=xxx&page=2 → /kumpulblogger/blog/xxx/page/2
+    RewriteCond %{THE_REQUEST} \s/kumpulblogger/blog/view_all\.php\?user=([^&]+)&page=([0-9]+)\s [NC]
+    RewriteRule ^view_all\.php$ %1/page/%2? [R=301,L]
+
+    # view_all.php?user=xxx → /kumpulblogger/blog/xxx
+    RewriteCond %{THE_REQUEST} \s/kumpulblogger/blog/view_all\.php\?user=([^&\s]+)\s [NC]
+    RewriteRule ^view_all\.php$ %1? [R=301,L]
+
+
+    ### 2. Internally rewrite pretty URLs → PHP script (tanpa redirect)
+    # Artikel detail: /kumpulblogger/blog/username/32/slug
+    RewriteRule ^([^/]+)/([0-9]+)/([^/]+)/?$ view_article.php?user=$1&id=$2&title=$3 [L,QSA]
+
+    # Pagination: /kumpulblogger/blog/username/page/2
+    RewriteRule ^([^/]+)/page/([0-9]+)/?$ view_all.php?user=$1&page=$2 [L,QSA]
+
+    # Halaman pertama / daftar: /kumpulblogger/blog/username
+    RewriteRule ^([^/]+)/?$ view_all.php?user=$1 [L,QSA]
+</IfModule>
