@@ -62,4 +62,13 @@ Dengan menggabungkan pendekatan open-source dengan model bisnis yang tepat, Kump
 8.  Kini anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC
 9.  buat halaman depan sesuai keinginan anda. berikan link pendaftaran ke reg.php , login user di login.php 
    
-   
+   📣 Stay Connected
+📖 Article: KumpulBlogger.com Dirilis sebagai Open Source
+
+🌐 Website: https://kumpulblogger.com
+
+📧 Contact: kukuhtw@gmail.com
+
+📱 WhatsApp: https://wa.me/628129893706
+
+
