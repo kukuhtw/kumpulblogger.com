@@ -38,80 +38,18 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List Setting Rule Clicks</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <?php include("style_toogle.php") ?>
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-            position: relative;
-            min-height: 100vh;
-        }
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .sidebar {
-            background-color: #343a40;
-            padding: 20px;
-            height: 100vh;
-            position: fixed;
-            color: white;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .sidebar ul li a:hover {
-            background-color: #575757;
-        }
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .card {
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #28a745;
-            color: white;
-            font-size: 24px;
-            text-align: center;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        .pagination {
-            margin-top: 20px;
-            justify-content: center;
-        }
-    </style>
+    <?php include("style_toogle.php"); ?>
 </head>
 <body>
 
+<div class="admin-navbar">
+    <a class="brand" href="dashboard_admin.php">Admin Dashboard</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+</div>
+
 <?php include("sidebar_menu.php"); ?>
 
-<div class="container" id="mainContent">
+<main class="admin-main" id="mainContent">
     <div class="card">
         <div class="card-header">
             List of Setting Rules
@@ -121,7 +59,7 @@ if (!$result) {
             // Check if there are any records
             if ($result->num_rows > 0) {
                 // Display the records in a table format using Bootstrap table
-                echo '<table class="table table-striped table-bordered">';
+                echo '<div class="table-responsive"><table class="table table-striped table-bordered">';
                 echo "<thead><tr><th>ID</th><th>Rule Name</th><th>Threshold</th><th>Description</th></tr></thead>";
                 echo "<tbody>";
 
@@ -135,7 +73,7 @@ if (!$result) {
                     echo "</tr>";
                 }
 
-                echo "</tbody></table>";
+                echo "</tbody></table></div>";
             } else {
                 // If no records are found
                 echo "<div class='alert alert-warning'>No setting rules found.</div>";
@@ -143,7 +81,7 @@ if (!$result) {
             ?>
         </div>
     </div>
-</div>
+</main>
 
 <!-- Modal for Editing Threshold -->
 <div class="modal fade" id="editThresholdModal" tabindex="-1" aria-labelledby="editThresholdLabel" aria-hidden="true">
@@ -188,10 +126,11 @@ if (!$result) {
 </script>
 
 <?php include("js_toogle.php"); ?>
-</body>
-</html>
 
 <?php
-// Close connection
 $mysqli->close();
+include("footer.php");
 ?>
+
+</body>
+</html>

@@ -16,10 +16,11 @@ if (!isset($_SESSION['loggedin'])) {
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
 
-// Display the sync message if it exists
+$sync_message = '';
+// Read the sync message now and render it later inside the page layout.
 if (isset($_SESSION['sync_message'])) {
-    echo "<div class='alert alert-info'>" . htmlspecialchars($_SESSION['sync_message']) . "</div>";
-    unset($_SESSION['sync_message']);  // Clear the message after displaying it
+    $sync_message = $_SESSION['sync_message'];
+    unset($_SESSION['sync_message']);
 }
 
 
@@ -115,103 +116,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Account Bank Data Provider Adnetwork</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <?php include("style_toogle.php") ?>
-    <style>
-        body {
-            background-color: #f8f9fa;
-            position: relative;
-            min-height: 100vh;
-        }
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .sidebar {
-            background-color: #343a40;
-            padding: 20px;
-            height: 100vh;
-            position: fixed;
-            color: white;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .sidebar ul li a:hover {
-            background-color: #575757;
-        }
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .card {
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #28a745;
-            color: white;
-            font-size: 24px;
-            text-align: center;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        .table {
-            margin-top: 20px;
-        }
-        .pagination {
-            margin-top: 20px;
-            justify-content: center;
-        }
-    </style>
+    <?php include("style_toogle.php"); ?>
 </head>
 <body>
 
+<div class="admin-navbar">
+    <a class="brand" href="dashboard_admin.php">Admin Dashboard</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+</div>
+
 <?php include("sidebar_menu.php"); ?>
 
-<div class="container" id="mainContent">    
-    <div class="card">
-        <div class="card-header">Your Account Bank Data Provider Adnetwork</div>
+<main class="admin-main" id="mainContent">
+    <div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            <h1 class="page-title">Provider Bank Account</h1>
+            <p class="page-subtitle">Kelola rekening penerima pembayaran dan sinkronkan datanya ke provider partner.</p>
+        </div>
+
+        <?php if ($sync_message !== ''): ?>
+            <div class="alert alert-info"><?php echo htmlspecialchars($sync_message); ?></div>
+        <?php endif; ?>
+
+        <div class="card">
+        <div class="card-header">Account Details</div>
         <div class="card-body">
             <!-- HTML Form -->
             <form method="POST" action="">
                 <?php echo admin_csrf_field(); ?>
                 <div class="mb-3">
                     <label for="whatsapp" class="form-label">WhatsApp</label>
-                    <input type="text" class="form-control" name="whatsapp" value="<?php echo htmlspecialchars($whatsapp); ?>" required>
+                    <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="<?php echo htmlspecialchars($whatsapp); ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="form-control" name="account_name" value="<?php echo htmlspecialchars($account_name); ?>" required>
+                    <input type="text" class="form-control" id="account_name" name="account_name" value="<?php echo htmlspecialchars($account_name); ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="account_bank" class="form-label">Account Bank</label>
-                    <select class="form-select" name="account_bank" required>
+                    <select class="form-control" id="account_bank" name="account_bank" required>
                         <option value="BCA" <?php if ($account_bank == 'BCA') echo 'selected'; ?>>BCA</option>
                         <option value="Mandiri" <?php if ($account_bank == 'Mandiri') echo 'selected'; ?>>Mandiri</option>
                         <option value="CIMB Niaga" <?php if ($account_bank == 'CIMB Niaga') echo 'selected'; ?>>CIMB Niaga</option>
@@ -226,29 +172,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="mb-3">
                     <label for="account_number" class="form-label">Account Number</label>
-                    <input type="text" class="form-control" name="account_number" value="<?php echo htmlspecialchars($account_number); ?>" required>
+                    <input type="text" class="form-control" id="account_number" name="account_number" value="<?php echo htmlspecialchars($account_number); ?>" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Save Account Details</button>
             </form>
 
-            <form method="POST" action="sync_databank.php">
+            <hr class="my-4">
+            <form method="POST" action="sync_databank.php" class="mb-0">
                 <?php echo admin_csrf_field(); ?>
-            <button type="submit" class="btn btn-primary">Sync to Provider Partner</button>
+                <button type="submit" class="btn btn-outline-secondary">Sync to Provider Partner</button>
             </form>
-
-
         </div>
     </div>
-</div>
+    </div>
+    </div>
+</main>
 
 <?php
 // Close the database connection
 $mysqli->close();
-include("footer.php");
 ?>
 
 <?php include("js_toogle.php"); ?>
+
+<?php include("footer.php"); ?>
 
 </body>
 </html>

@@ -48,86 +48,20 @@ $total_pages = ceil($total_records / $limit); // Calculate total number of pages
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Partner Pubs List</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <?php include("style_toogle.php") ?>
-    <style>
-        body {
-            background-color: #f8f9fa;
-            position: relative;
-            min-height: 100vh;
-        }
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .sidebar {
-            background-color: #343a40;
-            padding: 20px;
-            height: 100vh;
-            position: fixed;
-            color: white;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .sidebar ul li a:hover {
-            background-color: #575757;
-        }
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .card {
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #28a745;
-            color: white;
-            font-size: 24px;
-            text-align: center;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        .table {
-            margin-top: 20px;
-        }
-        .pagination {
-            margin-top: 20px;
-            justify-content: center;
-        }
-    </style>
+    <?php include("style_toogle.php"); ?>
 </head>
 <body>
 
+<div class="admin-navbar">
+    <a class="brand" href="dashboard_admin.php">Admin Dashboard</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+</div>
+
 <?php include("sidebar_menu.php"); ?>
-<div class="container" id="mainContent"> 
+<main class="admin-main" id="mainContent">
     <h2>Payment Records</h2>
-    <table class="table table-bordered table-hover">
+    <div class="table-responsive">
+    <table class="table table-bordered table-hover mt-3">
         <thead class="table-light">
             <tr>
                 <th>ID</th>
@@ -155,6 +89,7 @@ $total_pages = ceil($total_records / $limit); // Calculate total number of pages
         <?php endif; ?>
         </tbody>
     </table>
+    </div>
 
     <!-- Pagination -->
     <nav>
@@ -168,17 +103,16 @@ $total_pages = ceil($total_records / $limit); // Calculate total number of pages
             <?php endif; ?>
         </ul>
     </nav>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</main>
+
+<?php
+$stmt->close();
+$mysqli->close();
+?>
 
 <?php include("js_toogle.php"); ?>
 
+<?php include("footer.php"); ?>
+
 </body>
 </html>
-
-<?php
-// Close the database connection
-$mysqli->close();
-$stmt->close();
-include("footer.php");
-?>

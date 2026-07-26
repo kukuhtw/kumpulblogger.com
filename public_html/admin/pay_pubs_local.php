@@ -98,77 +98,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Entry Form</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">  <?php include("style_toogle.php") ?>
+    <?php include("style_toogle.php"); ?>
     <style>
-        body {
-            background-color: #f8f9fa;
-            position: relative;
-            min-height: 100vh;
-        }
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .sidebar {
-            background-color: #343a40;
-            padding: 20px;
-            height: 100vh;
-            position: fixed;
-            color: white;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .sidebar ul li a:hover {
-            background-color: #575757;
-        }
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .card {
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #28a745;
-            color: white;
-            font-size: 24px;
-            text-align: center;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        .table {
-            margin-top: 20px;
-        }
-        .pagination {
-            margin-top: 20px;
-            justify-content: center;
-        }
         .email-autocomplete { position: relative; }
         .email-suggestions {
             position: absolute;
@@ -185,10 +116,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
+<div class="admin-navbar">
+    <a class="brand" href="dashboard_admin.php">Admin Dashboard</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+</div>
+
 <?php include("sidebar_menu.php"); ?>
 
-<div class="container" id="mainContent">    
-    <div class="content">
+<main class="admin-main" id="mainContent">
+    <div class="card">
+        <div class="card-body">
 
     <h2>Enter Payment Publisher Local</h2>
     <?php if ($payment_error !== ''): ?>
@@ -221,14 +158,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-</div>
+        </form>
+        </div>
+    </div>
+</main>
 
 <?php
 // Close the database connection
 $mysqli->close();
-include("footer.php");
-
 ?>
 
 <?php include("js_toogle.php"); ?>
@@ -311,6 +248,8 @@ include("footer.php");
     });
 })();
 </script>
+
+<?php include("footer.php"); ?>
 
 </body>
 </html>
