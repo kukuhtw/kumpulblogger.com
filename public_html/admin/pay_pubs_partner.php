@@ -29,6 +29,10 @@ $payment_by  = $this_providers_domain_url;
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
+
     // Get the form input
     $email_pubs = $_POST['email_pubs'];
     $nominal = $_POST['nominal'];
@@ -82,6 +86,7 @@ $result = $mysqli->query($sql);
 <div class="container" id="mainContent"> 
     <h2>Enter Payment Publisher Partner</h2>
     <form method="POST" action="">
+        <?php echo admin_csrf_field(); ?>
 
         <div class="form-group mb-3">
             <label for="email_pubs">Select Email</label>

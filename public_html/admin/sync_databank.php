@@ -6,6 +6,7 @@ session_start();
 // Include your database connection file and functions
 include("../db.php");
 include("../function.php");
+include("function_admin.php");
 
 
 // Check if the user is logged in
@@ -23,6 +24,13 @@ if ($conn->connect_error) {
     error_log("Database connection failed: " . $conn->connect_error);
     exit("Database connection failed.");
 }
+
+// Halaman ini sebelumnya menjalankan seluruh sinkronisasi hanya karena
+// URL-nya diakses, tanpa mengecek method request maupun token CSRF —
+// artinya bisa dipicu lewat GET biasa (mis. <img src="..."> di halaman
+// lain), bukan cuma lewat form POST-nya sendiri. Sekarang disyaratkan
+// POST + token CSRF yang valid.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && admin_csrf_valid()) {
 
 // Retrieve provider details from the database
 $providers = getProvidersDetails($conn);
@@ -115,6 +123,10 @@ foreach ($providers as $provider) {
         $_SESSION['sync_message'] = "Error syncing data for provider: " . $providers_domain_url . ". Message: " . $decodedResponse['message'];
         error_log("Error syncing data: " . $response);
     }
+}
+
+} else {
+    $_SESSION['sync_message'] = "Permintaan tidak valid (bukan POST atau token CSRF tidak cocok). Silakan coba lagi dari halaman rekening bank.";
 }
 
 

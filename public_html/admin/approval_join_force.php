@@ -17,10 +17,16 @@ $loginemail_admin = $_SESSION['loginemail_admin'];
 $change_code_error = '';
 $change_code_success = '';
 
+include("function_admin.php");
+
 // Process the form if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include("../db.php");
     include("../function.php");
+
+    if (!admin_csrf_valid()) {
+        $change_code_error = "Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.";
+    } else {
 
     // Database connection using MySQLi
     $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -141,6 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Close the database connection
         $conn->close();
     }
+    } // end admin_csrf_valid() else
 
 ?>
 
@@ -248,6 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo admin_csrf_field(); ?>
         <label for="providers_code">Providers Code:</label>
         <input type="text" id="providers_code" name="providers_code" required>
         <br><br>

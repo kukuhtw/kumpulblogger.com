@@ -3,7 +3,33 @@
 function_admin.php
 */
 
+// --- Proteksi CSRF untuk form POST di seluruh public_html/admin/ ---
+// Satu token per sesi admin (bukan satu token per fitur) — dibuat sekali saat
+// pertama dibutuhkan, dipakai ulang di semua form selama sesi login berjalan.
 
+// Ambil token CSRF sesi ini, generate kalau belum ada. Panggil ini SETELAH
+// session_start().
+function admin_csrf_token() {
+    if (empty($_SESSION['admin_csrf_token'])) {
+        $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['admin_csrf_token'];
+}
+
+// Cetak <input type="hidden"> siap pakai di dalam <form method="POST">.
+function admin_csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(admin_csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+// Cek token yang dikirim di $_POST['csrf_token'] cocok dengan token sesi.
+// Panggil di awal blok penanganan POST, sebelum melakukan perubahan apa pun.
+function admin_csrf_valid() {
+    if (empty($_SESSION['admin_csrf_token'])) {
+        return false;
+    }
+    $submitted = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
+    return hash_equals($_SESSION['admin_csrf_token'], $submitted);
+}
 
 // Fungsi untuk ambil user pemilik iklan
 function getuser($mysqli, $user_id) {

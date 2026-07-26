@@ -14,6 +14,8 @@ if (!isset($_SESSION['loggedin'])) {
 
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
+include("function_admin.php");
+
 $change_code_error = '';
 $change_code_success = '';
 
@@ -32,7 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_providers_code = $_POST['providers_code'];
 
     // Validate input
-    if (empty($new_providers_code)) {
+    if (!admin_csrf_valid()) {
+        $change_code_error = 'Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.';
+    } elseif (empty($new_providers_code)) {
         $change_code_error = 'Provider code cannot be empty.';
     } else {
         // Update the providers_code in the database where id=1
@@ -168,6 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php endif; ?>
 
                         <form action="change_code_provider.php" method="POST">
+                            <?php echo admin_csrf_field(); ?>
                             <div class="form-group">
                                 <label for="providers_code">New Provider Code:</label>
                                 <input type="text" class="form-control" id="providers_code" name="providers_code" required>

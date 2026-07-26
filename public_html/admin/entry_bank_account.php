@@ -84,6 +84,10 @@ function insertOrUpdateContactPerson($mysqli, $id, $providers_domain_url, $whats
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
+
     // Get the form input
     $whatsapp = $_POST['whatsapp'];
     $account_name = $_POST['account_name'];
@@ -194,6 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="card-body">
             <!-- HTML Form -->
             <form method="POST" action="">
+                <?php echo admin_csrf_field(); ?>
                 <div class="mb-3">
                     <label for="whatsapp" class="form-label">WhatsApp</label>
                     <input type="text" class="form-control" name="whatsapp" value="<?php echo htmlspecialchars($whatsapp); ?>" required>
@@ -228,7 +233,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <form method="POST" action="sync_databank.php">
-
+                <?php echo admin_csrf_field(); ?>
             <button type="submit" class="btn btn-primary">Sync to Provider Partner</button>
             </form>
 

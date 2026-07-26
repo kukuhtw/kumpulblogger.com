@@ -40,7 +40,7 @@ Karakteristik umum:
 | | `manage_ads_partner.php` | Daftar `advertisers_ads_partners` (read-only, tanpa form edit) | ✅ |
 | | `manage_publishers.php` | Daftar `publishers_site` + pemilik, rate, revenue | ✅ |
 | | `manage_users.php` | Daftar `msusers` + ringkasan revenue paid/unpaid | ✅ |
-| | `manage_writer_quotas.php` | CRUD `publisher_quota` (kuota artikel AI) — **satu-satunya halaman dengan CSRF token** | ✅ |
+| | `manage_writer_quotas.php` | CRUD `publisher_quota` (kuota artikel AI) — token CSRF-nya sudah dimigrasi ke helper bersama | ✅ |
 | **D. Pembayaran Publisher** | `pay_pubs_local.php` | Catat `payment_local_pubs` (publisher lokal) | ✅ |
 | | `pay_pubs_partner.php` | Catat `payment_partner_pubs` + recalc `publisher_partner.revenue_paid/unpaid` | ✅ |
 | | `fetch_bank_details.php` | AJAX ambil rekening publisher by email — guard sesi sudah ditambahkan (lihat §5 #2) | ✅ |
@@ -117,7 +117,7 @@ flowchart TD
 ### Modul A — Auth, Layout & Shared Includes
 
 #### `login.php`
-Form login admin. Verifikasi `password_verify()` terhadap `msadmin.passwords`, set `$_SESSION['loggedin']`/`$_SESSION['loginemail_admin']`, update `last_login`. Tidak ada rate-limit/lockout percobaan gagal (beda dari `msusers` yang di skema punya kolom `number_last_login_attempt` — `msadmin` juga punya kolom itu tapi `login.php` tidak memakainya sama sekali).
+Form login admin. Verifikasi `password_verify()` terhadap `msadmin.passwords`, set `$_SESSION['loggedin']`/`$_SESSION['loginemail_admin']`, update `last_login`. **✅ Sudah diperbaiki** — sebelumnya tidak ada rate-limit/lockout percobaan gagal sama sekali (lihat §5 #8). Sekarang: tiap login gagal menaikkan `msadmin.number_last_login_attempt` dan mencatat `last_login_attempt`; setelah 5 kali gagal berturut-turut, akun dikunci sementara selama 15 menit (dihitung dari `last_login_attempt`, bukan flag terpisah — begitu jendela 15 menit lewat, satu percobaan baru diperbolehkan lagi). Login sukses me-reset `number_last_login_attempt` ke 0. Pesan ke user menampilkan sisa percobaan sebelum terkunci / sisa waktu kalau sedang terkunci.
 
 #### `logout.php`
 `session_unset()` + `session_destroy()`, redirect ke login. Sederhana, tidak ada catatan.
@@ -162,10 +162,11 @@ Tabel `providers_partners` dengan pagination. Menghitung ulang `partner_revenue_
 Update `providers.providers_code` (kode yang dibagikan ke calon partner). Sederhana, prepared statement, ada guard.
 
 #### `entry_bank_account.php`
-Form isi kontak/rekening bank provider sendiri (`providers_contact_person`, `id=1`, upsert manual via `insertOrUpdateContactPerson()`). Validasi bank terhadap whitelist array Indonesia (BCA, Mandiri, dst). Tombol kedua submit ke `sync_databank.php`.
+Form isi kontak/rekening bank provider sendiri (`providers_contact_person`, `id=1`, upsert manual via `insertOrUpdateContactPerson()`). Validasi bank terhadap whitelist array Indonesia (BCA, Mandiri, dst). Tombol kedua submit ke `sync_databank.php`. Kedua form sudah dilengkapi token CSRF.
 
 #### `sync_databank.php`
 Loop semua `providers_partners WHERE isapproved=1`, `POST` rekening di atas ke `{api_endpoint}/pushInfoAccountBankProvider/index.php` tiap partner (header `public_key`/`secret_key`) — cocok dengan endpoint yang sudah didokumentasikan di [API_ENDPOINTS.md](./API_ENDPOINTS.md). Hasil sinkron disimpan ke `$_SESSION['sync_message']` dan ditampilkan di halaman redirect.
+**✅ Sudah diperbaiki**: ditemukan saat rollout CSRF — file ini sebelumnya menjalankan seluruh sinkronisasi (loop + cURL ke semua partner) **tanpa mengecek method request sama sekali**, jadi bisa dipicu lewat GET biasa (mis. `<img src="...">` di halaman lain) meski form pemicunya sendiri `method="POST"`. Sekarang disyaratkan `$_SERVER['REQUEST_METHOD'] === 'POST' && admin_csrf_valid()` sebelum loop dijalankan.
 
 #### `pay_provider_partner.php`
 *(Komentar baris 3: "jangan dihilangkan" — catatan pengingat dari developer, kemungkinan file ini pernah nyaris terhapus.)* Catat `payment_partner_providers`, lalu SUM ulang seluruh `nominal` untuk pasangan `email_provider`+`partner_provider` dan UPDATE `providers_partners.partner_revenue_paid/unpaid`. Ada kode mati: `$sql_inserts_p` dibangun lewat `str_replace` untuk preview SQL tapi `echo`-nya dikomentari — pola yang sama dengan kode mati yang ditemukan di audit cronjob sebelumnya.
@@ -191,7 +192,7 @@ Daftar `publishers_site` JOIN `msusers` (pemilik), bisa dicari (nama/domain/prov
 Daftar `msusers` dengan ringkasan `total_paid`/`total_unpaid`/`total_revenue` (dihitung di SQL via `COALESCE(...)+...`, bukan kolom tersimpan). Link "Detail" ke `rekap_user_local_click.php?user_id=`.
 
 #### `manage_writer_quotas.php`
-CRUD `publisher_quota`. **Satu-satunya halaman di seluruh folder admin yang punya token CSRF** (`$_SESSION['writer_quota_csrf']` + `hash_equals()`) — pola yang sebetulnya seharusnya ada di semua form POST admin lain, tapi di sini saja.
+CRUD `publisher_quota`. Sebelumnya satu-satunya halaman dengan token CSRF sendiri (`$_SESSION['writer_quota_csrf']`); sekarang dimigrasi memakai helper bersama (`admin_csrf_token()`/`admin_csrf_field()`/`admin_csrf_valid()` di `function_admin.php`) yang sama seperti seluruh halaman admin lain — lihat §5 #10.
 
 ### Modul D — Pembayaran Publisher
 
@@ -247,6 +248,6 @@ Terima `POST rule_id` + `threshold`, langsung `UPDATE setting_rule_clicks SET th
 5. **Side effect tulis-ke-DB dari sekadar membuka halaman list.** `manage_ads.php` memanggil `updateLocalSpending()`/`updateGlobalSpending()`/`updateCurrentClick_local()` untuk *setiap baris* yang dirender; `manage_partner.php` dan `list_owner_pubs_partner_revenue.php` melakukan hal serupa untuk `partner_revenue_unpaid`/`revenue_paid_unpaid`. Efeknya duplikatif dengan `cronjob/calculate_budgetspentads*.php` yang sudah menghitung ulang nilai yang sama secara terjadwal — membuka halaman admin yang sama berulang kali berarti query UPDATE yang sama juga berulang kali per baris, murni karena melihat datanya (bukan mengedit).
 6. **Asimetri antar jalur pembayaran**: `pay_pubs_partner.php` dan `pay_provider_partner.php` sama-sama menghitung ulang saldo *paid/unpaid* setelah insert pembayaran, tapi `pay_pubs_local.php` **tidak** — `msusers.local_revenue_paid`/`local_revenue_unpaid` tidak disegarkan otomatis setelah mencatat pembayaran publisher lokal lewat halaman ini.
 7. **Kode mati (dead code)** yang sama polanya dengan temuan di audit cronjob sebelumnya: `pay_provider_partner.php` membangun `$sql_inserts_p` (SQL literal via `str_replace`) yang `echo`-nya sudah dikomentari — dihitung tapi tidak pernah ditampilkan atau dieksekusi.
-8. **`login.php` (admin) tidak memakai kolom lockout yang ada.** Skema `msadmin` punya `number_last_login_attempt` (persis seperti di `msusers`), tapi `login.php` tidak pernah membaca/menambah kolom itu — tidak ada pembatasan percobaan login gagal untuk akun admin.
+8. **✅ Diperbaiki — `login.php` (admin) sebelumnya tidak memakai kolom lockout yang ada.** Skema `msadmin` punya `number_last_login_attempt`/`last_login_attempt` (persis seperti di `msusers`), tapi sebelumnya `login.php` tidak pernah membaca/menambah kolom itu — tidak ada pembatasan percobaan login gagal untuk akun admin. Sekarang sudah diterapkan: kunci sementara 15 menit setelah 5 kali gagal berturut-turut (lihat detail di §4 Modul A). Catatan: `login.php` di root (`msusers`, publisher/advertiser) masih **hanya mencatat** hitungan gagal tanpa pernah menegakkannya (tidak pernah mengecek nilainya sebelum mengizinkan percobaan lagi) — di luar scope perbaikan ini karena yang diminta khusus login admin.
 9. **Pagination tanpa cast eksplisit** di `list_pubs_partner_revenue.php` dan `list_owner_pubs_partner_revenue.php`: `$page = $_GET['page']` tanpa `(int)`, lalu dipakai untuk hitung `$offset` yang diinterpolasi langsung ke `LIMIT $limit OFFSET $offset` (bukan bind parameter seperti file lain di modul yang sama). Karena PHP memaksa konteks aritmatika saat menghitung `$offset`, ini bukan celah SQL-injection yang praktis dieksploitasi, tapi tidak konsisten dengan disiplin prepared-statement di file-file sejenis lainnya.
-10. **Satu-satunya CSRF token di seluruh folder** ada di `manage_writer_quotas.php` — pola yang baik, tapi tidak direplikasi ke form POST lain di admin (mis. `pay_*.php`, `entry_bank_account.php`, `list_setting_list_ip_banned.php`) yang secara desain sama-sama rentan CSRF (form tanpa token, hanya dilindungi cookie sesi).
+10. **✅ Diperbaiki — CSRF token sekarang diterapkan di semua form POST admin.** Sebelumnya hanya `manage_writer_quotas.php` yang punya token CSRF (miliknya sendiri, `$_SESSION['writer_quota_csrf']`), tidak direplikasi ke form POST lain (`pay_*.php`, `entry_bank_account.php`, `list_setting_list_ip_banned.php`/`list_browser_banned.php`, `join_force.php`, `approval_join_force*.php`, `change_password.php`, `change_code_provider.php`, `manage_ads.php`→`update_publish_status.php`, `list_setting_rule_clicks.php`→`update_threshold.php`). Sekarang semuanya memakai satu token per sesi admin lewat helper bersama di `function_admin.php` (`admin_csrf_token()`/`admin_csrf_field()`/`admin_csrf_valid()`), termasuk `manage_writer_quotas.php` yang dimigrasi ke helper yang sama. `login.php` sengaja dikecualikan (form login pra-otentikasi, pertimbangan terpisah). Efek samping dari audit ini: ditemukan `sync_databank.php` tidak pernah mengecek method request sama sekali (lihat §4 Modul B) — juga sudah diperbaiki. Yang **masih belum** diproteksi CSRF: delete via `GET ?delete_id=` di `list_setting_list_ip_banned.php`/`list_browser_banned.php` (lihat temuan terpisah di §4 Modul F) — perlindungan token hanya berlaku untuk aksi lewat body POST.

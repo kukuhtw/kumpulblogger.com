@@ -23,6 +23,10 @@ if ($mysqli->connect_error) {
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
+
     // Get the form input
     $email_pubs = $_POST['email_pubs'];
     $nominal = $_POST['nominal'];
@@ -140,6 +144,7 @@ $result = $mysqli->query($sql);
 
     <h2>Enter Payment Publisher Local</h2>
     <form method="POST" action="">
+        <?php echo admin_csrf_field(); ?>
 
         <div class="form-group mb-3">
             <label for="email_pubs">Select Email</label>

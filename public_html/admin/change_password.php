@@ -14,6 +14,8 @@ if (!isset($_SESSION['loggedin'])) {
 
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
+include("function_admin.php");
+
 $change_password_error = '';
 $change_password_success = '';
 
@@ -35,7 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     // Check if the new passwords match
-    if ($new_password !== $confirm_password) {
+    if (!admin_csrf_valid()) {
+        $change_password_error = 'Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.';
+    } elseif ($new_password !== $confirm_password) {
         $change_password_error = 'New password and confirm password do not match.';
     } else {
         // Get the current password hash from the database
@@ -180,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     <?php endif; ?>
                     <form action="change_password.php" method="POST">
+                        <?php echo admin_csrf_field(); ?>
                         <div class="form-group">
                             <label for="current_password">Current Password:</label>
                             <input type="password" class="form-control" id="current_password" name="current_password" required>

@@ -14,11 +14,15 @@ if (!isset($_SESSION['loggedin'])) {
 
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
+include("function_admin.php");
+
 $change_code_error = '';
 $change_code_success = '';
 
 // Process the form if the request method is POST
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && !admin_csrf_valid()) {
+    $change_code_error = 'Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.';
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include("../db.php");
 
     // Database connection using MySQLi
@@ -31,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get the target partner network domain and providers code from the POST data
     $target_partner_network_domain = $_POST['target_partner_network_domain'];
     $providers_code_target = $_POST['providers_code_target'];
-    
+
     echo "<br>target_partner_network_domain: ".$target_partner_network_domain;
     echo "<br>providers_code_target: ".$providers_code_target;
     
@@ -240,6 +244,7 @@ function sendJoinRequestToPartner($providers_code, $request_from, $signature, $p
                     <?php endif; ?>
 
                     <form action="" method="POST">
+                        <?php echo admin_csrf_field(); ?>
                         <div class="form-group">
                             <label for="target_partner_network_domain">Target Partner Network Domain</label>
                             <input type="text" name="target_partner_network_domain" id="target_partner_network_domain" class="form-control" required>
