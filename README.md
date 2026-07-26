@@ -58,15 +58,14 @@ Dengan menggabungkan pendekatan open-source dengan model bisnis yang tepat, Kump
 
 **CARA PENGGUNAAN**
 
-1. Clone repo ini ke localhost atau hosting anda
-2. edit file db.php , sesuai setting database anda
-3. generate script mysql database, ambil di folder setup_deletethis_after_setup , cari file kumpulblogger_master.sql
-4.  masuk ke folder setup_deletethis_after_setup , setup login admin dengan jalankan file entry_admin_login.php, isi login admin email dan password anda
-5.  masuk ke folder setup_deletethis_after_setup , jalankan entry_your_provider.php , isikan nama brand ppc network anda sendiri dan url domain
-6.  hapus folder dan semua file di folder setup_deletethis_after_setup
-7.  buka dan edit file settings_all.php , isikan SMTP dan recaptcha anda
-8.  Kini anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC
-9.  buat halaman depan sesuai keinginan anda. berikan link pendaftaran ke reg.php , login user di login.php 
+1. Clone repo ini ke localhost atau hosting Anda.
+2. Copy `.env.example` menjadi `.env` (diletakkan satu folder di atas `public_html/`, sejajar dengan folder `sql/` — file ini sudah di-`.gitignore`, jangan di-commit). Isi semua nilainya sesuai kebutuhan Anda: `DB_HOST`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` (koneksi database), serta `SMTP_API_KEY`, `DOMAIN_NAME`, `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET`, dan `PAYMENT_INFO` (instruksi pembayaran ke publisher).
+3. Buat database MySQL/MariaDB sesuai `.env` di atas, lalu import skema dari `sql/kumpulbl_kbc_hanya_structure.sql`.
+4. Masuk ke folder `public_html/setup_deletethis_after_setup/`, jalankan `entry_admin_login.php` lewat browser — isi email dan password admin Anda.
+5. Masih di folder yang sama, jalankan `entry_your_provider.php` — isikan nama brand PPC network Anda sendiri dan URL domainnya.
+6. Hapus folder `setup_deletethis_after_setup/` beserta seluruh isinya — folder ini bisa membuat/mengubah akun admin dan identitas provider tanpa perlu login, jadi jangan dibiarkan menempel di server produksi.
+7. Kini Anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC.
+8. Buat halaman depan sesuai keinginan Anda. Berikan link pendaftaran ke `reg.php`, login user di `login.php`.
    
    📣 Stay Connected
 📖 Article: KumpulBlogger.com Dirilis sebagai Open Source

@@ -21,9 +21,9 @@ Karakteristik yang sama di semua 14 endpoint:
 | `request_join` | Provider **lain** (pemohon) | `providers_code` tujuan cocok | INSERT `providers_request`, `providers_partners` (pending) |
 | `approve_request_partnership` | Sistem provider **ini** (setelah admin approve) | `signature` tersimpan + `providers_code` sendiri | UPDATE `providers_partners` (approve + terbitkan key) |
 | `update_key` | Partner (rotasi kredensial) | `providers_domain_url` + `signature` cocok (WHERE clause) | UPDATE `providers_partners` |
-| `insert_advertiser` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | ⚠️ INSERT `advertisers` (tabel tidak ada di skema saat ini) |
+| `insert_advertiser` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | INSERT `msusers` |
 | `insert_ads` | Front-end provider sendiri | `secret_key` = secret_key sendiri | INSERT/UPDATE `advertisers_ads` |
-| `insert_pubs` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | ⚠️ INSERT `publishers` (tabel tidak ada di skema saat ini) |
+| `insert_pubs` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | INSERT `msusers` |
 | `getOwnerPublisher` | Partner | header `public_key`+`secret_key` | SELECT `publishers_site` → `msusers` |
 | `approval_advertiser_partner` | Partner | header `public_key`+`secret_key` | UPDATE `mapping_advertisers_ads_publishers_site` |
 | `pushInfoAccountBankProvider` | Partner | header `public_key`+`secret_key` | UPSERT `providers_contact_person_sync` |
@@ -85,8 +85,8 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Fungsi**: Mendaftarkan advertiser baru.
 **Body**: `providers_name`, `providers_domain_url`, `advertisers_name`, `advertisers_email`, `advertisers_whatsapp`, `secret_key_provider`.
 **Auth**: `secret_key_provider` == `providers.secret_key` milik provider ini (id=1).
-**Efek**: generate password acak (`sha1(rand+nama+email)` dipotong 8 karakter, di-hash lagi `sha1()` sebelum dikirim ke fungsi — lalu `insertAdvertiser()` mem-`password_hash()`-kannya sekali lagi dengan BCRYPT sebelum INSERT), cek duplikasi by `advertisers_email`, lalu **INSERT ke tabel `advertisers`**.
-**⚠️ Catatan**: tabel `advertisers` **tidak ada** di `sql/kumpulbl_kbc_hanya_structure.sql` — hanya ada `advertisers_ads`/`advertisers_ads_partners`. Endpoint ini kemungkinan sisa kode lama dari sebelum skema advertiser disederhanakan, dan akan gagal (`Undefined table`) kalau dipanggil terhadap skema saat ini.
+**Efek**: generate password acak (`sha1(rand+nama+email)` dipotong 8 karakter, di-hash lagi `sha1()` sebelum dikirim ke fungsi), cek duplikasi email, lalu `insertAdvertiser()` (`function_ads.php`) mem-`password_hash()`-kannya dengan BCRYPT dan **INSERT ke tabel `msusers`** (`loginemail`, `passwords`, `whatsapp`, `realname`, `regdate`).
+**✅ Sudah diperbaiki**: sebelumnya cek duplikasi dan INSERT sama-sama menunjuk tabel `advertisers` yang **tidak ada** di `sql/kumpulbl_kbc_hanya_structure.sql` (sisa kode lama dari sebelum publisher/advertiser disatukan jadi satu tabel akun). Ditelusuri lewat git history: baris INSERT itu tidak berubah sejak commit pertama repo ini, dan tidak ada file lain di seluruh riwayat repo yang pernah mengasumsikan tabel `advertisers` ada — jadi endpoint ini kemungkinan besar tidak pernah benar-benar berfungsi. Sekarang `insertAdvertiser()` di `function_ads.php` retarget ke `msusers`, mengikuti pola yang sama seperti alur signup normal di `reg.php` (lihat `documentation/README.md`: publisher & advertiser berbagi satu tabel akun). `providers_name`/`providers_domain_url` tidak lagi disimpan (tidak ada kolom padanan di `msusers`).
 
 ### `insert_ads/index.php`
 **Fungsi**: Membuat iklan baru untuk seorang advertiser.
@@ -99,8 +99,8 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Fungsi**: Mendaftarkan publisher baru.
 **Body**: `publishers_name`, `publishers_email`, `publishers_whatsapp`, `publishers_bank`, `publishers_account_name`, `publishers_account_number`, `secret_key_provider`.
 **Auth**: `secret_key_provider` == `providers.secret_key` milik provider ini (id=1).
-**Efek**: INSERT langsung (SQL ditulis inline di file ini, bukan lewat fungsi di `function_*.php`) ke **tabel `publishers`**, lalu UPDATE baris itu supaya `publishers_local_id = id` (pola sama seperti `insert_ads`).
-**⚠️ Catatan**: sama seperti `insert_advertiser`, tabel `publishers` **tidak ada** di skema saat ini (yang ada `publishers_site`/`publishers_site_partners`/`publisher_partner`) — endpoint ini kemungkinan besar tidak berfungsi terhadap database sekarang.
+**Efek**: cek duplikasi `loginemail`, generate password acak (sama pola seperti `insert_advertiser`), lalu **INSERT ke tabel `msusers`** (`loginemail`, `passwords` di-`password_hash()` BCRYPT, `whatsapp`, `realname`, `bank`, `account_name`, `account_number`, `regdate`). Response menyertakan `id` (auto-increment `msusers.id`).
+**✅ Sudah diperbaiki**: sebelumnya SQL (ditulis inline di file ini, bukan lewat fungsi di `function_*.php`) menunjuk **tabel `publishers`** yang tidak ada di skema (yang ada `publishers_site`/`publishers_site_partners`/`publisher_partner` — tabel *situs*, bukan tabel *akun*), lalu UPDATE baris itu supaya `publishers_local_id = id` — pola self-reference yang juga tidak relevan untuk `msusers`. Password sebelumnya cuma di-`sha1()` (tidak akan pernah cocok dengan `password_verify()` di `login.php`), dan **tidak ada pengecekan email duplikat sama sekali** (`msusers.loginemail` tidak unique di level database) — keduanya sudah diperbaiki sekaligus.
 
 ### `getOwnerPublisher/index.php`
 **Fungsi**: Partner meminta info kontak pemilik sebuah situs publisher lokal (untuk keperluan pembayaran lintas-jaringan).
@@ -202,7 +202,7 @@ sequenceDiagram
 
 Ringkasan hal-hal yang ditemukan saat menyusun dokumentasi ini — bukan perbaikan, murni observasi supaya diketahui:
 
-1. **Dua endpoint menunjuk tabel yang tidak ada di skema saat ini**: `insert_advertiser` → tabel `advertisers`, `insert_pubs` → tabel `publishers`. Keduanya tidak ada di `sql/kumpulbl_kbc_hanya_structure.sql`.
+1. **✅ Diperbaiki** — dua endpoint sebelumnya menunjuk tabel yang tidak ada di skema: `insert_advertiser` → tabel `advertisers`, `insert_pubs` → tabel `publishers`. Ditelusuri lewat git history: kedua INSERT itu tidak berubah sejak commit pertama repo ini dan tidak ada file lain di seluruh riwayat repo yang pernah mengasumsikan kedua tabel itu ada — jadi bukan regresi skema, melainkan kode yang sejak awal tidak pernah cocok dengan skema project ini (kemungkinan sisa dari skema lama sebelum publisher/advertiser disatukan jadi satu tabel akun). Keduanya sudah di-retarget ke `msusers`, tabel akun yang benar-benar dipakai (`reg.php`, `login.php`) — lihat detail di `insert_advertiser`/`insert_pubs` §4.
 2. **`getinfoPaymentPubsPartner` tidak memvalidasi `public_key`/`secret_key`** sama sekali, berbeda dari endpoint sejenis lainnya.
 3. **✅ Diperbaiki** — tiga tempat sebelumnya menghitung nilai bergaya "validasi" tapi dilewati oleh kondisi yang selalu benar: `update_key` (`if (1==1)`), `sync_ads` (`if (true)`), dan pengecekan `$exists` yang tidak dipakai di `sync_mapping_advertisers_ads_publishers_site_from_partners`. Setelah dibaca lebih teliti, ketiganya bukan validasi yang "dimatikan" — nilai yang dihitung (`$expected_secret_key`, `$exists`) tidak pernah punya nilai tersimpan/terkirim lain untuk dibandingkan, jadi sejak awal memang kode mati. Sudah dihapus di ketiga file tanpa mengubah perilaku; otorisasi sesungguhnya untuk `update_key` (WHERE clause `signature`) dan `sync_ads` (header `checkProviderCredentials()`) tidak berubah.
 4. **`debug_text()`** (`function.php:367`) menulis isi mentah request (kadang termasuk seluruh JSON payload) ke file `.txt` di direktori kerja endpoint yang memanggilnya (mis. `API/insert_ads/tra46.txt`) — dipakai secara tidak konsisten (aktif di beberapa endpoint, dikomentari di endpoint lain). Karena file ini ditulis langsung di dalam folder `public_html/API/<endpoint>/`, filenya berpotensi bisa diakses langsung lewat URL kalau nama filenya diketahui.
