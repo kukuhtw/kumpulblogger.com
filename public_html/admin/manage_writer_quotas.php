@@ -7,6 +7,7 @@ if (!isset($_SESSION['loggedin'])) {
 }
 
 include('../db.php');
+include('function_admin.php');
 
 $loginemail_admin = $_SESSION['loginemail_admin'];
 $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -16,16 +17,11 @@ if ($conn->connect_error) {
 }
 $conn->set_charset('utf8mb4');
 
-if (empty($_SESSION['writer_quota_csrf'])) {
-    $_SESSION['writer_quota_csrf'] = bin2hex(random_bytes(32));
-}
-
 $message = '';
 $message_type = 'success';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $csrf = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
-    if (!hash_equals($_SESSION['writer_quota_csrf'], $csrf)) {
+    if (!admin_csrf_valid()) {
         $message = 'Permintaan tidak valid. Silakan muat ulang halaman.';
         $message_type = 'danger';
     } else {
@@ -170,7 +166,7 @@ $available = $conn->query("SELECT ps.id AS pub_id, ps.publishers_local_id, ps.si
         <div class="card-body">
             <?php if ($available): ?>
             <form method="post" class="form-row align-items-end">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['writer_quota_csrf'], ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo admin_csrf_field(); ?>
                 <input type="hidden" name="action" value="add">
                 <div class="form-group col-md-5"><label>Blogger</label><select name="pub_id" class="form-control" required><option value="">Pilih blogger</option><?php foreach ($available as $site): ?><option value="<?php echo (int) $site['pub_id']; ?>"><?php echo htmlspecialchars($site['site_name'] . ' — ' . ($site['realname'] ?: $site['loginemail']) . ' (User #' . $site['publishers_local_id'] . ')', ENT_QUOTES, 'UTF-8'); ?></option><?php endforeach; ?></select></div>
                 <div class="form-group col-md-2"><label>Quota gratis</label><input type="number" min="0" name="free_quota_articles" value="5" class="form-control" required></div>
@@ -201,7 +197,7 @@ $available = $conn->query("SELECT ps.id AS pub_id, ps.publishers_local_id, ps.si
                         <td><span class="badge badge-<?php echo $remaining > 0 ? 'success' : 'danger'; ?>"><?php echo $remaining; ?></span></td>
                         <td>
                             <form method="post" class="quota-editor">
-                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['writer_quota_csrf'], ENT_QUOTES, 'UTF-8'); ?>"><input type="hidden" name="action" value="update"><input type="hidden" name="quota_id" value="<?php echo (int)$row['id']; ?>">
+                                <?php echo admin_csrf_field(); ?><input type="hidden" name="action" value="update"><input type="hidden" name="quota_id" value="<?php echo (int)$row['id']; ?>">
                                 <input class="form-control form-control-sm" title="Quota gratis" aria-label="Quota gratis" type="number" min="0" name="free_quota_articles" value="<?php echo (int)$row['free_quota_articles']; ?>" required>
                                 <input class="form-control form-control-sm" title="Quota berbayar" aria-label="Quota berbayar" type="number" min="0" name="paid_quota" value="<?php echo (int)$row['paid_quota']; ?>" required>
                                 <input class="form-control form-control-sm" title="Berlaku sampai" aria-label="Berlaku sampai" type="date" name="quota_valid_until" value="<?php echo htmlspecialchars((string)$row['quota_valid_until'], ENT_QUOTES, 'UTF-8'); ?>">

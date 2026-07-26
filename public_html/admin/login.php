@@ -31,16 +31,36 @@ if ($loginemail_admin && $password) {
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        
-        // Verifikasi password
-        if (password_verify($password, $row['passwords'])) {
+
+        // Pembatasan percobaan login gagal: kunci akun sementara setelah
+        // beberapa kali gagal berturut-turut, memakai kolom yang sudah ada
+        // di skema msadmin (number_last_login_attempt, last_login_attempt)
+        // tapi sebelumnya tidak pernah dibaca/ditulis oleh halaman ini.
+        $max_attempts = 5;
+        $lockout_minutes = 15;
+        $failed_attempts = (int) $row['number_last_login_attempt'];
+        $is_locked = false;
+        $seconds_remaining = 0;
+
+        if ($failed_attempts >= $max_attempts && !empty($row['last_login_attempt'])) {
+            $unlock_time = strtotime($row['last_login_attempt']) + ($lockout_minutes * 60);
+            if ($unlock_time > time()) {
+                $is_locked = true;
+                $seconds_remaining = $unlock_time - time();
+            }
+        }
+
+        if ($is_locked) {
+            $minutes_remaining = (int) ceil($seconds_remaining / 60);
+            echo "Login gagal: terlalu banyak percobaan gagal. Akun dikunci sementara, coba lagi dalam {$minutes_remaining} menit.";
+        } elseif (password_verify($password, $row['passwords'])) {
             // Login berhasil
             session_start();
             $_SESSION['loggedin'] = true;
             $_SESSION['loginemail_admin'] = $loginemail_admin;
 
-            // Update last login
-            $sql = "UPDATE msadmin SET last_login = NOW() WHERE loginemail = ?";
+            // Update last login, reset hitungan percobaan gagal
+            $sql = "UPDATE msadmin SET last_login = NOW(), number_last_login_attempt = 0 WHERE loginemail = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $loginemail_admin);
             $stmt->execute();
@@ -49,7 +69,18 @@ if ($loginemail_admin && $password) {
             header("Location: dashboard_admin.php");
             exit;
         } else {
-            echo "Login gagal: email atau password salah";
+            // Login gagal: catat waktu percobaan & tambah hitungan gagal
+            $sql = "UPDATE msadmin SET last_login_attempt = NOW(), number_last_login_attempt = number_last_login_attempt + 1 WHERE loginemail = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $loginemail_admin);
+            $stmt->execute();
+
+            $attempts_left = $max_attempts - ($failed_attempts + 1);
+            if ($attempts_left <= 0) {
+                echo "Login gagal: email atau password salah. Akun dikunci sementara selama {$lockout_minutes} menit karena terlalu banyak percobaan gagal.";
+            } else {
+                echo "Login gagal: email atau password salah. Sisa percobaan sebelum akun dikunci sementara: {$attempts_left}.";
+            }
         }
     } else {
         echo "Login gagal: email tidak ditemukan";

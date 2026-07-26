@@ -14,6 +14,8 @@ if (!isset($_SESSION['loggedin'])) {
 
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
+include("function_admin.php");
+
 $change_code_error = '';
 $change_code_success = '';
 
@@ -21,6 +23,10 @@ $change_code_success = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include("../db.php");
      include("../function.php");
+
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
 
     // Database connection using MySQLi
     $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -292,6 +298,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_POST['id']) ? intval($
   
       <h2>Approve Partnership Request</h2>
     <form method="POST" action="">
+        <?php echo admin_csrf_field(); ?>
         <label for="providers_code">Providers Code:</label>
         <input type="text" id="providers_code" name="providers_code" required>
         <br><br>

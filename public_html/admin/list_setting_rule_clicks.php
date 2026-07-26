@@ -154,6 +154,7 @@ if (!$result) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="update_threshold.php" method="post">
+                <?php echo admin_csrf_field(); ?>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="threshold" class="form-label">Threshold</label>

@@ -430,6 +430,7 @@ data-budget="<?php echo $row['budget_per_click_textads']; ?>"
       </div>
       <div class="modal-body">
         <form id="editForm" method="POST" action="update_publish_status.php">
+          <?php echo admin_csrf_field(); ?>
           <input type="hidden" name="ad_id" id="editAdId">
           
 

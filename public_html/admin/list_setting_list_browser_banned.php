@@ -67,6 +67,10 @@ $total_pages = ceil($total_rows / $items_per_page);
 
 // Add a new banned browser agent
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_browser_agent'])) {
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
+
     $browser_agent = $mysqli->real_escape_string($_POST['browser_agent']);
     $reason = $mysqli->real_escape_string($_POST['reason']);
     $date_banned = date('Y-m-d H:i:s');
@@ -82,6 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_browser_agent']))
 
 // Edit a banned browser agent
 if (isset($_POST['edit_browser_agent'])) {
+    if (!admin_csrf_valid()) {
+        exit("Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.");
+    }
+
     $id = $_POST['id'];
     $browser_agent = $mysqli->real_escape_string($_POST['browser_agent']);
     $reason = $mysqli->real_escape_string($_POST['reason']);
@@ -209,6 +217,7 @@ if (isset($_GET['delete_id'])) {
 
             <!-- Form to add a new banned browser -->
             <form method="POST" class="mb-4 row g-3">
+                <?php echo admin_csrf_field(); ?>
                 <div class="col-md-5">
                     <input type="text" class="form-control" name="browser_agent" placeholder="Browser Agent" required>
                 </div>
@@ -247,6 +256,7 @@ if (isset($_GET['delete_id'])) {
                                         <div class="d-flex">
                                             <!-- Form to edit a banned browser -->
                                             <form method="POST" class="me-2">
+                                                <?php echo admin_csrf_field(); ?>
                                                 <input type="hidden" name="id" value="<?= $ban['id']; ?>">
                                                 <input type="text" class="form-control mb-2" name="browser_agent" value="<?= htmlspecialchars($ban['browser_agent']); ?>" required>
                                                 <input type="text" class="form-control mb-2" name="reason" value="<?= htmlspecialchars($ban['reason']); ?>" required>

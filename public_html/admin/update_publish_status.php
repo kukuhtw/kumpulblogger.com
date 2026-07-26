@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin'])) {
 }
 
 include("../db.php");
-
+include("function_admin.php");
 
 // Database connection using MySQLi
 $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -18,6 +18,12 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!admin_csrf_valid()) {
+        $_SESSION['error'] = "Permintaan tidak valid (CSRF token tidak cocok). Silakan muat ulang halaman dan coba lagi.";
+        header('Location: manage_ads.php');
+        exit;
+    }
+
     $ad_id = $_POST['ad_id'];
     $ispublished = $_POST['ispublished'];
     $publish_date = $_POST['publish_date'];
