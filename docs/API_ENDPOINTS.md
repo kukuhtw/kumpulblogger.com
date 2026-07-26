@@ -20,7 +20,7 @@ Karakteristik yang sama di semua 14 endpoint:
 |---|---|---|---|
 | `request_join` | Provider **lain** (pemohon) | `providers_code` tujuan cocok | INSERT `providers_request`, `providers_partners` (pending) |
 | `approve_request_partnership` | Sistem provider **ini** (setelah admin approve) | `signature` tersimpan + `providers_code` sendiri | UPDATE `providers_partners` (approve + terbitkan key) |
-| `update_key` | Partner (rotasi kredensial) | ⚠️ dihitung tapi **tidak divalidasi** | UPDATE `providers_partners` |
+| `update_key` | Partner (rotasi kredensial) | `providers_domain_url` + `signature` cocok (WHERE clause) | UPDATE `providers_partners` |
 | `insert_advertiser` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | ⚠️ INSERT `advertisers` (tabel tidak ada di skema saat ini) |
 | `insert_ads` | Front-end provider sendiri | `secret_key` = secret_key sendiri | INSERT/UPDATE `advertisers_ads` |
 | `insert_pubs` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | ⚠️ INSERT `publishers` (tabel tidak ada di skema saat ini) |
@@ -79,7 +79,7 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Fungsi**: Rotasi `public_key`/`secret_key` sebuah partner yang sudah disetujui.
 **Body**: `providers_domain_url`, `signature`, `newPublicKey`, `newSecretKey`.
 **Efek**: `updateKeysByDomainAndSignature()` → UPDATE `providers_partners` berdasarkan kecocokan `providers_domain_url` + `signature`.
-**⚠️ Catatan penting**: kode menghitung `$expected_secret_key = sha1($signature.$providers_domain_url.$newPublicKey.$newSecretKey)` tapi percabangannya `if (1==1) { ...proses... }` — kondisi selalu benar, sehingga **validasi signature saat ini tidak aktif**. Endpoint ini efektif hanya mensyaratkan `providers_domain_url` dan `signature` yang cocok di `WHERE` UPDATE (kalau tidak cocok baris manapun, `rowCount()==0` dan pesannya "No matching provider found").
+**✅ Sudah diperbaiki**: kode sebelumnya menghitung `$expected_secret_key = sha1($signature.$providers_domain_url.$newPublicKey.$newSecretKey)` di dalam percabangan `if (1==1) { ...proses... }` — kondisi selalu benar, dan `$expected_secret_key` tidak pernah dibandingkan ke nilai apa pun (tidak ada nilai tersimpan/terkirim untuk dicocokkan dengannya), jadi bukan validasi yang "dimatikan" melainkan kode mati sejak awal. Sudah dihapus. Otorisasi sesungguhnya tetap sama seperti sebelumnya: `providers_domain_url` dan `signature` yang harus cocok di `WHERE` UPDATE (kalau tidak cocok baris manapun, `rowCount()==0` dan pesannya "No matching provider found").
 
 ### `insert_advertiser/index.php`
 **Fungsi**: Mendaftarkan advertiser baru.
@@ -139,7 +139,7 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Body**: `providers_name`, `providers_domain_url`, `advertisers_id`, `local_ads_id`, `ispublished`, `title_ads`, `description_ads`, `landingpage_ads`, `image_url`, `total_click`, `current_click`, `budget_per_click_textads`, `is_expired`, `expired_date`, `is_paused`, `paused_date`, `budget_allocation`, `current_spending`.
 **Auth**: header `public_key`+`secret_key`.
 **Efek**: `insertOrUpdateAdvertisersAdsPartner()` (didefinisikan di file ini sendiri, bukan di `function_*.php`) — cek existing by `local_ads_id` + `providers_domain_url`, lalu UPDATE atau INSERT ke `advertisers_ads_partners`.
-**Catatan**: `$expected_secret_key` dihitung tapi kondisi eksekusinya `if (true)` — dead code yang sama seperti di `request_join`.
+**✅ Sudah diperbaiki**: `$expected_secret_key` sebelumnya dihitung dari `title_ads+description_ads+landingpage_ads+providers_domain_url` di dalam `if (true)` — sama seperti di `update_key`, tidak ada nilai tersimpan/terkirim untuk dibandingkan (kode mati, bukan validasi yang dimatikan). Sudah dihapus; otentikasi partner untuk endpoint ini tetap sepenuhnya bertumpu pada `checkProviderCredentials()` (header `public_key`/`secret_key`) yang sudah lebih dulu dijalankan sebelum baris ini.
 
 ### `sync_publisher/index.php`
 **Fungsi**: Partner mendorong katalog situs publisher mereka.
@@ -160,7 +160,7 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Body**: `providers_domain_url`, `ad_data: [...]` (array objek mengikuti kolom `mapping_advertisers_ads_publishers_site_from_partners`).
 **Auth**: header `public_key`+`secret_key`.
 **Efek**: untuk tiap item, INSERT ... `ON DUPLICATE KEY UPDATE` ke `mapping_advertisers_ads_publishers_site_from_partners` (id disamakan dengan `local_mapping_id` dari pengirim).
-**Catatan**: variabel `$exists` dihitung (SELECT COUNT by id) tapi hasilnya tidak pernah dipakai untuk bercabang — kondisi berikutnya `if (true)` selalu jalan ke INSERT/UPDATE; logikanya sebenarnya sudah cukup lewat klausa `ON DUPLICATE KEY UPDATE` di SQL-nya sendiri, jadi pengecekan manual ini redundan (bukan bug, tapi kode mati).
+**✅ Sudah diperbaiki**: variabel `$exists` sebelumnya dihitung (SELECT COUNT by id) tapi hasilnya tidak pernah dipakai untuk bercabang — kondisi berikutnya `if (true)` selalu jalan ke INSERT/UPDATE, dan logikanya sebenarnya sudah cukup lewat klausa `ON DUPLICATE KEY UPDATE` di SQL-nya sendiri. Pengecekan `$exists` yang redundan ini sudah dihapus, perilaku tidak berubah.
 
 ## 5. Alur Federasi End-to-End
 
@@ -204,7 +204,7 @@ Ringkasan hal-hal yang ditemukan saat menyusun dokumentasi ini — bukan perbaik
 
 1. **Dua endpoint menunjuk tabel yang tidak ada di skema saat ini**: `insert_advertiser` → tabel `advertisers`, `insert_pubs` → tabel `publishers`. Keduanya tidak ada di `sql/kumpulbl_kbc_hanya_structure.sql`.
 2. **`getinfoPaymentPubsPartner` tidak memvalidasi `public_key`/`secret_key`** sama sekali, berbeda dari endpoint sejenis lainnya.
-3. **Tiga tempat validasi signature/secret-key sudah dihitung tapi dilewati** oleh kondisi yang selalu benar: `update_key` (`if (1==1)`), `sync_ads` (`if (true)`), dan pengecekan `$exists` yang tidak dipakai di `sync_mapping_advertisers_ads_publishers_site_from_partners`.
+3. **✅ Diperbaiki** — tiga tempat sebelumnya menghitung nilai bergaya "validasi" tapi dilewati oleh kondisi yang selalu benar: `update_key` (`if (1==1)`), `sync_ads` (`if (true)`), dan pengecekan `$exists` yang tidak dipakai di `sync_mapping_advertisers_ads_publishers_site_from_partners`. Setelah dibaca lebih teliti, ketiganya bukan validasi yang "dimatikan" — nilai yang dihitung (`$expected_secret_key`, `$exists`) tidak pernah punya nilai tersimpan/terkirim lain untuk dibandingkan, jadi sejak awal memang kode mati. Sudah dihapus di ketiga file tanpa mengubah perilaku; otorisasi sesungguhnya untuk `update_key` (WHERE clause `signature`) dan `sync_ads` (header `checkProviderCredentials()`) tidak berubah.
 4. **`debug_text()`** (`function.php:367`) menulis isi mentah request (kadang termasuk seluruh JSON payload) ke file `.txt` di direktori kerja endpoint yang memanggilnya (mis. `API/insert_ads/tra46.txt`) — dipakai secara tidak konsisten (aktif di beberapa endpoint, dikomentari di endpoint lain). Karena file ini ditulis langsung di dalam folder `public_html/API/<endpoint>/`, filenya berpotensi bisa diakses langsung lewat URL kalau nama filenya diketahui.
 5. Query kedua di `getOwnerPublisher` menyisipkan variabel langsung ke string SQL alih-alih parameter terikat (lihat catatan di bagian endpoint tsb).
 
