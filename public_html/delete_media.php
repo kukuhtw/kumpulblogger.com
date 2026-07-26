@@ -2,6 +2,7 @@
 // delete_media.php
 
 include("db.php");
+include("function.php");
 session_start();
 
 // Check if the user is logged in
@@ -10,9 +11,24 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Get user ID and media ID from session and URL
-$user_id = $_SESSION['user_id'];
-$id = $_GET['id'];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    exit('Method not allowed.');
+}
+
+if (!user_csrf_valid()) {
+    http_response_code(403);
+    exit('Permintaan tidak valid. Silakan muat ulang halaman dan coba lagi.');
+}
+
+// Get user ID and media ID from the authenticated POST request.
+$user_id = (int) $_SESSION['user_id'];
+$id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+if ($id < 1) {
+    http_response_code(400);
+    exit('ID media tidak valid.');
+}
 
 // Create a connection to the MySQL database
 $mysqli = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -27,10 +43,12 @@ $delete_query = "DELETE FROM influencer_media WHERE id = ? AND owner_id = ?";
 $stmt = $mysqli->prepare($delete_query);
 $stmt->bind_param("ii", $id, $user_id);
 
-if ($stmt->execute()) {
+if ($stmt->execute() && $stmt->affected_rows === 1) {
     header("Location: mymedia.php?msg=Media deleted successfully");
+    exit;
 } else {
-    echo "<div class='alert alert-danger'>Error: " . $stmt->error . "</div>";
+    http_response_code(404);
+    exit('Media tidak ditemukan atau bukan milik Anda.');
 }
 
 $stmt->close();

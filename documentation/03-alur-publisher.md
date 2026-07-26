@@ -25,7 +25,7 @@ flowchart TD
 
 - `public_html/reg.php:39-78` — form hanya email + WhatsApp, reCAPTCHA v3 wajib. Password digenerate otomatis dan dikirim via email (`function_send_email.php`). Tidak ada pemilihan "saya publisher/advertiser" — status ini emergent dari tindakan berikutnya.
 - `public_html/login.php:31-71` — autentikasi `password_verify()` terhadap `msusers.passwords`; session `$_SESSION['user_id']`/`$_SESSION['email']` menjadi kunci semua halaman berikut.
-- Lupa password: `forgot_password.php` → `forgot_password_2.php` → `reset_password.php` (alur reset berbasis token `forgot_password_key`).
+- Lupa password: `forgot_password.php` → `reset_password.php` (alur reset berbasis token `forgot_password_key`).
 
 ## 2. Menambahkan situs
 

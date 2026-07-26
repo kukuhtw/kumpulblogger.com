@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 $this_providers_domain_url = get_providers_domain_url_json("providers_data.json", 1);
 
 function generateForgotPasswordKey($length = 50) {
-    return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, $length);
+    return substr(bin2hex(random_bytes(32)), 0, $length);
 }
 
 $send_email = 0;
@@ -35,20 +35,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
 
     if ($response_data->success && $response_data->score >= 0.5) {
-        // Check if the email exists
-        $email = $conn->real_escape_string($email); // Escape email for security
-        $sql = "SELECT * FROM msusers WHERE loginemail = '$email'";
-        $result = $conn->query($sql);
+        // Check if the email exists using a bound parameter.
+        $email_stmt = $conn->prepare("SELECT id FROM msusers WHERE loginemail = ? LIMIT 1");
+        $email_stmt->bind_param("s", $email);
+        $email_stmt->execute();
+        $user = $email_stmt->get_result()->fetch_assoc();
+        $email_stmt->close();
 
-        if ($result->num_rows > 0) {
+        if ($user) {
             $forgot_password_key = generateForgotPasswordKey();
-            $sql_update = "UPDATE msusers SET forgot_password_key='$forgot_password_key' WHERE loginemail='$email'";
-            if ($conn->query($sql_update) === TRUE) {
+            $user_id = (int) $user['id'];
+            $update_stmt = $conn->prepare("UPDATE msusers SET forgot_password_key = ? WHERE id = ?");
+            $update_stmt->bind_param("si", $forgot_password_key, $user_id);
+            if ($update_stmt->execute()) {
                 $send_email = 1;
                 echo "<div class='alert alert-success'>Email untuk mengatur ulang password telah dikirim.</div>";
             } else {
-                echo "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
+                error_log('Failed to store forgot-password token: ' . $update_stmt->error);
+                echo "<div class='alert alert-danger'>Permintaan reset password gagal diproses.</div>";
             }
+            $update_stmt->close();
         } else {
             echo "<div class='alert alert-danger'>Email tidak ditemukan.</div>";
         }

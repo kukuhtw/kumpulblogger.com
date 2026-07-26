@@ -15,6 +15,8 @@ $this_providers_domain_url = get_providers_domain_url_json("providers_data.json"
 
 $prefill_email = '';
 $prefill_password = '';
+$max_login_attempts = 5;
+$lockout_minutes = 15;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['prefill'])) {
     // Datang dari link "Lanjut ke login page" setelah registrasi.
@@ -36,17 +38,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['prefill'])) {
 
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
+        $user_db_id = (int) $row['id'];
+
+        $failed_attempts = (int) $row['number_last_login_attempt'];
+        $is_locked = false;
+        $seconds_remaining = 0;
+
+        if ($failed_attempts >= $max_login_attempts && !empty($row['last_login_attempt'])) {
+            $unlock_time = strtotime($row['last_login_attempt']) + ($lockout_minutes * 60);
+            if ($unlock_time > time()) {
+                $is_locked = true;
+                $seconds_remaining = $unlock_time - time();
+            } else {
+                // A completed lockout starts a fresh attempt window.
+                $failed_attempts = 0;
+                $reset_stmt = $conn->prepare("UPDATE msusers SET number_last_login_attempt = 0 WHERE id = ?");
+                $reset_stmt->bind_param("i", $user_db_id);
+                $reset_stmt->execute();
+                $reset_stmt->close();
+            }
+        }
 
         // Verify the password
-        if (password_verify($password, $row['passwords'])) {
+        if ($is_locked) {
+            $minutes_remaining = (int) ceil($seconds_remaining / 60);
+            $error_message = "Terlalu banyak percobaan login. Akun dikunci sementara; coba lagi dalam {$minutes_remaining} menit.";
+        } elseif (password_verify($password, $row['passwords'])) {
             session_regenerate_id(true); // Prevent session fixation
-            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['user_id'] = $user_db_id;
             $_SESSION['email'] = $row['loginemail'];
 
             // Update last_login and reset number_last_login_attempt to 0
             $last_login = date('Y-m-d H:i:s');
             $update_stmt = $conn->prepare("UPDATE msusers SET last_login = ?, number_last_login_attempt = 0 WHERE id = ?");
-            $update_stmt->bind_param("si", $last_login, $row['id']);
+            $update_stmt->bind_param("si", $last_login, $user_db_id);
             $update_stmt->execute();
             $update_stmt->close();
 
@@ -57,14 +82,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['prefill'])) {
             // If login failed, update last_login_attempt and increment number_last_login_attempt
             $last_login_attempt = date('Y-m-d H:i:s');
             $update_stmt = $conn->prepare("UPDATE msusers SET last_login_attempt = ?, number_last_login_attempt = number_last_login_attempt + 1 WHERE id = ?");
-            $update_stmt->bind_param("si", $last_login_attempt, $row['id']);
+            $update_stmt->bind_param("si", $last_login_attempt, $user_db_id);
             $update_stmt->execute();
             $update_stmt->close();
 
-            $error_message = "Password salah.";
+            $attempts_left = $max_login_attempts - ($failed_attempts + 1);
+            if ($attempts_left <= 0) {
+                $error_message = "Email atau password salah. Akun dikunci sementara selama {$lockout_minutes} menit.";
+            } else {
+                $error_message = "Email atau password salah. Sisa percobaan sebelum akun dikunci: {$attempts_left}.";
+            }
         }
     } else {
-        $error_message = "Email tidak ditemukan.";
+        // Keep the response generic so the login form does not disclose which
+        // email addresses are registered.
+        $error_message = "Email atau password salah.";
     }
 
     $stmt->close();

@@ -89,7 +89,11 @@ $owner_media_desc = str_replace("#","",$owner_media_desc);
                             <td>Rp <?= number_format($harga_jual_partner, 0) ?></td>
                             <td>
                                 <a href="edit_media.php?id=<?= $id ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="delete_media.php?id=<?= $id ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this media?');">Delete</a>
+                                <form action="delete_media.php" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this media?');">
+                                    <?php echo user_csrf_field(); ?>
+                                    <input type="hidden" name="id" value="<?= (int) $id ?>">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         <?php endwhile; ?>

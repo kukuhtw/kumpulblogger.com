@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Get user ID from session
-$user_id = $_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 
 // Create a connection to the MySQL database
 $mysqli = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -29,12 +29,29 @@ $pub_id = isset($_GET['pub_id']) ? intval($_GET['pub_id']) : 0;
 $pubs_providers_domain_url = isset($_GET['pubs_providers_domain_url']) ? $_GET['pubs_providers_domain_url'] : '';
 
 if ($pub_id === 0 || empty($pubs_providers_domain_url)) {
-    die("Invalid parameters.");
+    http_response_code(400);
+    exit("Invalid parameters.");
+}
+
+// Verify the requested publisher site belongs to the logged-in user before
+// reading any click details for it.
+$ownership_stmt = $mysqli->prepare(
+    "SELECT 1 FROM publishers_site
+     WHERE id = ? AND publishers_local_id = ? AND providers_domain_url = ?
+     LIMIT 1"
+);
+$ownership_stmt->bind_param("iis", $pub_id, $user_id, $pubs_providers_domain_url);
+$ownership_stmt->execute();
+$owns_site = $ownership_stmt->get_result()->fetch_row() !== null;
+$ownership_stmt->close();
+if (!$owns_site) {
+    http_response_code(404);
+    exit('Situs publisher tidak ditemukan atau bukan milik Anda.');
 }
 
 // Pagination settings
 $limit = 10; // Number of records per page
-$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$page = max(1, isset($_GET['page']) ? intval($_GET['page']) : 1);
 $offset = ($page - 1) * $limit;
 
 // Prepare the dynamic SQL query
@@ -145,7 +162,7 @@ $result = $stmt->get_result();
             <?php if ($total_pages > 1) : ?>
                 <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
                     <li class="page-item <?php echo ($i === $page) ? 'active' : ''; ?>">
-                        <a class="page-link" href="clicks_publisher_detail.php?pub_id=<?php echo $pub_id; ?>&pubs_providers_domain_url=<?php echo $pubs_providers_domain_url; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="clicks_publisher_detail.php?pub_id=<?php echo $pub_id; ?>&pubs_providers_domain_url=<?php echo urlencode($pubs_providers_domain_url); ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
                     </li>
                 <?php endfor; ?>
             <?php endif; ?>

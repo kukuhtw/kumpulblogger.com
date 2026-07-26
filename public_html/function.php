@@ -8,6 +8,26 @@ include("function_provider.php");
 include("function_ads.php");
 include("function_publisher.php");
 
+function user_csrf_token() {
+    if (empty($_SESSION['user_csrf_token'])) {
+        $_SESSION['user_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['user_csrf_token'];
+}
+
+function user_csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' .
+        htmlspecialchars(user_csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function user_csrf_valid() {
+    if (empty($_SESSION['user_csrf_token'])) {
+        return false;
+    }
+    $submitted = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
+    return hash_equals($_SESSION['user_csrf_token'], $submitted);
+}
+
 // Server-side secret used to sign click-tracking parameters (skey) so it cannot
 // be forged just by reading the publicly visible click_url. Never expose this
 // value to the client; rotate it (and invalidate in-flight click URLs) if leaked.

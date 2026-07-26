@@ -13,6 +13,12 @@ $logger = new Logger("logs/debug.log", "logs/error.log");
 
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['status' => 'error', 'message' => 'Login diperlukan.']);
+    exit;
+}
+
 // Buat koneksi ke DB
 try {
     $db = new Database($config['database']);

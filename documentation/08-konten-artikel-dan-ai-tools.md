@@ -21,8 +21,8 @@ Admin mengelola kuota lewat `admin/manage_writer_quotas.php`.
 1. Publisher membuka `add_article.php` — form berbasis CKEditor, memuat status kuota secara async (`article_api.php` action `check_quota`).
 2. Publisher bisa meminta **ide topik** dari `get_ideas.php:31-46` — mengambil 500 baris acak dari tabel referensi `idea_article` (`topik`, `deskripsi`) sebagai starter/inspirasi, bukan hasil AI real-time.
 3. Publisher submit topik/fokus/nada/bahasa → `article_api.php` action `generate_article` (`handleArticleGeneration()`) memanggil LLM (konfigurasi model & API key diambil dari tabel `llm_settings` — lihat di bawah) untuk menghasilkan `html_content`, disimpan ke tabel `articles` beserta metadata (`tag`, `language`, `tone`, `topic`, `input_token`, `output_token`, `json_response`).
-4. Artikel yang sudah dibuat bisa dikelola di `view_edit_articles.php`, diedit lewat `edit_article.php`/`edit_article2.php` (ada juga versi `_backup`/`_tm`, kemungkinan file eksperimen/lama, **perlu konfirmasi**), dan diterbitkan agar tampil publik di `blog/{username}` (path yang sama yang di-generate saat `add_site_internal.php` membuat situs, lihat `03-alur-publisher.md`).
-5. Gambar artikel diunggah lewat `upload_image_article.php` (dan varian `_tm`).
+4. Artikel yang sudah dibuat bisa dikelola di `view_edit_articles.php`, diedit lewat `edit_article.php`, dan diterbitkan agar tampil publik di `blog/{username}` (path yang sama yang di-generate saat `add_site_internal.php` membuat situs, lihat `03-alur-publisher.md`).
+5. Gambar artikel diunggah lewat `upload_image_article.php`.
 
 ## Konfigurasi LLM — tabel `llm_settings`
 
