@@ -3,7 +3,6 @@
 // view_ads.php
 include("db.php");
 include("function.php");
-include("settings_all.php");
 
 session_start();
 

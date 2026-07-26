@@ -4,7 +4,6 @@ include("db.php");
 include("function.php");
 include("function_send_email.php");
 include("saatini.php");
-include("settings_all.php");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $recaptcha_token = $_POST['recaptcha_token'];
 
     // Verify the reCAPTCHA response
-    $recaptcha_secret = $recaptcha_secret; // Ensure this variable is correctly set in settings_all.php
     $verify_response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$recaptcha_token}");
     $response_data = json_decode($verify_response);
 

@@ -72,6 +72,10 @@
                     echo "<p>Updating records in ad_clicks table:</p>";
                     echo "<ul>";
                     while ($row = $result->fetch_assoc()) {
+                        $title_ads = null;
+                        $site_name = null;
+                        $site_domain = null;
+
                         $ad_click_id = $row['id'];
                         $local_ads_id = $row['local_ads_id'];
                         $pub_id = $row['pub_id'];
@@ -87,7 +91,7 @@
                         $ad_stmt = $pdo->prepare($ad_query);
                         $ad_stmt->execute([$local_ads_id]);
                         $ad_result = $ad_stmt->fetch(PDO::FETCH_ASSOC);
-                        $title_ads = $ad_result['title_ads'];
+                        $title_ads = is_array($ad_result) ? ($ad_result['title_ads'] ?? null) : null;
 
                         // Get site_name and site_domain from publishers_site based on pub_id
                         if ($this_providers_domain_url == $pubs_providers_domain_url) {
@@ -95,8 +99,8 @@
                             $site_stmt = $pdo->prepare($site_query);
                             $site_stmt->execute([$pub_id]);
                             $site_result = $site_stmt->fetch(PDO::FETCH_ASSOC);
-                            $site_name = $site_result['site_name'];
-                            $site_domain = $site_result['site_domain'];
+                            $site_name = is_array($site_result) ? ($site_result['site_name'] ?? null) : null;
+                            $site_domain = is_array($site_result) ? ($site_result['site_domain'] ?? null) : null;
                         }
 
                         // Update ad_clicks table with the fetched title_ads, site_name, and site_domain
@@ -140,6 +144,10 @@
                     echo "<p>Updating records in ad_clicks_partner table:</p>";
                     echo "<ul>";
                     while ($row = $result->fetch_assoc()) {
+                        $title_ads = null;
+                        $site_name = null;
+                        $site_domain = null;
+
                         $ad_click_id = $row['id'];
                         $local_ads_id = $row['local_ads_id'];
                         $pub_id = $row['pub_id'];
@@ -155,7 +163,7 @@
                         $ad_stmt = $pdo->prepare($ad_query);
                         $ad_stmt->execute([$local_ads_id]);
                         $ad_result = $ad_stmt->fetch(PDO::FETCH_ASSOC);
-                        $title_ads = $ad_result['title_ads'];
+                        $title_ads = is_array($ad_result) ? ($ad_result['title_ads'] ?? null) : null;
 
                         // Get site_name and site_domain from publishers_site_partners based on pub_id
                         if ($this_providers_domain_url != $pubs_providers_domain_url) {
@@ -163,8 +171,8 @@
                             $site_stmt = $pdo->prepare($site_query);
                             $site_stmt->execute([$pub_id]);
                             $site_result = $site_stmt->fetch(PDO::FETCH_ASSOC);
-                            $site_name = $site_result['site_name'];
-                            $site_domain = $site_result['site_domain'];
+                            $site_name = is_array($site_result) ? ($site_result['site_name'] ?? null) : null;
+                            $site_domain = is_array($site_result) ? ($site_result['site_domain'] ?? null) : null;
                         }
 
                         // Update ad_clicks_partner table with the fetched title_ads, site_name, and site_domain

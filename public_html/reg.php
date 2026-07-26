@@ -4,7 +4,6 @@ include("db.php");
 include("function.php");
 include("function_send_email.php");
 include("saatini.php");
-include("settings_all.php");
 
 // Database connection using MySQLi
 $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);

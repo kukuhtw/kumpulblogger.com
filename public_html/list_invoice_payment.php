@@ -4,7 +4,6 @@
 // Include database connection
 include("db.php");
 include("function.php");
-include("settings_all.php");
 
 session_start();
 
