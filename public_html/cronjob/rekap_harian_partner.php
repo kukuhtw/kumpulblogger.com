@@ -144,13 +144,14 @@ if (!empty($result)) {
         $ads_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Insert atau update data ke dalam rekap_harian
-        $check_query = "SELECT COUNT(*) FROM rekap_harian WHERE tanggal_klik = ? 
-        AND local_ads_id = ? 
+        $check_query = "SELECT COUNT(*) FROM rekap_harian WHERE tanggal_klik = ?
+        AND local_ads_id = ?
         AND ads_providers_domain_url = ?
+        AND sumber_data = ?
         ";
         $stmt_check = $pdo->prepare($check_query);
-        $stmt_check->execute([$tanggal_dan_hari, $row["local_ads_id"], 
-            $row["ads_providers_domain_url"]
+        $stmt_check->execute([$tanggal_dan_hari, $row["local_ads_id"],
+            $row["ads_providers_domain_url"], $sumber_data
                     ]);
         $exists = $stmt_check->fetchColumn();
             $report ="";
@@ -250,9 +251,11 @@ file_put_contents('../JSON/rekap_harian.json', json_encode($data_rekap, JSON_PRE
 
 // Generate file CSV
 $csv_file = fopen('../rekap_harian.csv', 'w');
-fputcsv($csv_file, array_keys($data_rekap[0])); // Header CSV
-foreach ($data_rekap as $row) {
-    fputcsv($csv_file, $row);
+if (!empty($data_rekap)) {
+    fputcsv($csv_file, array_keys($data_rekap[0])); // Header CSV
+    foreach ($data_rekap as $row) {
+        fputcsv($csv_file, $row);
+    }
 }
 fclose($csv_file);
 

@@ -97,70 +97,86 @@ if ($result_ads->num_rows > 0) {
                 if ($budget_per_click_textads >= $rate_text_ads_with_markup) {
 
                     // Cek apakah data sudah ada berdasarkan local_ads_id dan publishers_local_id
-                    $check_sql = "SELECT * FROM mapping_advertisers_ads_publishers_site 
-                                  WHERE local_ads_id = $local_ads_id 
-                                  AND publishers_site_local_id = $publishers_site_local_id
-                                  AND ads_providers_domain_url = '$ads_providers_domain_url'";
+                    $check_stmt = $mysqli->prepare(
+                        "SELECT id FROM mapping_advertisers_ads_publishers_site
+                         WHERE local_ads_id = ?
+                           AND publishers_site_local_id = ?
+                           AND ads_providers_domain_url = ?"
+                    );
+                    $check_stmt->bind_param("iis", $local_ads_id, $publishers_site_local_id, $ads_providers_domain_url);
+                    $check_stmt->execute();
+                    $check_result = $check_stmt->get_result();
+                    $check_stmt->close();
 
-                    echo "<h3>Query Pengecekan: $check_sql</h3>";
-
-                    $check_result = $mysqli->query($check_sql);
                     $jml_data = $check_result->num_rows;
-                    echo "<h4>Jumlah Data Ditemukan: $jml_data</h4>";
+                    echo "<h4>Jumlah Data Ditemukan: $jml_data (local_ads_id=$local_ads_id, publishers_site_local_id=$publishers_site_local_id, ads_providers_domain_url=$ads_providers_domain_url)</h4>";
 
                     if ($check_result->num_rows > 0) {
                         // Update data jika sudah ada
                         echo "<p><strong>Data ditemukan, memperbarui data...</strong></p>";
 
-                        $update_sql = "UPDATE mapping_advertisers_ads_publishers_site 
-                                       SET rate_text_ads = $rate_text_ads_with_markup, 
-                                           budget_per_click_textads = $budget_per_click_textads, 
-                                           owner_advertisers_id = $advertisers_id, 
-                                           title_ads = '$title_ads', 
-                                           description_ads = '$description_ads', 
-                                           landingpage_ads = '$landingpage_ads', 
-                                           image_url = '$image_url',
-                                           site_name = '$site_name', 
-                                           site_domain = '$site_domain', 
-                                           site_desc = '$site_desc', 
-                                           is_published = 1, 
-                                           is_paused = 0, 
-                                           is_expired = 0, 
-                                           is_approved_by_publisher = 1, 
-                                           is_approved_by_advertiser = 1, 
-                                           approval_date_publisher = NOW(), 
-                                           approval_date_advertiser = NOW(),
-                                           reasons_rejected_by_advertiser = '', 
-                                           reasons_rejected_by_publisher = '', 
-                                           revenue_publishers = $revenue_publishers
-                                       WHERE local_ads_id = $local_ads_id 
-                                       AND publishers_site_local_id = $publishers_site_local_id
-                                       AND ads_providers_domain_url = '$ads_providers_domain_url'";
-
-                        echo "<br><strong>Query Update: </strong>$update_sql";
-                        $mysqli->query($update_sql);
+                        $update_stmt = $mysqli->prepare(
+                            "UPDATE mapping_advertisers_ads_publishers_site
+                             SET rate_text_ads = ?,
+                                 budget_per_click_textads = ?,
+                                 owner_advertisers_id = ?,
+                                 title_ads = ?,
+                                 description_ads = ?,
+                                 landingpage_ads = ?,
+                                 image_url = ?,
+                                 site_name = ?,
+                                 site_domain = ?,
+                                 site_desc = ?,
+                                 is_published = 1,
+                                 is_paused = 0,
+                                 is_expired = 0,
+                                 is_approved_by_publisher = 1,
+                                 is_approved_by_advertiser = 1,
+                                 approval_date_publisher = NOW(),
+                                 approval_date_advertiser = NOW(),
+                                 reasons_rejected_by_advertiser = '',
+                                 reasons_rejected_by_publisher = '',
+                                 revenue_publishers = ?
+                             WHERE local_ads_id = ?
+                               AND publishers_site_local_id = ?
+                               AND ads_providers_domain_url = ?"
+                        );
+                        $update_stmt->bind_param(
+                            "ddisssssssdiis",
+                            $rate_text_ads_with_markup, $budget_per_click_textads, $advertisers_id,
+                            $title_ads, $description_ads, $landingpage_ads, $image_url,
+                            $site_name, $site_domain, $site_desc, $revenue_publishers,
+                            $local_ads_id, $publishers_site_local_id, $ads_providers_domain_url
+                        );
+                        $update_stmt->execute();
+                        $update_stmt->close();
                     } else {
                         // Insert data baru jika belum ada
                         echo "<p><strong>Data tidak ditemukan, memasukkan data baru...</strong></p>";
 
-                        $insert_sql = "INSERT INTO mapping_advertisers_ads_publishers_site 
-                                       (rate_text_ads, budget_per_click_textads, local_ads_id, publishers_site_local_id, 
-                                        pubs_providers_name, pubs_providers_domain_url,
-                                        ads_providers_name, ads_providers_domain_url, owner_advertisers_id, title_ads, 
-                                        description_ads, landingpage_ads, image_url, publishers_local_id, site_name, 
-                                        site_domain, site_desc, is_published, is_paused, is_expired, 
-                                        is_approved_by_publisher, is_approved_by_advertiser, approval_date_publisher, 
-                                        approval_date_advertiser, revenue_publishers) 
-                                       VALUES ($rate_text_ads_with_markup, $budget_per_click_textads, 
-                                               $local_ads_id, $publishers_site_local_id, 
-                                               '$pubs_providers_name', '$pubs_providers_domain_url',
-                                               '$ads_providers_name', '$ads_providers_domain_url', $advertisers_id, 
-                                               '$title_ads', '$description_ads', '$landingpage_ads', '$image_url',
-                                               $publishers_local_id, '$site_name', '$site_domain', '$site_desc', 1, 0, 0, 1, 1, 
-                                               NOW(), NOW(), $revenue_publishers)";
-
-                        echo "<br><strong>Query Insert: </strong>$insert_sql";
-                        $mysqli->query($insert_sql);
+                        $insert_stmt = $mysqli->prepare(
+                            "INSERT INTO mapping_advertisers_ads_publishers_site
+                                (rate_text_ads, budget_per_click_textads, local_ads_id, publishers_site_local_id,
+                                 pubs_providers_name, pubs_providers_domain_url,
+                                 ads_providers_name, ads_providers_domain_url, owner_advertisers_id, title_ads,
+                                 description_ads, landingpage_ads, image_url, publishers_local_id, site_name,
+                                 site_domain, site_desc, is_published, is_paused, is_expired,
+                                 is_approved_by_publisher, is_approved_by_advertiser, approval_date_publisher,
+                                 approval_date_advertiser, revenue_publishers)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, 0, 1, 1, NOW(), NOW(), ?)"
+                        );
+                        $insert_stmt->bind_param(
+                            "ddiissssissssisssd",
+                            $rate_text_ads_with_markup, $budget_per_click_textads,
+                            $local_ads_id, $publishers_site_local_id,
+                            $pubs_providers_name, $pubs_providers_domain_url,
+                            $ads_providers_name, $ads_providers_domain_url, $advertisers_id,
+                            $title_ads, $description_ads, $landingpage_ads, $image_url,
+                            $publishers_local_id, $site_name, $site_domain, $site_desc,
+                            $revenue_publishers
+                        );
+                        $insert_stmt->execute();
+                        $insert_stmt->close();
                     }
                 } else {
                     echo "<p class='highlight'>Budget Per Click dari Advertiser tidak memenuhi syarat.</p>";

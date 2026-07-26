@@ -63,12 +63,15 @@ if ($result->num_rows > 0) {
         echo "<p>Harga Jual dengan Margin: Rp <strong>$rate_with_margin</strong></p>";
 
         // Step 2: Check if there is data in `mapping_advertisers_ads_publishers_site`
-        $sql_mapping = "SELECT id, budget_per_click_textads, title_ads, ads_providers_name
-                        FROM mapping_advertisers_ads_publishers_site 
-                        WHERE publishers_local_id = {$row['publishers_local_id']} 
-                        AND site_domain = '$site_domain'";
-
-        $result_mapping = $mysqli->query($sql_mapping);
+        $mapping_stmt = $mysqli->prepare(
+            "SELECT id, budget_per_click_textads, title_ads, ads_providers_name
+             FROM mapping_advertisers_ads_publishers_site
+             WHERE publishers_local_id = ?
+               AND site_domain = ?"
+        );
+        $mapping_stmt->bind_param("is", $row['publishers_local_id'], $site_domain);
+        $mapping_stmt->execute();
+        $result_mapping = $mapping_stmt->get_result();
 
         if ($result_mapping->num_rows > 0) {
             while ($mapping_row = $result_mapping->fetch_assoc()) {
@@ -83,12 +86,16 @@ if ($result->num_rows > 0) {
                     echo "<p class='highlight'>Tolak Automatis: Harga Tidak Cocok</p>";
 
                     // Step 4: Update `is_approved_by_advertiser` and set rejection reason
-                    $sql_update = "UPDATE mapping_advertisers_ads_publishers_site 
-                                   SET is_approved_by_advertiser = 0,
-                                       reasons_rejected_by_advertiser = 'out of budget',
-                                       rate_text_ads = $rate_with_margin
-                                   WHERE id = {$mapping_row['id']}";
-                    $mysqli->query($sql_update);
+                    $update_stmt = $mysqli->prepare(
+                        "UPDATE mapping_advertisers_ads_publishers_site
+                         SET is_approved_by_advertiser = 0,
+                             reasons_rejected_by_advertiser = 'out of budget',
+                             rate_text_ads = ?
+                         WHERE id = ?"
+                    );
+                    $update_stmt->bind_param("di", $rate_with_margin, $mapping_row['id']);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 } else {
                     echo "<p class='match'>Oke: Harga Cocok</p>";
                 }
@@ -96,6 +103,7 @@ if ($result->num_rows > 0) {
         } else {
             echo "<p>Data mapping tidak ditemukan untuk publisher ini.</p>";
         }
+        $mapping_stmt->close();
         echo "</div>";
     }
 }
@@ -122,11 +130,14 @@ if ($result->num_rows > 0) {
         echo "<p>Budget per Click: Rp <strong>$budget_per_click_textads</strong></p>";
         echo "<p>Landing Page: <a href='$landingpage_ads' target='_blank'>$landingpage_ads</a></p>";
 
-        $sql_mapping = "SELECT id, rate_text_ads, site_domain
-                        FROM mapping_advertisers_ads_publishers_site 
-                        WHERE local_ads_id = $local_ads_id";
-
-        $result_mapping = $mysqli->query($sql_mapping);
+        $mapping_stmt2 = $mysqli->prepare(
+            "SELECT id, rate_text_ads, site_domain
+             FROM mapping_advertisers_ads_publishers_site
+             WHERE local_ads_id = ?"
+        );
+        $mapping_stmt2->bind_param("i", $local_ads_id);
+        $mapping_stmt2->execute();
+        $result_mapping = $mapping_stmt2->get_result();
 
         if ($result_mapping->num_rows > 0) {
             while ($mapping_row = $result_mapping->fetch_assoc()) {
@@ -139,12 +150,16 @@ if ($result->num_rows > 0) {
                     echo "<p class='highlight'>Tolak Automatis: Budget Tidak Memenuhi Syarat</p>";
 
                     // Step 4: Update `is_approved_by_publisher` and set rejection reason
-                    $sql_update = "UPDATE mapping_advertisers_ads_publishers_site 
-                                   SET is_approved_by_publisher = 0,
-                                       reasons_rejected_by_publisher = 'out of budget',
-                                       budget_per_click_textads = $budget_per_click_textads
-                                   WHERE id = {$mapping_row['id']}";
-                    $mysqli->query($sql_update);
+                    $update_stmt = $mysqli->prepare(
+                        "UPDATE mapping_advertisers_ads_publishers_site
+                         SET is_approved_by_publisher = 0,
+                             reasons_rejected_by_publisher = 'out of budget',
+                             budget_per_click_textads = ?
+                         WHERE id = ?"
+                    );
+                    $update_stmt->bind_param("di", $budget_per_click_textads, $mapping_row['id']);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 } else {
                     echo "<p class='match'>Oke: Harga Cocok</p>";
                 }
@@ -152,6 +167,7 @@ if ($result->num_rows > 0) {
         } else {
             echo "<p>Data mapping tidak ditemukan untuk iklan ini.</p>";
         }
+        $mapping_stmt2->close();
         echo "</div>";
     }
 }

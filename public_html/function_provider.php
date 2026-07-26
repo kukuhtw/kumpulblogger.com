@@ -25,46 +25,32 @@ function updateProviderRevenue($pdo) {
             $pub_provider = $revenue['pub_provider'];
             $totalRevenue = $revenue['total_revenue'];
 
-            // Find the corresponding paid amount
+            // Find the paid amount for this specific provider
             $totalPaid = 0;
             foreach ($paidAmounts as $paid) {
-                $partner_providers_domain_url = $paid['partner_providers_domain_url'];
-
-                 //echo "<br>partner_providers_domain_url: ".$partner_providers_domain_url;
-                 //echo "<br>pub_provider: ".$pub_provider;
-
-
-                $totalPaid = $paid['total_paid'];
-                   // echo "<br>totalPaid: ".$totalPaid;
-                
+                if ($paid['partner_providers_domain_url'] === $pub_provider) {
+                    $totalPaid = $paid['total_paid'];
+                    break;
+                }
             }
 
             // Calculate unpaid revenue
             $totalUnpaid = $totalRevenue - $totalPaid;
 
-           // echo "<br>totalUnpaid: ".$totalUnpaid;
-           // echo "<br>totalRevenue: ".$totalRevenue;
-            
-           // echo "<br>totalPaid: ".$totalPaid;
-            
-
             // Step 4: Update the `providers` table
-            $sqlUpdate = "UPDATE providers 
-                          SET my_revenue = :my_revenue, 
-                              my_revenue_paid = :my_revenue_paid, 
+            $sqlUpdate = "UPDATE providers
+                          SET my_revenue = :my_revenue,
+                              my_revenue_paid = :my_revenue_paid,
                               my_revenue_unpaid = :my_revenue_unpaid
                           WHERE providers_domain_url = :providers_domain_url";
-            
-            $sqlUpdate_v = str_replace(":providers_domain_url",$partner_providers_domain_url,$sqlUpdate);
 
             $stmtUpdate = $pdo->prepare($sqlUpdate);
-           //  echo "<br>sqlUpdate_v: ".$sqlUpdate_v;
 
             $stmtUpdate->execute([
                 ':my_revenue' => $totalRevenue,
                 ':my_revenue_paid' => $totalPaid,
                 ':my_revenue_unpaid' => $totalUnpaid,
-                ':providers_domain_url' => $partner_providers_domain_url
+                ':providers_domain_url' => $pub_provider
             ]);
         }
     } catch (PDOException $e) {
