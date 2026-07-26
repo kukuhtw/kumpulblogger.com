@@ -14,40 +14,40 @@ Setiap ad network tetap memiliki:
 
 Setelah hubungan federasi disetujui, sebuah ad network dapat membagikan supply iklan kepada publisher di jaringan partner. Sebaliknya, publisher lokal dapat menerima iklan dari advertiser lokal maupun advertiser yang berasal dari jaringan partner.
 
-Sebagai contoh, Amir mendirikan **AmirAds**, sedangkan Budi, Cica, dan Dudung menjalankan jaringan mereka masing-masing. Melalui federasi, advertiser AmirAds dapat menjangkau publisher BudiAds, CicaAds, dan DudungAds tanpa harus membuat akun secara terpisah pada setiap jaringan.
+Sebagai contoh, Amir mendirikan **AmirAdnetwork**, sedangkan Budi, Cica, dan Dudung menjalankan jaringan mereka masing-masing. Melalui federasi, advertiser AmirAdnetwork dapat menjangkau publisher BudiAdnetwork, CicaAdnetwork, dan DudungAdnetwork tanpa harus membuat akun secara terpisah pada setiap jaringan.
 
 ## 2. Struktur Dasar Federasi
 
 ```mermaid
 flowchart TB
-    subgraph AMIR[AmirAds]
-        AA[Advertiser AmirAds]
-        AP[Publisher AmirAds]
-        AS[Server AmirAds]
+    subgraph AMIR[AmirAdnetwork]
+        AA[Advertiser AmirAdnetwork]
+        AP[Publisher AmirAdnetwork]
+        AS[Server AmirAdnetwork]
         AA -->|Pasang iklan| AS
         AS -->|Iklan lokal| AP
     end
 
-    subgraph BUDI[BudiAds]
-        BA[Advertiser BudiAds]
-        BP[Publisher BudiAds]
-        BS[Server BudiAds]
+    subgraph BUDI[BudiAdnetwork]
+        BA[Advertiser BudiAdnetwork]
+        BP[Publisher BudiAdnetwork]
+        BS[Server BudiAdnetwork]
         BA -->|Pasang iklan| BS
         BS -->|Iklan lokal| BP
     end
 
-    subgraph CICA[CicaAds]
-        CA[Advertiser CicaAds]
-        CP[Publisher CicaAds]
-        CS[Server CicaAds]
+    subgraph CICA[CicaAdnetwork]
+        CA[Advertiser CicaAdnetwork]
+        CP[Publisher CicaAdnetwork]
+        CS[Server CicaAdnetwork]
         CA -->|Pasang iklan| CS
         CS -->|Iklan lokal| CP
     end
 
-    subgraph DUDUNG[DudungAds]
-        DA[Advertiser DudungAds]
-        DP[Publisher DudungAds]
-        DS[Server DudungAds]
+    subgraph DUDUNG[DudungAdnetwork]
+        DA[Advertiser DudungAdnetwork]
+        DP[Publisher DudungAdnetwork]
+        DS[Server DudungAdnetwork]
         DA -->|Pasang iklan| DS
         DS -->|Iklan lokal| DP
     end
@@ -62,6 +62,49 @@ flowchart TB
 
 Hubungan tersebut tidak berarti seluruh data antarjaringan digabungkan menjadi satu database. Setiap jaringan tetap berdiri sendiri. Federasi hanya mengizinkan pertukaran data yang diperlukan, seperti informasi iklan, mapping publisher, status persetujuan, dan laporan transaksi klik.
 
+### Contoh brand dan kampanye iklan
+
+Untuk mempermudah gambaran, setiap ad network dapat memiliki advertiser dari kategori bisnis yang berbeda. Nama berikut merupakan contoh brand fiktif:
+
+| Ad network asal | Brand advertiser | Kategori | Contoh materi iklan | Target publisher |
+|---|---|---|---|---|
+| AmirAdnetwork | RasaNusantara | Kuliner | Promo paket makan keluarga dan diskon pesan antar | Blog resep, portal wisata, dan situs gaya hidup |
+| BudiAdnetwork | ModeKita | Fashion | Koleksi pakaian terbaru dan promo akhir musim | Blog fashion, kecantikan, dan lifestyle |
+| CicaAdnetwork | GadgetPro | Gadget | Peluncuran smartphone, aksesori, dan promo cicilan | Portal teknologi, blog review, dan situs berita |
+| DudungAdnetwork | KopiSenja | Kuliner | Promo minuman baru dan voucher gerai | Blog kuliner, komunitas lokal, dan portal acara |
+
+```mermaid
+flowchart LR
+    subgraph ADVERTISER[Advertiser dan brand asal]
+        FOOD[RasaNusantara - Kuliner]
+        FASHION[ModeKita - Fashion]
+        GADGET[GadgetPro - Gadget]
+    end
+
+    FOOD --> AMIR[AmirAdnetwork]
+    FASHION --> BUDI[BudiAdnetwork]
+    GADGET --> CICA[CicaAdnetwork]
+
+    AMIR --> LOCAL1[Publisher kuliner lokal]
+    BUDI --> LOCAL2[Publisher fashion lokal]
+    CICA --> LOCAL3[Publisher teknologi lokal]
+
+    AMIR -.->|Federasi| PARTNER1[Publisher partner BudiAdnetwork]
+    AMIR -.->|Federasi| PARTNER2[Publisher partner CicaAdnetwork]
+    BUDI -.->|Federasi| PARTNER3[Publisher partner AmirAdnetwork]
+    BUDI -.->|Federasi| PARTNER4[Publisher partner DudungAdnetwork]
+    CICA -.->|Federasi| PARTNER5[Publisher partner AmirAdnetwork]
+    CICA -.->|Federasi| PARTNER6[Publisher partner BudiAdnetwork]
+```
+
+Contoh penerapannya:
+
+1. **RasaNusantara** memasang iklan promo kuliner melalui AmirAdnetwork. Iklan dapat tampil pada publisher kuliner lokal AmirAdnetwork serta publisher wisata atau gaya hidup milik jaringan partner.
+2. **ModeKita** membuat kampanye koleksi fashion melalui BudiAdnetwork. Selain tampil di blog fashion lokal, kampanye dapat diteruskan ke publisher lifestyle di AmirAdnetwork dan DudungAdnetwork.
+3. **GadgetPro** meluncurkan produk gadget melalui CicaAdnetwork. Iklan dapat didistribusikan ke portal teknologi lokal serta blog review gadget yang tergabung dalam jaringan partner.
+
+Walaupun iklan tersebar ke jaringan lain, setiap advertiser tetap mengelola kampanye dari ad network asalnya. Ad network partner hanya menerima data iklan yang diperlukan untuk proses mapping, penayangan, audit klik, dan perhitungan revenue.
+
 ## 3. Advertiser Lokal dan Advertiser Partner
 
 Advertiser membuat dan mengelola iklan melalui ad network tempat akunnya terdaftar. Ad network tersebut disebut **ad network asal**.
@@ -73,18 +116,18 @@ Iklan kemudian dapat didistribusikan melalui dua jalur:
 
 ```mermaid
 flowchart LR
-    ADV[Advertiser AmirAds] -->|1. Membuat iklan| HOME[AmirAds]
+    ADV[Advertiser AmirAdnetwork] -->|1. Membuat iklan| HOME[AmirAdnetwork]
 
-    HOME -->|2A. Distribusi lokal| LOCALPUB[Publisher AmirAds]
-    HOME -->|2B. Sinkronisasi federasi| BUDI[BudiAds]
-    HOME -->|2C. Sinkronisasi federasi| CICA[CicaAds]
-    HOME -->|2D. Sinkronisasi federasi| DUDUNG[DudungAds]
+    HOME -->|2A. Distribusi lokal| LOCALPUB[Publisher AmirAdnetwork]
+    HOME -->|2B. Sinkronisasi federasi| BUDI[BudiAdnetwork]
+    HOME -->|2C. Sinkronisasi federasi| CICA[CicaAdnetwork]
+    HOME -->|2D. Sinkronisasi federasi| DUDUNG[DudungAdnetwork]
 
-    BUDI -->|3. Mapping iklan| BUDIPUB[Publisher BudiAds]
-    CICA -->|3. Mapping iklan| CICAPUB[Publisher CicaAds]
-    DUDUNG -->|3. Mapping iklan| DUDUNGPUB[Publisher DudungAds]
+    BUDI -->|3. Mapping iklan| BUDIPUB[Publisher BudiAdnetwork]
+    CICA -->|3. Mapping iklan| CICAPUB[Publisher CicaAdnetwork]
+    DUDUNG -->|3. Mapping iklan| DUDUNGPUB[Publisher DudungAdnetwork]
 
-    LOCALPUB -->|Klik lokal| REPORT[Laporan AmirAds]
+    LOCALPUB -->|Klik lokal| REPORT[Laporan AmirAdnetwork]
     BUDIPUB -->|Klik partner| REPORT
     CICAPUB -->|Klik partner| REPORT
     DUDUNGPUB -->|Klik partner| REPORT
@@ -101,10 +144,10 @@ Publisher yang terdaftar pada sebuah ad network dapat menerima dua sumber iklan:
 
 ```mermaid
 flowchart LR
-    LOCAL[Advertiser Lokal] --> PUB[Publisher AmirAds]
-    P1[Advertiser BudiAds] --> PUB
-    P2[Advertiser CicaAds] --> PUB
-    P3[Advertiser DudungAds] --> PUB
+    LOCAL[Advertiser Lokal] --> PUB[Publisher AmirAdnetwork]
+    P1[Advertiser BudiAdnetwork] --> PUB
+    P2[Advertiser CicaAdnetwork] --> PUB
+    P3[Advertiser DudungAdnetwork] --> PUB
 
     PUB --> RESULT[Supply iklan lebih banyak]
     RESULT --> REVENUE[Peluang pendapatan lebih besar]
