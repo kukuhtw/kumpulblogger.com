@@ -314,6 +314,11 @@ CREATE TABLE `llm_settings` (
   `regdate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+INSERT INTO `llm_settings` (`id`, `llm_model`, `openai_key`, `replicate_key`, `max_tokens`, `temperature`, `regdate`) VALUES
+(1, 'gpt-5.4', 'sk-proj-', 'replicatekey', 6048, 0.70, '2025-03-09 21:07:18');
+
+--
 -- --------------------------------------------------------
 
 --
