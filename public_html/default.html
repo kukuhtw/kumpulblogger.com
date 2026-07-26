@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#009eed">
+    <link rel="icon" href="//static.domainesia.com/assets/images/favicon/favicon.ico">
+    <link rel="icon" href="//static.domainesia.com/assets/images/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="//static.domainesia.com/assets/images/favicon/apple-touch-icon-180.png">
+    <meta name="description" content="Your website is ready to be launched. Hosted by DomaiNesia.">
+    <title>Hosted by DomaiNesia - Your website is ready to be launched</title>
+    <link href="//static.domainesia.com/assets/slots/webcdn/cpanel/css/framework.min.css" rel="stylesheet">
+</head>
+<body class="overflow-hidden bg-brown mx-auto" style="max-width: 2000px;">
+    <div class="parallax relative">
+        <div class="bg-gradient-to-b from-blue-600 to-blue-400 aspect-video">
+            <span class="absolute top-10 left-10 w-56"><img src="//static.domainesia.com/assets/slots/webcdn/cpanel/img/landing/domainesia-logo.svg" alt="DomaiNesia Logo"></span>
+            <span value="4" class="move absolute" style="top:-6%;"><img src="//static.domainesia.com/assets/slots/webcdn/cpanel/img/landing/bg-milky-way.svg" alt="DomaiNesia Milky Way"></span>
+            <span value="2" class="move absolute" style="top:30%;"><img src="//static.domainesia.com/assets/slots/webcdn/cpanel/img/landing/bg-hills-v2.svg" alt="DomaiNesia Hills"></span>
+            <span class="absolute" style="top:14%;"><img src="//static.domainesia.com/assets/slots/webcdn/cpanel/img/landing/ground-ready-to-launch.svg" alt="DomaiNesia Moon"></span>
+            <span class="absolute animate-fadeandmove -left-10" style="top:9%;"><img src="//static.domainesia.com/assets/slots/webcdn/cpanel/img/landing/clouds.svg" alt="DomaiNesia Clouds"></span>
+        </div>
+        <div class="absolute left-1/2 transform -translate-x-1/2 text-center text-white block z-50 w-full px-8" style="top: 82%;">
+            <p class="mb-1 text-xs md:text-base lg:text-lg">
+                Halaman ini merupakan halaman bawaan. Silakan upload konten website Anda.
+
+                <br />
+
+                Luncurkan Aplikasi Web dengan Cloud VPS Berperforma Tinggi.
+
+                <br />
+
+                DomaiNesia Penyedia Web Hosting Murah Terbaik di Indonesia. Cek & <a class="text-blue-500 hover:text-blue-600" href="https://www.domainesia.com/domain/" target="_blank" rel="noopener noreferrer">Daftarkan Nama Domain</a> dengan Mudah.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("mousemove", parallax);
+        function parallax(event) {
+            this.querySelectorAll(".parallax .move").forEach((shift) => {
+                const position = shift.getAttribute("value");
+                const x = (window.innerWidth - event.pageX * position) / 80;
+                const y = (window.innerHeight - event.pageY * position) / 80;
+
+                shift.style.transform = `translateX(${x}px) translateY(${y}px)`;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 Pendahuluan
 
+26 july 2026
+
 KumpulBlogger.com hadir kembali dengan konsep revolusioner sebagai platform open-source yang memungkinkan siapa pun memiliki bisnis jaringan iklan Pay Per Click (PPC) digital. Dengan pendekatan desentralisasi, federasi, dan distribusi, KumpulBlogger membuka kesempatan lebih luas untuk kolaborasi dan kemandirian bagi setiap pengusaha jaringan iklan.
 
 1. **Open Source**  

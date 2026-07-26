@@ -1,0 +1,17 @@
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3588539 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3557378 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3626784 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3654673 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3593716 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3566851 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3561486 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3585372 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3647384 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3587362 in /home/kumpulbl/public_html/config.php on line 27
+[02-Jul-2026 18:18:16 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=3650294 in /home/kumpulbl/public_html/config.php on line 27
+[04-Jul-2026 03:47:57 UTC] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=202006 in /home/kumpulbl/public_html/config.php on line 27
+[07-Jul-2026 14:02:59 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: MySQL server has gone away in /home/kumpulbl/public_html/blogs/index.php:83
+Stack trace:
+#0 /home/kumpulbl/public_html/blogs/index.php(83): mysqli_stmt->execute()
+#1 {main}
+  thrown in /home/kumpulbl/public_html/blogs/index.php on line 83
