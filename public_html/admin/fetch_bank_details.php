@@ -1,5 +1,14 @@
 <?php
 // fetch_bank_details.php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['loggedin'])) {
+    // If not logged in, redirect to login page
+    header('Location: login.php');
+    exit;
+}
+
 include("../db.php");
 
 $email = $_GET['email'];
