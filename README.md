@@ -29,6 +29,28 @@ Platform KumpulBlogger menerapkan sistem reward yang adil dan transparan untuk s
 
 Dengan sistem ini, KumpulBlogger memastikan bahwa setiap pihak mendapatkan kompensasi sesuai kontribusi mereka dalam ekosistem periklanan yang terdesentralisasi. Ini menciptakan motivasi dan kesempatan lebih besar bagi setiap jaringan untuk memperluas kolaborasi dan menciptakan nilai lebih bagi pengiklan dan publisher di seluruh platform.
 
+### Komitmen Finansial Penyedia Ad Network
+
+Sebelum mengoperasikan atau menghubungkan ad network ke jaringan federasi KumpulBlogger, setiap penyedia ad network harus memahami dan menyetujui tanggung jawab finansial berikut:
+
+1. **Membayar publisher pada jaringan sendiri**
+   Setiap penyedia ad network bertanggung jawab membayar publisher yang terdaftar pada jaringannya sesuai jumlah klik valid, tarif, jadwal pembayaran, dan ketentuan yang berlaku pada jaringan tersebut. Kewajiban ini tetap berlaku untuk revenue yang berasal dari iklan lokal maupun iklan partner.
+
+2. **Membayar jaringan partner ketika advertiser lokal memperoleh klik dari publisher partner**
+   Jika advertiser yang terdaftar pada suatu ad network memperoleh klik dari publisher milik ad network partner, maka ad network asal advertiser berkewajiban membayar bagian revenue kepada:
+
+   - admin atau pemilik ad network partner; dan
+   - publisher partner yang menampilkan iklan.
+
+   Sistem menyediakan catatan nominal pembayaran kepada admin ad network partner dan publisher partner pada dashboard admin. Catatan tersebut digunakan sebagai dasar rekonsiliasi, verifikasi, dan penyelesaian pembayaran antarpihak.
+
+3. **Berhak menerima pembayaran dari ad network partner**
+   Penyedia ad network juga berkesempatan mendapatkan pembayaran dari admin ad network partner apabila iklan milik advertiser partner mendapatkan klik pada publisher di jaringannya. Dalam kondisi ini, penyedia ad network bertindak sebagai pemilik jaringan publisher dan berhak menerima bagian revenue jaringan, sedangkan publisher yang menghasilkan klik berhak menerima bagian revenue publisher.
+
+Contoh: advertiser dari **BudiAdnetwork** memperoleh klik pada publisher milik **AmirAdnetwork**. BudiAdnetwork sebagai jaringan asal advertiser berkewajiban membayar bagian revenue kepada admin AmirAdnetwork dan publisher AmirAdnetwork yang menghasilkan klik. Sebaliknya, apabila advertiser AmirAdnetwork memperoleh klik pada publisher BudiAdnetwork, AmirAdnetwork memiliki kewajiban pembayaran yang sama kepada BudiAdnetwork.
+
+Federasi bukan hanya mekanisme pertukaran iklan dan publisher, tetapi juga komitmen pembayaran antarpelaku jaringan. Setiap penyedia wajib memastikan saldo, pencatatan klik, audit, laporan revenue, dan pembayaran partner dikelola secara transparan serta dapat dipertanggungjawabkan.
+
 https://kukuhtw.medium.com/kumpulblogger-com-542f2b01347e - Kumpulblogger.com Dirilis Sebagai Open Source dengan Lisensi Apache 2.0: Membuka Potensi Ad Network Terdesentralisasi di Indonesia
 
 https://kukuhtw.medium.com/membangun-masa-depan-bisnis-tanpa-batas-sinergi-digital-di-kumpulblogger-com-4507cc922fac
