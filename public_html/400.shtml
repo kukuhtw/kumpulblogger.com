@@ -1,0 +1,4 @@
+<!--#set var="code" value="400" -->
+<!--#set var="reason" value="Bad Request" -->
+<!--#set var="msg" value="Your browser sent a request that this server could not understand" -->
+<!--#include virtual="cp_errordocument.shtml" -->
