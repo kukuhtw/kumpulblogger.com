@@ -6,12 +6,12 @@
 
 ## 1. Ringkasan
 
-`public_html/admin/` adalah dashboard admin terpisah dari sisi publisher/advertiser — sesi login sendiri (`$_SESSION['loggedin']` + `$_SESSION['loginemail_admin']`, tabel `msadmin`), tidak berbagi sesi dengan `login.php` di root. Berisi 41 entri: 35 halaman/skrip PHP dengan logika sendiri, 6 file *shared include* (layout/style/fungsi bersama), plus `providers_data.json` (config identitas provider, sama seperti di tempat lain), `index.html` kosong (placeholder anti-directory-listing), dan `error_log` kosong.
+`public_html/admin/` adalah dashboard admin terpisah dari sisi publisher/advertiser — sesi login sendiri (`$_SESSION['loggedin']` + `$_SESSION['loginemail_admin']`, tabel `msadmin`), tidak berbagi sesi dengan `login.php` di root. Berisi 42 entri: 36 halaman/skrip PHP dengan logika sendiri (termasuk `llm_settings.php`, ditambahkan belakangan), 6 file *shared include* (layout/style/fungsi bersama), plus `providers_data.json` (config identitas provider, sama seperti di tempat lain), `index.html` kosong (placeholder anti-directory-listing), dan `error_log` kosong.
 
 Karakteristik umum:
 
 - **Dua generasi UI berdampingan.** Halaman yang lebih baru meng-include `style_toogle.php` (token CSS bersama: `.admin-navbar`, `.sidebar` responsif, `.admin-main`) + `js_toogle.php` (toggle sidebar mobile/desktop) dan memakai `<main class="admin-main" id="mainContent">`. Halaman yang lebih lama menulis `<style>` sendiri dengan sidebar `position: fixed` lebar 250px tanpa collapse mobile. Keduanya nyalakan berdampingan — beberapa halaman lama (`join_force.php`, `manage_partner.php`, dll.) bahkan meng-include `style_toogle.php` **selain** `<style>` lokalnya sendiri, jadi sebagian token baru ikut aktif tapi layout intinya tetap yang lama.
-- **Pola guard standar**: `session_start(); if (!isset($_SESSION['loggedin'])) { header('Location: login.php'); exit; }` di baris paling atas — sekarang dipakai konsisten di semua 35 halaman (2 file sempat tidak memakainya, sudah ditambahkan, lihat §5 #1 dan #2).
+- **Pola guard standar**: `session_start(); if (!isset($_SESSION['loggedin'])) { header('Location: login.php'); exit; }` di baris paling atas — dipakai konsisten di semua halaman (termasuk `llm_settings.php` yang baru; 2 file lama sempat tidak memakainya, sudah ditambahkan, lihat §5 #1 dan #2).
 - **Koneksi DB dibuka ulang di setiap file** (pola sama seperti API/cronjob) — kadang `$conn`, kadang `$mysqli`, tidak konsisten namanya tapi keduanya `mysqli`.
 - **`function_admin.php`** adalah kumpulan fungsi kecil (bukan class) untuk menghitung ulang & menuliskan balik agregat ke `msusers`/`advertisers_ads` setiap kali dipanggil (lihat §4 Modul A) — beberapa di antaranya dipanggil sebagai *side effect* saat sekadar menampilkan halaman (lihat §5 temuan #5).
 
@@ -30,7 +30,8 @@ Karakteristik umum:
 | | `approval_join_force.php` | Approve permintaan → panggil `API/approve_request_partnership`, simpan key baru | ✅ |
 | | `approval_join_force2.php` | ⚠️ Duplikat lama, tidak ditautkan dari mana pun (lihat §5 #4) | ✅ |
 | | `manage_partner.php` | Daftar `providers_partners` + hitung ulang `partner_revenue_unpaid` saat render | ✅ |
-| | `change_code_provider.php` | Ubah `providers.providers_code` (kode undangan join) | ✅ |
+| | `change_code_provider.php` | Ubah `providers.providers_code` (kode undangan join) — sekarang menampilkan identitas provider saat ini + penjelasan | ✅ |
+| | `llm_settings.php` **(baru)** | Upsert baris config `llm_settings` (model, API key, max_tokens, temperature) dipakai fitur generate artikel/gambar/audio/kuis | ✅ |
 | | `entry_bank_account.php` | Isi rekening bank/kontak provider sendiri (`providers_contact_person`) | ✅ |
 | | `sync_databank.php` | Push rekening di atas ke tiap partner (`API/pushInfoAccountBankProvider`) | ✅ |
 | | `pay_provider_partner.php` | Catat settlement B2B ke `payment_partner_providers` + recalc `providers_partners.partner_revenue_paid/unpaid` | ✅ |
@@ -159,7 +160,10 @@ Ambil `api_endpoint`/`providers_domain_url`/`signature` dari `providers_request`
 Tabel `providers_partners` dengan pagination. Menghitung ulang `partner_revenue_unpaid = partner_revenue - partner_revenue_paid` dan **langsung UPDATE ke DB** untuk setiap baris yang dirender — side effect lain dari sekadar membuka halaman list (pola yang sama seperti `manage_ads.php`).
 
 #### `change_code_provider.php`
-Update `providers.providers_code` (kode yang dibagikan ke calon partner). Sederhana, prepared statement, ada guard.
+Update `providers.providers_code` — kode undangan yang dibagikan ke calon partner, dicocokkan saat mereka mengirim `join_force.php`/`API/request_join`. **✅ Dirapikan**: sebelumnya cuma form kosong tanpa konteks apa pun (admin tidak bisa lihat kode yang sedang aktif tanpa cek database langsung). Sekarang halaman selalu menampilkan identitas provider saat ini (nama, domain, kode aktif) di atas form, plus penjelasan tertulis untuk admin tentang fungsi kode ini dan bahwa mengganti kode **tidak memutus** partner yang sudah disetujui (mereka sudah punya `public_key`/`secret_key` sendiri) — hanya memengaruhi permintaan gabung baru.
+
+#### `llm_settings.php` (baru)
+Halaman baru untuk mengatur baris konfigurasi LLM (`llm_settings`) yang dipakai `article_api.php`, `generate_ai_images.php`, `generate_audio_summary.php`, dan `generate_quiz.php` — keempatnya membaca lewat `SELECT * FROM llm_settings ORDER BY id LIMIT 1`, jadi tabel ini adalah **satu baris config aktif**, bukan daftar multi-baris. Sebelumnya tabel ini sama sekali tidak punya UI (cuma bisa diisi lewat query manual/phpMyAdmin) — halaman ini meng-upsert baris pertama (`UPDATE` kalau sudah ada baris, `INSERT` kalau kosong). Field: nama model, OpenAI API key, Replicate API key (keduanya `type="password"` dengan tombol show/hide), `max_tokens`, `temperature` (divalidasi 0-2). Ditautkan dari menu Settings di sidebar.
 
 #### `entry_bank_account.php`
 Form isi kontak/rekening bank provider sendiri (`providers_contact_person`, `id=1`, upsert manual via `insertOrUpdateContactPerson()`). Validasi bank terhadap whitelist array Indonesia (BCA, Mandiri, dst). Tombol kedua submit ke `sync_databank.php`. Kedua form sudah dilengkapi token CSRF.

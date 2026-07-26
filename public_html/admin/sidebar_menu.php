@@ -63,6 +63,7 @@
             <ul class="collapse list-unstyled" id="Settings">
                 <li><a href="change_code_provider.php"><i class="fas fa-code"></i> Change Provider Code</a></li>
                 <li><a href="change_password.php"><i class="fas fa-key"></i> Change Password</a></li>
+                <li><a href="llm_settings.php"><i class="fas fa-robot"></i> LLM Settings</a></li>
             </ul>
         </li>
 

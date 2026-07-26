@@ -15,21 +15,20 @@ if (!isset($_SESSION['loggedin'])) {
 $loginemail_admin = $_SESSION['loginemail_admin'];
 
 include("function_admin.php");
+include("../db.php");
+
+// Database connection using MySQLi
+$conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
+if ($conn->connect_error) {
+    error_log("Database connection failed: " . $conn->connect_error);
+    exit("Database connection failed.");
+}
 
 $change_code_error = '';
 $change_code_success = '';
 
 // Process the form if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    include("../db.php");
-
-    // Database connection using MySQLi
-    $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
-    if ($conn->connect_error) {
-        error_log("Database connection failed: " . $conn->connect_error);
-        exit("Database connection failed.");
-    }
-
     // Get the new providers_code from the POST data
     $new_providers_code = $_POST['providers_code'];
 
@@ -50,11 +49,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $change_code_error = 'Error updating provider code.';
         }
 
-        // Close the statement and connection
         $stmt->close();
-        $conn->close();
     }
 }
+
+// Ambil identitas provider saat ini untuk ditampilkan (GET maupun setelah
+// POST), supaya admin selalu lihat kode yang benar-benar aktif sekarang —
+// sebelumnya halaman ini hanya menampilkan form kosong tanpa konteks apa pun.
+$current_provider = null;
+$provider_result = $conn->query("SELECT providers_name, providers_domain_url, providers_code FROM providers WHERE id = 1");
+if ($provider_result) {
+    $current_provider = $provider_result->fetch_assoc();
+}
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -159,6 +166,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         Change Provider Code
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-info">
+                            <strong>Fungsi halaman ini:</strong> mengatur <em>Provider Code</em> — kode undangan
+                            jaringan Anda. Kode ini yang Anda bagikan ke calon partner ad network lain, lalu mereka
+                            masukkan saat mengirim permintaan gabung federasi (lewat <code>join_force.php</code>
+                            di sisi mereka / <code>API/request_join</code> di sisi kita). Permintaan gabung baru
+                            hanya diterima kalau kode yang dikirim cocok dengan kode di sini.
+                            <br><br>
+                            <strong>Perlu diperhatikan:</strong> mengganti kode ini <u>tidak memutus</u> partner yang
+                            sudah disetujui sebelumnya (mereka sudah punya <code>public_key</code>/<code>secret_key</code>
+                            sendiri) — hanya memengaruhi permintaan gabung yang <em>belum</em> disetujui atau yang
+                            baru akan masuk setelah ini. Kalau Anda sudah membagikan kode lama ke calon partner yang
+                            belum sempat mengirim permintaan, beri tahu mereka kode barunya juga.
+                        </div>
+
+                        <?php if ($current_provider): ?>
+                            <div class="mb-4">
+                                <h5>Identitas Provider Saat Ini</h5>
+                                <table class="table table-sm table-bordered mb-0">
+                                    <tr>
+                                        <th style="width:220px;">Nama Provider</th>
+                                        <td><?php echo htmlspecialchars($current_provider['providers_name']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Domain</th>
+                                        <td><?php echo htmlspecialchars($current_provider['providers_domain_url']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Provider Code Aktif</th>
+                                        <td><code><?php echo htmlspecialchars($current_provider['providers_code']); ?></code></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if (!empty($change_code_error)): ?>
                             <div class="alert alert-danger" role="alert">
                                 <?php echo htmlspecialchars($change_code_error); ?>
@@ -174,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <form action="change_code_provider.php" method="POST">
                             <?php echo admin_csrf_field(); ?>
                             <div class="form-group">
-                                <label for="providers_code">New Provider Code:</label>
+                                <label for="providers_code">Kode Baru:</label>
                                 <input type="text" class="form-control" id="providers_code" name="providers_code" required>
                             </div>
                             <button type="submit" class="btn btn-success btn-block">Update Provider Code</button>
