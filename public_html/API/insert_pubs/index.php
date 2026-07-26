@@ -36,81 +36,67 @@ if (isset($data['publishers_email']) && isset($data['publishers_name'])) {
     // Retrieve the secret key for verification
     $verifying_secret_key_provider = getSecretKeyById($conn, $id);
 
-    // Fetch providers_name and providers_domain_url using the prepared statement
-    $sqlProvider = "SELECT providers_name, providers_domain_url FROM providers WHERE id = ?";
-    $stmtProvider = $conn->prepare($sqlProvider);
-    $stmtProvider->bind_param("i", $id);
+    if ($secret_key_provider === $verifying_secret_key_provider) {
 
-    if ($stmtProvider->execute()) {
-        $result = $stmtProvider->get_result();
-        if ($result->num_rows > 0) {
-            $provider = $result->fetch_assoc();
-            $providers_name = $provider['providers_name'];
-            $providers_domain_url = $provider['providers_domain_url'];
+        // Cek apakah email sudah terdaftar di msusers (loginemail tidak
+        // dijamin unik di level database, jadi dicek eksplisit di sini)
+        $check_sql = "SELECT id FROM msusers WHERE loginemail = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("s", $publishers_email);
+        $check_stmt->execute();
+        $check_stmt->store_result();
+
+        if ($check_stmt->num_rows > 0) {
+            $response = array(
+                'status' => 'error',
+                'message' => 'Email sudah terdaftar.'
+            );
+            $check_stmt->close();
+        } else {
+            $check_stmt->close();
 
             $number_random = rand(111111, 99999999) . $publishers_name . $publishers_email;
             $publishers_password = sha1($number_random);
             $publishers_password = substr($publishers_password, 0, 8);
-            $hash_publishers_password = sha1($publishers_password);
+            $hash_publishers_password = password_hash($publishers_password, PASSWORD_BCRYPT);
 
-            $expected_secret_key = sha1($publishers_email . $providers_domain_url . $providers_name . $publishers_whatsapp);
+            $regdate = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+            $formatted_regdate = $regdate->format('Y-m-d H:i:s');
 
-            if ($secret_key_provider === $verifying_secret_key_provider) {
-                // Insert the publisher's data along with the provider's name and domain URL
-                $sqlInsert = "INSERT INTO publishers (publishers_local_id, providers_name, providers_domain_url, publishers_name, publishers_email, publishers_password, publishers_whatsapp, publishers_bank, publishers_account_name, publishers_account_number) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $stmt = $conn->prepare($sqlInsert);
-                $stmt->bind_param("sssssssss", $providers_name, $providers_domain_url, $publishers_name, $publishers_email, $hash_publishers_password, $publishers_whatsapp, $publishers_bank, $publishers_account_name, $publishers_account_number);
+            // Akun publisher disimpan di `msusers` — satu tabel akun yang
+            // dipakai bersama oleh publisher & advertiser (lihat
+            // documentation/README.md). providers_name/providers_domain_url
+            // sudah tidak dipakai karena tidak ada kolom padanannya di msusers.
+            $sqlInsert = "INSERT INTO msusers (loginemail, passwords, whatsapp, realname, bank, account_name, account_number, regdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sqlInsert);
+            $stmt->bind_param(
+                "ssssssss",
+                $publishers_email, $hash_publishers_password, $publishers_whatsapp,
+                $publishers_name, $publishers_bank, $publishers_account_name,
+                $publishers_account_number, $formatted_regdate
+            );
 
-                if ($stmt->execute()) {
-                    // Get the last inserted ID
-                    $last_id = $conn->insert_id;
-
-                    // Update the publishers_local_id field with the last inserted ID
-                    $sqlUpdate = "UPDATE publishers SET publishers_local_id = ? WHERE id = ?";
-                    $stmtUpdate = $conn->prepare($sqlUpdate);
-                    $stmtUpdate->bind_param("ii", $last_id, $last_id);
-
-                    if ($stmtUpdate->execute()) {
-                        $response = array(
-                            'status' => 'success',
-                            'message' => 'Publisher inserted and updated successfully'
-                        );
-                    } else {
-                        $response = array(
-                            'status' => 'error',
-                            'message' => 'Failed to update publishers_local_id.'
-                        );
-                    }
-                    $stmtUpdate->close();
-                } else {
-                    $response = array(
-                        'status' => 'error',
-                        'message' => 'Failed to insert publisher. Error: ' . $stmt->error
-                    );
-                }
-                $stmt->close();
+            if ($stmt->execute()) {
+                $response = array(
+                    'status' => 'success',
+                    'message' => 'Publisher inserted successfully',
+                    'id' => $conn->insert_id
+                );
             } else {
-                // Invalid secret key
                 $response = array(
                     'status' => 'error',
-                    'message' => 'Invalid secret key.'
+                    'message' => 'Failed to insert publisher. Error: ' . $stmt->error
                 );
             }
-        } else {
-            // Provider not found
-            $response = array(
-                'status' => 'error',
-                'message' => 'Provider not found.'
-            );
+            $stmt->close();
         }
     } else {
-        // Error in executing provider query
+        // Invalid secret key
         $response = array(
             'status' => 'error',
-            'message' => 'Error retrieving provider data.'
+            'message' => 'Invalid secret key.'
         );
     }
-    $stmtProvider->close();
 } else {
     // Missing required data
     $response = array(

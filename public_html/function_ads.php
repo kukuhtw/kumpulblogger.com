@@ -4,19 +4,25 @@ function_ads.php
 */
 
 function insertAdvertiser($conn, $providers_name, $providers_domain_url, $advertisers_name, $advertisers_email, $advertisers_whatsapp, $advertisers_password) {
+    // Publisher dan advertiser berbagi satu tabel akun (`msusers`) — lihat
+    // documentation/README.md. `providers_name`/`providers_domain_url` tidak
+    // punya kolom padanan di `msusers` (satu instance = satu provider), jadi
+    // tidak dipakai di sini; parameter dipertahankan agar signature tetap
+    // kompatibel dengan pemanggilnya di API/insert_advertiser/index.php.
+
     // Prepare the SQL statement to check if the email already exists
-    $check_sql = "SELECT id FROM advertisers WHERE advertisers_email = ?";
-    
+    $check_sql = "SELECT id FROM msusers WHERE loginemail = ?";
+
     if ($check_stmt = $conn->prepare($check_sql)) {
         // Bind the email parameter to the statement
         $check_stmt->bind_param("s", $advertisers_email);
-        
+
         // Execute the statement
         $check_stmt->execute();
-        
+
         // Store the result
         $check_stmt->store_result();
-        
+
         // Check if any rows were returned, meaning the email already exists
         if ($check_stmt->num_rows > 0) {
             // Email already registered, return false
@@ -31,32 +37,31 @@ function insertAdvertiser($conn, $providers_name, $providers_domain_url, $advert
         return false;
     }
 
-    // Prepare the SQL statement to insert the new advertiser
-    $insert_sql = "INSERT INTO advertisers (providers_name, providers_domain_url, advertisers_name, advertisers_email, advertisers_whatsapp, advertisers_password, regdate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    
+    // Prepare the SQL statement to insert the new account
+    $insert_sql = "INSERT INTO msusers (loginemail, passwords, whatsapp, realname, regdate) VALUES (?, ?, ?, ?, ?)";
+
     // Initialize a prepared statement
     if ($insert_stmt = $conn->prepare($insert_sql)) {
         // Hash the password before storing it in the database
         $hashed_password = password_hash($advertisers_password, PASSWORD_BCRYPT);
-        
+
         // Get the current date and time in GMT+7
         $regdate = new DateTime("now", new DateTimeZone('Asia/Jakarta'));
         $formatted_regdate = $regdate->format('Y-m-d H:i:s');
-        
+
         // Bind the parameters to the statement
-        $insert_stmt->bind_param("sssssss", $providers_name, $providers_domain_url, $advertisers_name, $advertisers_email, $advertisers_whatsapp, $hashed_password, $formatted_regdate);
-        
+        $insert_stmt->bind_param("sssss", $advertisers_email, $hashed_password, $advertisers_whatsapp, $advertisers_name, $formatted_regdate);
+
         // Execute the statement
         if ($insert_stmt->execute()) {
             // Success
+            $insert_stmt->close();
             return true;
         } else {
             // Failed to execute the query
+            $insert_stmt->close();
             return false;
         }
-        
-        // Close the statement
-        $insert_stmt->close();
     } else {
         // Failed to prepare the insert statement
         return false;
