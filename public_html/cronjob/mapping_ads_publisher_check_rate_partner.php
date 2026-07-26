@@ -142,6 +142,13 @@ $result = $mysqli->query($sql);
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $local_ads_id = $row['local_ads_id'];
+        // local_ads_id di sini adalah PK milik SERVER ASAL partner (disalin
+        // apa adanya lewat API/sync_ads), yang independen dari local_ads_id
+        // iklan lokal kita sendiri — keduanya sama-sama mulai dari 1, jadi
+        // bisa tabrakan. Wajib disertakan bersama ads_providers_domain_url
+        // saat melookup mapping supaya tidak salah memproses baris mapping
+        // milik iklan lokal yang kebetulan punya local_ads_id sama.
+        $ads_providers_domain_url = $row['providers_domain_url'];
         $budget_per_click_textads = $row['budget_per_click_textads'];
         $title_ads = $row['title_ads'];
         $landingpage_ads = $row['landingpage_ads'];
@@ -154,9 +161,10 @@ if ($result->num_rows > 0) {
         $mapping_stmt2 = $mysqli->prepare(
             "SELECT id, rate_text_ads, site_domain
              FROM mapping_advertisers_ads_publishers_site
-             WHERE local_ads_id = ?"
+             WHERE local_ads_id = ?
+               AND ads_providers_domain_url = ?"
         );
-        $mapping_stmt2->bind_param("i", $local_ads_id);
+        $mapping_stmt2->bind_param("is", $local_ads_id, $ads_providers_domain_url);
         $mapping_stmt2->execute();
         $result_mapping = $mapping_stmt2->get_result();
 

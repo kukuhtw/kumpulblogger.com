@@ -28,6 +28,25 @@ if ($mysqli->connect_error) {
     die("<div class='alert alert-danger' role='alert'>Connection failed: " . $mysqli->connect_error . "</div>");
 }
 
+// Named lock MySQL untuk mencegah dua eksekusi skrip ini tumpang tindih
+// (mis. cron sebelumnya belum selesai saat yang berikutnya mulai). Tabel
+// mapping_advertisers_ads_publishers_site tidak punya UNIQUE KEY untuk
+// (local_ads_id, publishers_site_local_id, ads_providers_domain_url), jadi
+// pola check-then-insert di bawah bisa membuat baris duplikat kalau dua
+// proses jalan bersamaan tanpa lock ini. Timeout 0 = tidak menunggu, kalau
+// instance lain masih memegang lock, skrip ini langsung berhenti tanpa
+// melakukan apa pun (aman, tidak menumpuk antrean).
+$lock_name = 'mapping_ads_publisher_local';
+$lock_stmt = $mysqli->query("SELECT GET_LOCK('" . $mysqli->real_escape_string($lock_name) . "', 0) AS got_lock");
+$got_lock = $lock_stmt ? (int) $lock_stmt->fetch_assoc()['got_lock'] : 0;
+if ($got_lock !== 1) {
+    die("<div class='alert alert-warning' role='alert'>Instance lain dari mapping_ads_publisher.php sedang berjalan (lock '$lock_name' sedang dipegang) — dilewati untuk mencegah baris mapping duplikat.</div></div></body></html>");
+}
+// Tidak perlu RELEASE_LOCK manual: named lock MySQL terikat ke koneksi ini
+// dan otomatis dilepas begitu koneksi ditutup ($mysqli->close() di akhir
+// skrip) atau proses PHP berakhir (mis. kalau ada die()/fatal error di
+// tengah jalan).
+
 // Ambil data dari tabel advertisers_ads yang ispublished = 1 dan is_expired = 0
 $sql_ads = "SELECT * FROM advertisers_ads WHERE ispublished = 1 AND is_expired = 0";
 

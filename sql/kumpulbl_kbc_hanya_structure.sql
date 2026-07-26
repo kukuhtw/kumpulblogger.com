@@ -1030,6 +1030,7 @@ ALTER TABLE `log_payment_order_influencer`
 --
 ALTER TABLE `mapping_advertisers_ads_publishers_site`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_ads_site_domain` (`local_ads_id`,`publishers_site_local_id`,`ads_providers_domain_url`),
   ADD KEY `idx_local_ads_id` (`local_ads_id`),
   ADD KEY `idx_publishers_site_local_id` (`publishers_site_local_id`),
   ADD KEY `idx_ads_providers_domain_url` (`ads_providers_domain_url`),

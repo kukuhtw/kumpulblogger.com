@@ -144,7 +144,7 @@ if ($result->num_rows > 0) {
 echo "<h2>Tahap 2: Memeriksa Budget Iklan dari Advertiser</h2>";
 
 // Step 1: Fetch `budget_per_click_textads` and `local_ads_id` from `advertisers_ads`
-$sql = "SELECT local_ads_id, title_ads, landingpage_ads, budget_per_click_textads,
+$sql = "SELECT local_ads_id, providers_domain_url, title_ads, landingpage_ads, budget_per_click_textads,
                is_paid, ispublished, is_expired, expired_date, is_paused, paused_date
         FROM advertisers_ads";
 $result = $mysqli->query($sql);
@@ -154,6 +154,11 @@ if ($result->num_rows > 0) {
     echo "<tr><th>Judul Iklan</th><th>Landing Page</th><th>Budget Advertiser (Rp)</th><th>Status (dari table <code>advertisers_ads</code>)</th></tr>";
     while($row = $result->fetch_assoc()) {
         $local_ads_id = $row['local_ads_id'];
+        // local_ads_id hanyalah PK auto-increment per server (dimulai dari 1
+        // di server manapun) — tanpa menyertakan ads_providers_domain_url,
+        // lookup mapping di bawah bisa saja tabrakan dengan mapping milik
+        // iklan PARTNER yang kebetulan punya local_ads_id sama.
+        $ads_providers_domain_url = $row['providers_domain_url'];
         $budget_per_click_textads = $row['budget_per_click_textads'];
         $title_ads = $row['title_ads'];
         $landingpage_ads = $row['landingpage_ads'];
@@ -181,12 +186,16 @@ if ($result->num_rows > 0) {
         }
 
         // Step 2: Fetch `rate_text_ads` from `mapping_advertisers_ads_publishers_site`
+        // (difilter juga dengan ads_providers_domain_url supaya tidak
+        // tercampur dengan mapping milik iklan partner yang local_ads_id-nya
+        // kebetulan sama — lihat catatan di atas)
         $mapping_stmt2 = $mysqli->prepare(
             "SELECT id, rate_text_ads, site_domain, title_ads, ads_providers_name
              FROM mapping_advertisers_ads_publishers_site
-             WHERE local_ads_id = ?"
+             WHERE local_ads_id = ?
+               AND ads_providers_domain_url = ?"
         );
-        $mapping_stmt2->bind_param("i", $local_ads_id);
+        $mapping_stmt2->bind_param("is", $local_ads_id, $ads_providers_domain_url);
         $mapping_stmt2->execute();
         $result_mapping = $mapping_stmt2->get_result();
 
