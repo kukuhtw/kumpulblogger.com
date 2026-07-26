@@ -123,92 +123,38 @@ if (isset($_GET['delete_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banned IP List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-     <?php include("style_toogle.php") ?>
-   <style>
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            width: 100%;
-        }
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .sidebar {
-            background-color: #343a40;
-            padding: 20px;
-            height: 100vh;
-            position: fixed;
-            color: white;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .sidebar ul li a:hover {
-            background-color: #575757;
-        }
-        .container {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-        }
-        .card {
-            margin-top: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-        }
-        .card-header {
-            background-color: #28a745;
-            color: white;
-            font-size: 24px;
-            text-align: center;
-            width: 100%;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        .pagination {
-            margin-top: 20px;
-            justify-content: center;
+    <?php include("style_toogle.php"); ?>
+    <style>
+        .ip-actions { display: flex; align-items: flex-start; min-width: 280px; }
+        .ip-actions form { flex: 1; }
+        @media (max-width: 575.98px) {
+            .ip-actions { min-width: 220px; }
         }
     </style>
 </head>
 <body>
 
+<div class="admin-navbar">
+    <a class="brand" href="dashboard_admin.php">Admin Dashboard</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+</div>
+
 <?php include("sidebar_menu.php"); ?>
 
-<div class="container" id="mainContent">
-        
-    <div class="card" width="100%">
-        <div class="card-header" >
-            Banned IP List
+<main class="admin-main" id="mainContent">
+    <div class="mb-4">
+        <h1 class="page-title">Banned IP List</h1>
+        <p class="page-subtitle">Cari, tambahkan, dan kelola alamat IP yang diblokir.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            IP Blocking Rules
         </div>
         <div class="card-body">
             <!-- Form to search banned IP addresses -->
-            <form method="GET" class="mb-4 row g-3">
-                <div class="col-md-10">
+            <form method="GET" class="row mb-4">
+                <div class="col-md-10 mb-2 mb-md-0">
                     <input type="text" class="form-control" name="search" placeholder="Search by IP address or reason" value="<?= htmlspecialchars($search) ?>">
                 </div>
                 <div class="col-md-2">
@@ -217,12 +163,12 @@ if (isset($_GET['delete_id'])) {
             </form>
 
             <!-- Form to add a new banned IP address -->
-            <form method="POST" class="mb-4 row g-3">
+            <form method="POST" class="row mb-4">
                 <?php echo admin_csrf_field(); ?>
-                <div class="col-md-5">
+                <div class="col-md-5 mb-2 mb-md-0">
                     <input type="text" class="form-control" name="ip_address" placeholder="IP Address" required>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-5 mb-2 mb-md-0">
                     <input type="text" class="form-control" name="reason" placeholder="Reason" required>
                 </div>
                 <div class="col-md-2">
@@ -251,9 +197,9 @@ if (isset($_GET['delete_id'])) {
                                     <td><?= htmlspecialchars($ban['reason']); ?></td>
                                     <td><?= $ban['date_banned']; ?></td>
                                     <td>
-                                        <div class="d-flex">
+                                        <div class="ip-actions">
                                             <!-- Form to edit a banned IP address -->
-                                            <form method="POST" class="me-2">
+                                            <form method="POST" class="mr-2">
                                                 <?php echo admin_csrf_field(); ?>
                                                 <input type="hidden" name="id" value="<?= $ban['id']; ?>">
                                                 <input type="text" class="form-control mb-2" name="ip_address" value="<?= htmlspecialchars($ban['ip_address']); ?>" required>
@@ -300,13 +246,13 @@ if (isset($_GET['delete_id'])) {
             </nav>
         </div>
     </div>
+</main>
+
+<?php $mysqli->close(); ?>
 
 <?php include("js_toogle.php"); ?>
 
+<?php include("footer.php"); ?>
+
 </body>
 </html>
-
-<?php
-// Close connection
-$mysqli->close();
-?>
