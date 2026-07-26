@@ -57,6 +57,14 @@ if ($result_ads->num_rows > 0) {
         $landingpage_ads = $row_ads['landingpage_ads'];
         $image_url = $row_ads['image_url'];
         $budget_per_click_textads = $row_ads['budget_per_click_textads'];
+        // Status master iklan partner saat ini — dipakai untuk menyegarkan
+        // cache is_published/is_paused/is_expired di baris mapping yang SUDAH
+        // ADA (lihat cabang UPDATE di bawah), bukan untuk memaksa ulang status
+        // approval publisher/advertiser.
+        $ispublished = $row_ads['ispublished'];
+        $is_expired = $row_ads['is_expired'];
+        $expired_date = $row_ads['expired_date'];
+        $is_paused = $row_ads['is_paused'];
 
         echo "<div class='section'>";
         echo "<h3>Judul Iklan: $title_ads</h3>";
@@ -115,6 +123,21 @@ if ($result_ads->num_rows > 0) {
                         // Update data jika sudah ada
                         echo "<p><strong>Data ditemukan, memperbarui data...</strong></p>";
 
+                        // Catatan: cabang ini SENGAJA tidak menyentuh
+                        // is_approved_by_publisher/is_approved_by_advertiser,
+                        // approval_date_*, maupun reasons_rejected_* — dulu
+                        // kolom-kolom itu ikut di-reset paksa ke "disetujui"
+                        // setiap kali skrip ini jalan, sehingga menimpa reject
+                        // manual (publisher/advertiser lewat dashboard) maupun
+                        // auto-reject dari mapping_ads_publisher_check_rate_partner.php.
+                        // Status approval sekarang murni tanggung jawab
+                        // mapping_ads_publisher_check_rate_partner.php, sama
+                        // seperti pembagian tugas di versi lokal
+                        // (mapping_ads_publisher.php vs
+                        // mapping_ads_publisher_check_rate.php). is_published/
+                        // is_paused/is_expired tetap disegarkan di sini, tapi
+                        // dari status master iklan yang sebenarnya (bukan
+                        // hardcode 1/0/0).
                         $update_stmt = $mysqli->prepare(
                             "UPDATE mapping_advertisers_ads_publishers_site
                              SET rate_text_ads = ?,
@@ -127,25 +150,21 @@ if ($result_ads->num_rows > 0) {
                                  site_name = ?,
                                  site_domain = ?,
                                  site_desc = ?,
-                                 is_published = 1,
-                                 is_paused = 0,
-                                 is_expired = 0,
-                                 is_approved_by_publisher = 1,
-                                 is_approved_by_advertiser = 1,
-                                 approval_date_publisher = NOW(),
-                                 approval_date_advertiser = NOW(),
-                                 reasons_rejected_by_advertiser = '',
-                                 reasons_rejected_by_publisher = '',
+                                 is_published = ?,
+                                 is_paused = ?,
+                                 is_expired = ?,
+                                 expired_date = ?,
                                  revenue_publishers = ?
                              WHERE local_ads_id = ?
                                AND publishers_site_local_id = ?
                                AND ads_providers_domain_url = ?"
                         );
                         $update_stmt->bind_param(
-                            "ddisssssssdiis",
+                            "ddisssssssiiisdiis",
                             $rate_text_ads_with_markup, $budget_per_click_textads, $advertisers_id,
                             $title_ads, $description_ads, $landingpage_ads, $image_url,
-                            $site_name, $site_domain, $site_desc, $revenue_publishers,
+                            $site_name, $site_domain, $site_desc,
+                            $ispublished, $is_paused, $is_expired, $expired_date, $revenue_publishers,
                             $local_ads_id, $publishers_site_local_id, $ads_providers_domain_url
                         );
                         $update_stmt->execute();
@@ -163,17 +182,17 @@ if ($result_ads->num_rows > 0) {
                                  site_domain, site_desc, is_published, is_paused, is_expired,
                                  is_approved_by_publisher, is_approved_by_advertiser, approval_date_publisher,
                                  approval_date_advertiser, revenue_publishers)
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, 0, 1, 1, NOW(), NOW(), ?)"
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, 1, 1, NOW(), NOW(), ?)"
                         );
                         $insert_stmt->bind_param(
-                            "ddiissssissssisssd",
+                            "ddiissssissssisssid",
                             $rate_text_ads_with_markup, $budget_per_click_textads,
                             $local_ads_id, $publishers_site_local_id,
                             $pubs_providers_name, $pubs_providers_domain_url,
                             $ads_providers_name, $ads_providers_domain_url, $advertisers_id,
                             $title_ads, $description_ads, $landingpage_ads, $image_url,
                             $publishers_local_id, $site_name, $site_domain, $site_desc,
-                            $revenue_publishers
+                            $is_paused, $revenue_publishers
                         );
                         $insert_stmt->execute();
                         $insert_stmt->close();

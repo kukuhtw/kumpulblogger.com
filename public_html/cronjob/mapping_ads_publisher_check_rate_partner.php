@@ -98,6 +98,27 @@ if ($result->num_rows > 0) {
                     $update_stmt->close();
                 } else {
                     echo "<p class='match'>Oke: Harga Cocok</p>";
+
+                    // Harga sudah cocok lagi (bisa jadi sebelumnya pernah
+                    // ditolak otomatis karena harga) — setujui ulang secara
+                    // otomatis dan segarkan cache rate_text_ads, mengikuti
+                    // pola yang sama seperti mapping_ads_publisher_check_rate.php
+                    // (versi lokal). Sebelumnya cabang ini tidak melakukan
+                    // apa pun, sehingga satu-satunya jalan mapping partner
+                    // kembali approved adalah reset paksa di
+                    // mapping_ads_publisher_partner.php — yang sudah
+                    // diperbaiki supaya tidak lagi menimpa reject manual.
+                    $update_stmt = $mysqli->prepare(
+                        "UPDATE mapping_advertisers_ads_publishers_site
+                         SET is_approved_by_advertiser = 1,
+                             reasons_rejected_by_advertiser = '',
+                             rate_text_ads = ?
+                         WHERE id = ?
+                           AND (is_approved_by_advertiser != 1 OR rate_text_ads != ? OR reasons_rejected_by_advertiser != '')"
+                    );
+                    $update_stmt->bind_param("did", $rate_with_margin, $mapping_row['id'], $rate_with_margin);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 }
             }
         } else {
@@ -162,6 +183,21 @@ if ($result->num_rows > 0) {
                     $update_stmt->close();
                 } else {
                     echo "<p class='match'>Oke: Harga Cocok</p>";
+
+                    // Budget sudah cocok lagi — setujui ulang secara otomatis
+                    // dan segarkan cache budget_per_click_textads, dengan
+                    // alasan yang sama seperti Tahap 1 di atas.
+                    $update_stmt = $mysqli->prepare(
+                        "UPDATE mapping_advertisers_ads_publishers_site
+                         SET is_approved_by_publisher = 1,
+                             reasons_rejected_by_publisher = '',
+                             budget_per_click_textads = ?
+                         WHERE id = ?
+                           AND (is_approved_by_publisher != 1 OR budget_per_click_textads != ? OR reasons_rejected_by_publisher != '')"
+                    );
+                    $update_stmt->bind_param("did", $budget_per_click_textads, $mapping_row['id'], $budget_per_click_textads);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 }
             }
         } else {
