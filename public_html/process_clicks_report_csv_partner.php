@@ -6,6 +6,12 @@
 include("db.php");
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    exit('Login diperlukan.');
+}
+$user_id = (int) $_SESSION['user_id'];
+
 // Database connection using MySQLi
 $conn = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
 if ($conn->connect_error) {
@@ -17,20 +23,28 @@ if (!isset($_POST['local_ads_id']) || !isset($_POST['ads_providers_domain_url'])
     die("local_ads_id dan ads_providers_domain_url harus disertakan.");
 }
 
-$local_ads_id = $_POST['local_ads_id'];
-$ads_providers_domain_url = $_POST['ads_providers_domain_url'];
+$local_ads_id = (int) $_POST['local_ads_id'];
+$ads_providers_domain_url = trim((string) $_POST['ads_providers_domain_url']);
+if ($local_ads_id < 1 || $ads_providers_domain_url === '') {
+    http_response_code(400);
+    exit('Parameter laporan tidak valid.');
+}
 
 // Fetch data from advertisers_ads based on local_ads_id and ads_providers_domain_url
 $ads_sql = "
     SELECT title_ads, landingpage_ads
     FROM advertisers_ads
-    WHERE local_ads_id = ? AND providers_domain_url = ?";
+    WHERE local_ads_id = ? AND providers_domain_url = ? AND advertisers_id = ?";
 $ads_stmt = $conn->prepare($ads_sql);
-$ads_stmt->bind_param("is", $local_ads_id, $ads_providers_domain_url);
+$ads_stmt->bind_param("isi", $local_ads_id, $ads_providers_domain_url, $user_id);
 $ads_stmt->execute();
 $ads_stmt->bind_result($title_ads, $landingpage_ads);
-$ads_stmt->fetch();
+$ad_found = $ads_stmt->fetch();
 $ads_stmt->close();
+if (!$ad_found) {
+    http_response_code(404);
+    exit('Iklan tidak ditemukan atau bukan milik Anda.');
+}
 
 // Check and fetch data from ad_clicks with isaudit = 1 and is_reject = 0
 $clicks_sql = "
