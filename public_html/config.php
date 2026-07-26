@@ -45,7 +45,7 @@ class Database {
     }
 }
 
-// logger.php - Logging utility
+// Logging utility
 class Logger {
     private $debugLogFile;
     private $errorLogFile;

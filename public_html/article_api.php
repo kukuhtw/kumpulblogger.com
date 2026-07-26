@@ -6,7 +6,6 @@
 // Include necessary files
 require_once("db.php");
 require_once("config.php");
-//require_once("logger.php");
 
 // Initialize logger
 $logger = new Logger("logs/debug.log", "logs/error.log");
