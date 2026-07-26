@@ -23,14 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Get the ad ID from the form
-    $ad_id = $_POST['ad_id'];
+    $ad_id = (int) $_POST['ad_id'];
+    $user_id = (int) $_SESSION['user_id'];
+    if ($ad_id < 1) {
+        http_response_code(400);
+        exit('ID iklan tidak valid.');
+    }
 
     // Fetch the current status of the ad (is_paused)
-    $stmt = $conn->prepare("SELECT is_paused FROM advertisers_ads WHERE id = ?");
+    $stmt = $conn->prepare("SELECT is_paused FROM advertisers_ads WHERE id = ? AND advertisers_id = ?");
     if (!$stmt) {
         die("Terjadi kesalahan dalam persiapan query: " . $conn->error);
     }
-    $stmt->bind_param("i", $ad_id);
+    $stmt->bind_param("ii", $ad_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $ad = $result->fetch_assoc();
@@ -46,13 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($is_paused) {
         // Resume the ad (set is_paused = 0 and paused_date = NULL)
-        $update_stmt = $conn->prepare("UPDATE advertisers_ads SET is_paused = 0, paused_date = NULL WHERE id = ?");
-        $update_stmt->bind_param("i", $ad_id);
+        $update_stmt = $conn->prepare("UPDATE advertisers_ads SET is_paused = 0, paused_date = NULL WHERE id = ? AND advertisers_id = ?");
+        $update_stmt->bind_param("ii", $ad_id, $user_id);
     } else {
         // Pause the ad (set is_paused = 1 and update paused_date)
         $paused_date = date('Y-m-d H:i:s');
-        $update_stmt = $conn->prepare("UPDATE advertisers_ads SET is_paused = 1, paused_date = ? WHERE id = ?");
-        $update_stmt->bind_param("si", $paused_date, $ad_id);
+        $update_stmt = $conn->prepare("UPDATE advertisers_ads SET is_paused = 1, paused_date = ? WHERE id = ? AND advertisers_id = ?");
+        $update_stmt->bind_param("sii", $paused_date, $ad_id, $user_id);
     }
 
     // Execute the update statement

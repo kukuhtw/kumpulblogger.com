@@ -11,7 +11,7 @@
 Karakteristik umum:
 
 - **Satu akun, banyak peran.** Sesuai `documentation/02-aktor-dan-peran.md`: tidak ada pemilihan "jenis akun" saat registrasi (`reg.php`). Setelah login, `dashboard.php` menampilkan `main_menu.php` dengan tombol **Advertiser** dan **Publisher** yang sama-sama bisa diakses akun manapun. Peran ditentukan oleh tindakan: menambah situs (`add_site.php`) → jadi publisher; membuat iklan (`add_advertisement.php`) → jadi advertiser. Sub-fitur **Influencer Media** (`add_media_influencer.php` dkk.) adalah lapisan tambahan di atas peran publisher (pemilik media menjual slot, advertiser membelinya).
-- **Guard sesi standar**: `session_start(); if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }` di baris atas — dipakai di **sebagian besar** (55 dari 78) file, dua variabel session (`user_id`, `email`) yang di-set oleh `login.php` menjadi kontrak yang diandalkan seluruh dashboard. **Tidak konsisten diterapkan** — beberapa endpoint AJAX (`get_ads.php`-setara, `get_ideas.php`, `check_username.php`) memanggil `session_start()` tapi tidak pernah memeriksa isinya, dan beberapa halaman (`clicks_ads_partner_detail.php`) bahkan tidak memanggil `session_start()` sama sekali — lihat temuan keamanan di §5.
+- **Guard sesi standar**: `session_start(); if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }` di baris atas — dipakai di **sebagian besar** file; dua variabel session (`user_id`, `email`) yang di-set oleh `login.php` menjadi kontrak yang diandalkan seluruh dashboard. Beberapa endpoint AJAX berdampak rendah (`get_ideas.php`, `check_username.php`) masih memanggil `session_start()` tanpa memeriksa isinya.
 - **Guard sesi ≠ guard kepemilikan.** Banyak halaman yang sudah benar mengecek login ternyata tidak selalu memverifikasi bahwa *baris data* yang diminta (`ad_id`, `pub_id`, dst.) benar-benar milik `$_SESSION['user_id']` yang sedang login — pola IDOR (Insecure Direct Object Reference) berulang di beberapa file, lihat §5.
 - **Koneksi DB dibuka ulang di tiap file** (pola sama seperti `admin/`), umumnya lewat `include("db.php")` lalu `new mysqli(...)` manual — kecuali klaster artikel/AI yang memakai `class Database` dari `config.php`.
 - **Dua sistem shared-library berdampingan**: mayoritas halaman meng-include `function.php` (yang berantai meng-include `function_provider.php`, `function_ads.php`, `function_publisher.php`), sementara klaster artikel/AI (23 file) memakai `config.php` (class `Database`, class `Logger`, helper provider-JSON versi sendiri). Keduanya punya implementasi independen untuk fungsi serupa (lihat temuan §5).
@@ -57,11 +57,11 @@ Karakteristik umum:
 | | `view_advertiser_list_partner.php` | Directory iklan partner published | ✅ |
 | | `view_ads_sort_by_highest_bid_per_click.php` | Leaderboard iklan by bid per klik | ✅ |
 | **E. Laporan Klik** | `clicks_ads_local_detail.php` | Detail klik 1 iklan lokal (advertiser) | ✅ + kepemilikan |
-| | `clicks_ads_partner_detail.php` | 🔴 Sama, iklan partner — **tanpa guard sama sekali** | ❌ |
+| | `clicks_ads_partner_detail.php` | Detail klik partner dengan guard dan validasi pemilik iklan | ✅ + kepemilikan |
 | | `clicks_publisher_ads_partner_detail.php` | Rekap klik semua situs milik user per provider | ✅ + kepemilikan |
 | | `clicks_publisher_detail.php` | Detail klik 1 situs — ⚠️ tanpa cek kepemilikan `pub_id` | ✅ (IDOR) |
-| | `process_clicks_report_csv.php` | 🔴 Export CSV klik iklan lokal — tanpa cek login/kepemilikan | ❌ |
-| | `process_clicks_report_csv_partner.php` | 🔴 Sama, iklan partner | ❌ |
+| | `process_clicks_report_csv.php` | Export CSV klik iklan lokal | ✅ + kepemilikan |
+| | `process_clicks_report_csv_partner.php` | Export CSV klik iklan partner | ✅ + kepemilikan |
 | **F. Publisher — Konten Artikel & AI Tools** | `add_article.php` | Generate artikel via AI (2 tahap) | ✅ |
 | | `edit_article.php` | Edit artikel (editor Quill) | ✅ |
 | | `edit_article2.php` | ⚠️ Duplikat `edit_article.php`, orphan | ✅ |
@@ -83,11 +83,11 @@ Karakteristik umum:
 | **G. Advertiser — Manajemen Iklan** | `add_advertisement.php` | Form buat iklan baru + upload banner | ✅ |
 | | `edit_ads.php` | Edit iklan (judul/desk/gambar/budget-per-click) | ✅ |
 | | `update_ad.php` | ⚠️ *Nama menyesatkan* — sebenarnya approval publisher atas mapping | ✅ (tanpa cek kepemilikan mapping) |
-| | `delete_ads.php` | 🔴 Hapus iklan — tanpa cek kepemilikan | ✅ (IDOR) |
-| | `pause_resume_ads.php` | 🔴 Toggle pause iklan — tanpa cek kepemilikan | ✅ (IDOR) |
+| | `delete_ads.php` | Hapus iklan milik user | ✅ + kepemilikan |
+| | `pause_resume_ads.php` | Toggle pause iklan milik user | ✅ + kepemilikan |
 | | `view_ads.php` | List+filter iklan milik sendiri, modal aksi | ✅ |
 | | `update_approval_advertiser.php` | Approval advertiser atas mapping lokal | ✅ |
-| | `update_approval_advertiser_partner.php` | 🔴 Approval mapping partner — **bocor `public_key`/`secret_key`** | ✅ |
+| | `update_approval_advertiser_partner.php` | Approval mapping partner dan sinkronisasi aman server-to-server | ✅ + kepemilikan |
 | **H. Influencer Media** | `add_media_influencer.php` | Daftarkan slot media (publisher/pemilik media) | ✅ |
 | | `mymedia.php` | List media milik sendiri | ✅ |
 | | `edit_media.php` | Edit media milik sendiri (kepemilikan tervalidasi) | ✅ |
@@ -170,8 +170,8 @@ flowchart TD
         LIP --> DI[delete_invoice.php]
     end
 
-    MPAY -.recalc via function.php::updateRevenueForUser.-> MSU[(msusers)]
-    MREV -.recalc via admin/function_admin.php::updateLocalRevenue/GlobalRevenue.-> MSU
+    MPAY -.->|recalculate publisher revenue| MSU[(msusers)]
+    MREV -.->|recalculate local and global revenue| MSU
 ```
 
 ## 4. Detail per Modul
@@ -294,7 +294,7 @@ Leaderboard gabungan (`UNION`) iklan lokal+partner `ispublished=1 AND is_paused=
 Detail klik tervalidasi (`isaudit=1 AND is_reject=0`) untuk satu iklan lokal. Kepemilikan **diverifikasi dengan benar** (`advertisers_id = $user_id`, 404 kalau tidak cocok).
 
 #### `clicks_ads_partner_detail.php`
-🔴 **Temuan keamanan paling serius di modul ini**: kembaran file di atas untuk `ad_clicks_partner`, tapi **tanpa `session_start()`/pengecekan login sama sekali**, dan lookup iklan tidak mensyaratkan kepemilikan. Kalau iklan tidak ditemukan pun tidak `exit`, tetap render tabel klik kosong. Siapa pun yang tahu/menebak `local_ads_id` + `ads_providers_domain_url` bisa melihat IP, browser agent, referrer, dan revenue klik iklan **milik advertiser lain** tanpa login sama sekali.
+Kembaran laporan di atas untuk `ad_clicks_partner`. Guard login wajib dan iklan diverifikasi melalui `advertisers_ads.advertisers_id = $_SESSION['user_id']` sebelum detail klik dibaca. Filter domain diterapkan juga pada query jumlah baris pagination.
 
 #### `clicks_publisher_ads_partner_detail.php`
 Rekap klik semua situs milik user pada satu provider (toggle `?local=`). Kepemilikan **diverifikasi dengan benar** via `JOIN publishers_site ... JOIN msusers`.
@@ -303,7 +303,7 @@ Rekap klik semua situs milik user pada satu provider (toggle `?local=`). Kepemil
 Detail klik satu situs (`pub_id`). Guard login ada, **tapi tidak ada verifikasi bahwa `pub_id` milik user yang login** — IDOR: user A bisa melihat data klik situs user B lain hanya dengan mengganti `pub_id` di URL.
 
 #### `process_clicks_report_csv.php` / `process_clicks_report_csv_partner.php`
-🔴 Export CSV klik tervalidasi (`ad_clicks`/`ad_clicks_partner`). Sama seperti `clicks_ads_partner_detail.php`: `session_start()` dipanggil tapi tidak pernah diperiksa, dan tidak ada verifikasi kepemilikan `local_ads_id` — siapa pun bisa POST `local_ads_id`+domain dan mengunduh CSV berisi IP/`user_cookies`/revenue klik iklan advertiser mana pun, tanpa login.
+Export CSV klik tervalidasi (`ad_clicks`/`ad_clicks_partner`). Keduanya mewajibkan login, memvalidasi parameter, dan memastikan `local_ads_id`+domain berasal dari iklan milik user sebelum mengeluarkan data sensitif.
 
 ### Modul F — Publisher (Blogger): Manajemen Konten Artikel & AI Tools
 
@@ -375,10 +375,10 @@ Handler POST dari modal edit di `view_ads.php`. Update judul/deskripsi/landing/g
 ⚠️ **Nama menyesatkan** — bukan "update iklan" secara umum, melainkan endpoint approval **publisher** (dipanggil dari `mysite_ads.php`): UPDATE `mapping_advertisers_ads_publishers_site.is_approved_by_publisher`. Guard sesi ada, tapi **tidak ada pengecekan bahwa `publishers_site_local_id` yang dikirim memang milik user login**.
 
 #### `delete_ads.php`
-🔴 Hapus permanen `advertisers_ads` by `id`. **Tidak ada pengecekan `advertisers_id = $_SESSION['user_id']`** pada query DELETE — user manapun yang login bisa menghapus iklan milik akun lain kalau tahu `ad_id` (integer sequential, mudah ditebak). Proteksi "sudah tayang di publisher" hanya ada di UI (`view_ads.php`), tidak di endpoint ini.
+Hapus permanen `advertisers_ads` by `id`, dibatasi dengan `advertisers_id = $_SESSION['user_id']`. Request terhadap iklan yang tidak dimiliki ditolak tanpa mengubah data.
 
 #### `pause_resume_ads.php`
-🔴 Toggle `is_paused`. Sama seperti di atas, **tidak ada pengecekan kepemilikan**.
+Toggle `is_paused`; query SELECT dan UPDATE sama-sama dibatasi ke `advertisers_id = $_SESSION['user_id']`.
 
 #### `view_ads.php`
 Halaman "Iklan Saya" — filter+pagination aman (prepared statement dinamis). Modal aksi: Konfirmasi Bayar (→ `update_paid_desc.php`), Pause/Resume, Edit, Hapus (dengan pengecekan UI-only sebelum submit). Link ke laporan klik dan mapping publisher. Murni SELECT, tidak ada side-effect recalculation saat render.
@@ -387,7 +387,7 @@ Halaman "Iklan Saya" — filter+pagination aman (prepared statement dinamis). Mo
 Approval advertiser untuk mapping **lokal**: UPDATE `is_approved_by_advertiser`+`approval_date_advertiser`. **Berbeda total** dari approval admin (`admin/update_publish_status.php`, mengubah `ispublished`/`is_paid`) — lihat penjelasan 3-lapis approval di §5. Berisi 5 baris `echo` debug sebelum redirect.
 
 #### `update_approval_advertiser_partner.php`
-🔴 Sama seperti di atas untuk mapping **partner**, lalu meneruskan approval ke server provider mitra via POST (header `public_key`/`secret_key`). **Temuan serius**: berisi belasan `echo` debug yang mencetak `public_key`/`secret_key` provider mitra **langsung ke halaman** sebelum dipakai — dan halaman ini bisa diakses **akun advertiser biasa**, bukan cuma admin (pola sama seperti temuan kritis `admin/approval_join_force2.php` di `docs/ADMIN_PANEL.md`, tapi permukaan risikonya lebih luas di sini).
+Approval mapping **partner**, lalu meneruskan status ke server provider mitra via POST. Mapping dan iklan diverifikasi terhadap user login; domain provider diambil ulang dari database, bukan dipercaya dari hidden input. `public_key`/`secret_key` hanya dipakai pada header request server-to-server dan tidak dicetak ke respons.
 
 ### Modul H — Influencer Media
 
@@ -428,10 +428,10 @@ UPDATE `advertisers_ads.paid_desc` (dengan `AND advertisers_id=?`, kepemilikan t
 
 ## 5. Temuan & Catatan Kualitas Kode
 
-1. 🔴 **`clicks_ads_partner_detail.php` — tanpa guard login sama sekali, membocorkan data klik advertiser lain.** Tidak ada `session_start()`/pengecekan sesi, dan tidak ada verifikasi kepemilikan `local_ads_id`. Siapa pun yang tahu/menebak `local_ads_id`+domain provider bisa melihat IP, browser agent, referrer, dan revenue klik iklan milik advertiser mana pun tanpa login.
-2. 🔴 **`process_clicks_report_csv.php`/`_partner.php` — ekspor CSV data klik tanpa guard login/kepemilikan.** `session_start()` dipanggil tapi tidak pernah diperiksa; siapa pun bisa POST `local_ads_id`+domain dan mengunduh CSV berisi IP, `user_cookies`, dan revenue klik iklan advertiser mana pun.
-3. 🔴 **`update_approval_advertiser_partner.php` — mencetak `public_key`/`secret_key` provider mitra polos ke halaman**, dapat diakses akun advertiser biasa (bukan hanya admin). Pola sama seperti temuan kritis `admin/approval_join_force2.php` (`docs/ADMIN_PANEL.md` §5 #4), tapi permukaan akses di sini lebih luas.
-4. 🔴 **`delete_ads.php` dan `pause_resume_ads.php` — tidak memverifikasi kepemilikan iklan.** Query DELETE/UPDATE tidak menyertakan `advertisers_id = $_SESSION['user_id']`, hanya mengandalkan `ad_id` dari POST (integer sequential, mudah ditebak) — user manapun yang login berpotensi menghapus/mem-pause iklan milik akun lain.
+1. ✅ **Akses laporan klik partner diperketat.** `clicks_ads_partner_detail.php` kini mewajibkan sesi aktif dan memverifikasi pemilik iklan sebelum membaca `ad_clicks_partner`.
+2. ✅ **Ekspor CSV diperketat.** Endpoint lokal dan partner kini mewajibkan login serta ownership `local_ads_id`+domain sebelum mengirim data klik.
+3. ✅ **Kredensial approval partner tidak lagi bocor.** Semua debug sensitif dihapus; mapping/domain diverifikasi dari database dan kredensial hanya dipakai server-to-server.
+4. ✅ **Aksi hapus dan pause/resume kini terikat pemilik.** Query SELECT/DELETE/UPDATE menyertakan `advertisers_id = $_SESSION['user_id']`.
 5. ⚠️ **IDOR pada beberapa halaman yang sudah gated tapi tidak cek kepemilikan objek**: `clicks_publisher_detail.php` (`pub_id` tidak divalidasi milik user login) dan `update_ad.php` (`publishers_site_local_id` tidak divalidasi). Kontras dengan file-file sejenis yang sudah benar (`clicks_ads_local_detail.php`, `clicks_publisher_ads_partner_detail.php`, `edit_media.php`, `delete_media.php`, `update_paid_desc.php`, `delete_invoice.php`).
 6. ⚠️ **Beberapa endpoint AJAX memanggil `session_start()` tapi tidak pernah memeriksa isinya**: `get_ideas.php`, `check_username.php` — dampak rendah (data generik/publik) tapi pola berulang yang sama menjadi kritis di temuan #1/#2 di atas.
 7. **Klaster file yatim/duplikat cukup besar**, terutama di modul artikel: `forgot_password_2.php` (duplikat byte-identik `forgot_password.php`), `logger.php` (dead code, digantikan `class Logger` di `config.php`), `edit_article2.php`, `edit_article_tm.php` (justru **lebih baik** — sudah CSRF — tapi tidak pernah ditautkan), `edit_article_backup.php`, `view_edit_articles_backup.php`, `article_api_backup.php`, dan `upload_image_article_tm.php` (orphan tak-langsung karena hanya dipakai `edit_article_tm.php`). Pola sama seperti `admin/approval_join_force2.php` yang sudah didokumentasikan sebelumnya — sisa iterasi development yang lupa dibersihkan.

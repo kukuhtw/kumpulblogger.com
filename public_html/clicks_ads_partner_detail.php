@@ -5,6 +5,13 @@
 // Database connection
 include("db.php");
 include("function.php");
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+$user_id = (int) $_SESSION['user_id'];
 
 // Create a connection to the MySQL database
 $mysqli = new mysqli($servername_db, $username_db, $password_db, $dbname_db);
@@ -19,8 +26,13 @@ $local_ads_id = isset($_GET['local_ads_id']) ? intval($_GET['local_ads_id']) : 0
 $click_time = isset($_GET['click_time']) ? $_GET['click_time'] : '';
 $ads_providers_domain_url = isset($_GET['ads_providers_domain_url']) ? $_GET['ads_providers_domain_url'] : '';
 
+if ($local_ads_id < 1 || $ads_providers_domain_url === '') {
+    http_response_code(400);
+    exit('Parameter laporan tidak valid.');
+}
 
-$paging_link = "&click_time=".$click_time."&ads_providers_domain_url=".$ads_providers_domain_url;
+
+$paging_link = "&click_time=" . urlencode($click_time) . "&ads_providers_domain_url=" . urlencode($ads_providers_domain_url);
 
 
 $id = 1;
@@ -30,24 +42,20 @@ $id = 1;
 $this_providers_domain_url = get_providers_domain_url_json("providers_data.json", 1);
 
 
-if ($ads_providers_domain_url == $this_providers_domain_url) {
-    $table_advertisers_ads = "advertisers_ads";
-} else {
-    $table_advertisers_ads = "advertisers_ads_partners";
-}
-
-// Prepare SQL to get data from advertisers_ads
+// Partner-click reports belong to a local advertiser's own ad. Verify that
+// ownership before exposing any click details.
 $sql_ads = "SELECT title_ads, description_ads, landingpage_ads, image_url 
-            FROM $table_advertisers_ads
+            FROM advertisers_ads
             WHERE local_ads_id = ? 
-            AND providers_domain_url = ?";
+            AND providers_domain_url = ?
+            AND advertisers_id = ?";
 
 $stmt_ads = $mysqli->prepare($sql_ads);
 if ($stmt_ads === false) {
     die("Prepare failed: " . $mysqli->error);
 }
 
-$stmt_ads->bind_param("is", $local_ads_id, $ads_providers_domain_url);
+$stmt_ads->bind_param("isi", $local_ads_id, $ads_providers_domain_url, $user_id);
 
 // Execute the query
 $stmt_ads->execute();
@@ -62,14 +70,12 @@ if ($ads_data) {
     $landingpage_ads = $ads_data['landingpage_ads'];
     $image_url = $ads_data['image_url'];
 } else {
-    $title_ads = "No data available";
-    $description_ads = "No data available";
-    $landingpage_ads = "No data available";
-    $image_url = "No data available";
+    http_response_code(404);
+    exit('Iklan tidak ditemukan atau bukan milik Anda.');
 }
 
 // Pagination logic
-$page = isset($_GET['page']) ? intval($_GET['page']) : 1;  // Current page
+$page = max(1, isset($_GET['page']) ? intval($_GET['page']) : 1);  // Current page
 $records_per_page = 10;  // Number of records per page
 $offset = ($page - 1) * $records_per_page;  // Offset for SQL query
 
@@ -116,9 +122,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 // Fetch total records for pagination
-$total_sql = "SELECT COUNT(*) AS total_records FROM ad_clicks_partner WHERE local_ads_id = ? AND isaudit = 1 AND is_reject = 0";
+$total_sql = "SELECT COUNT(*) AS total_records FROM ad_clicks_partner
+              WHERE local_ads_id = ? AND ads_providers_domain_url = ?
+              AND isaudit = 1 AND is_reject = 0";
 $total_stmt = $mysqli->prepare($total_sql);
-$total_stmt->bind_param("i", $local_ads_id);
+$total_stmt->bind_param("is", $local_ads_id, $ads_providers_domain_url);
 $total_stmt->execute();
 $total_result = $total_stmt->get_result();
 $total_row = $total_result->fetch_assoc();
