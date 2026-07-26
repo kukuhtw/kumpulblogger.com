@@ -63,7 +63,7 @@ while ($row = $result->fetch_assoc()) {
     echo "<br>Adnetwork Name = " . $current_ads_providers_domain_url;
     
     // Process the data
-    calculate_budgetspentads_partner($conn, $current_local_ads_id, $current_ads_providers_domain_url);
+    calculate_budgetspentads_local($conn, $current_local_ads_id, $current_ads_providers_domain_url);
 
 }
 
@@ -73,12 +73,12 @@ $conn->close();
 
 
 
-function calculate_budgetspentads_partner($conn, $local_ads_id, $ads_providers_domain_url) {
-    
+function calculate_budgetspentads_local($conn, $local_ads_id, $ads_providers_domain_url) {
+
     $total_budget_spent = 0;
-    
+
     echo "<br>";
-    echo "<br>calculate_budgetspentads_partner";
+    echo "<br>calculate_budgetspentads_local";
 
     echo "<br>Local ads_providers_domain_url = " . $ads_providers_domain_url;
     echo "<br>local_ads_id = " . $local_ads_id;

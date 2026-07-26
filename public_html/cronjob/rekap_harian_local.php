@@ -37,10 +37,11 @@ $id = 1;
 $this_providers_domain_url = get_providers_domain_url_json("../providers_data.json", 1);
 
 
-// Filter untuk dua hari terakhir
-$date_two_days_ago = date('Y-m-d', strtotime('-200 days'));
+// Filter window data: 200 hari terakhir (nama variabel & teks di bawah
+// disesuaikan dengan nilai aslinya, bukan "dua hari" seperti sebelumnya)
+$date_window_start = date('Y-m-d', strtotime('-200 days'));
 
-// Query untuk mengambil data dari kedua tabel berdasarkan kriteria dua hari terakhir
+// Query untuk mengambil data dari kedua tabel berdasarkan window di atas
 $query = "
     SELECT 
         DATE(acp.click_time) AS tanggal_klik, 
@@ -58,9 +59,9 @@ $query = "
 ";
 
 
-// Prepare and execute query with date filter for the last two days
+// Prepare and execute query with the date window filter above
 $stmt = $pdo->prepare($query);
-$stmt->execute([$date_two_days_ago]);
+$stmt->execute([$date_window_start]);
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // HTML Output
@@ -97,7 +98,7 @@ echo "<h1>Rekap Harian Biaya Spending Advertiser</h1>";
 // Tambahkan informasi tentang proses yang sedang berjalan
 echo "<div class='process'>";
 echo "<h2>Informasi Proses</h2>";
-echo "<p>Proses ini secara otomatis melakukan rekap harian untuk biaya spending dari advertiser berdasarkan klik selama dua hari terakhir.</p>";
+echo "<p>Proses ini secara otomatis melakukan rekap harian untuk biaya spending dari advertiser berdasarkan klik selama 200 hari terakhir.</p>";
 echo "</div>";
 
 // Data untuk file JSON dan CSV
@@ -242,7 +243,7 @@ if (!empty($result)) {
     echo "</tbody></table>";
     echo "</div>"; // .table-wrapper
 } else {
-    echo "<p class='error'>Tidak ada data yang ditemukan untuk dua hari terakhir.</p>";
+    echo "<p class='error'>Tidak ada data yang ditemukan untuk 200 hari terakhir.</p>";
 }
 
 echo "</div>"; // .section

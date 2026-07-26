@@ -33,24 +33,14 @@ if (isset($data['providers_domain_url']) && isset($data['signature'])) {
     $newPublicKey = $data['newPublicKey'];
     $newSecretKey = $data['newSecretKey'];
 
-     $expected_secret_key = sha1($signature . $providers_domain_url .$newPublicKey.$newSecretKey);
-
-    if (1==1) {
-        // Process the request 
-    
-        $rt = updateKeysByDomainAndSignature($pdo, $providers_domain_url, $signature, $newPublicKey, $newSecretKey);
-        $response = array(
-                    'status' => 'success',
-                    'message' => $rt 
-                );
-    }
-    else {
-         // Invalid secret key
-        $response = array(
-            'status' => 'error',
-            'message' => 'Invalid secret key.'
+    // Otorisasi terjadi di dalam updateKeysByDomainAndSignature() itu sendiri:
+    // UPDATE-nya hanya mengenai baris yang providers_domain_url DAN signature-nya
+    // cocok dengan yang sudah tersimpan di providers_partners.
+    $rt = updateKeysByDomainAndSignature($pdo, $providers_domain_url, $signature, $newPublicKey, $newSecretKey);
+    $response = array(
+                'status' => 'success',
+                'message' => $rt
             );
-    }
 
 }
 

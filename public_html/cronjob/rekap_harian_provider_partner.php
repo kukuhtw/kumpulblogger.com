@@ -11,7 +11,7 @@
 
 <div class="container mt-5">
     <h2 class="text-center">Cronjob: Rekap Harian Provider Partner</h2>
-    <p>This cron job script processes the daily recap of partner providers based on clicks in the last 3 days. The following steps are performed:</p>
+    <p>This cron job script processes the daily recap of partner providers based on clicks in the last 300 days. The following steps are performed:</p>
 
     <!-- Step 1: Database Connection -->
     <div class="card mt-3">
@@ -48,41 +48,41 @@ if ($mysqli->connect_error) {
     <div class="card mt-3">
         <div class="card-header bg-primary text-white">Step 2: Recap Function</div>
         <div class="card-body">
-            <p>The function <code>rekapHarianProviderPartner</code> calculates the daily recap of partner providers within the past 3 days. The steps are:</p>
+            <p>The function <code>rekapHarianProviderPartner</code> calculates the daily recap of partner providers within the past 300 days. The steps are:</p>
             <ul>
-                <li><strong>Date Calculation:</strong> The function calculates the current date and the date 3 days ago.</li>
+                <li><strong>Date Calculation:</strong> The function calculates the current date and the date 300 days ago.</li>
                 <li><strong>SQL Query:</strong> It runs a query that selects the total number of clicks and total revenue from the partner provider for each day, where the clicks have been audited (<code>isaudit = 1</code>) and not rejected (<code>is_reject = 0</code>).</li>
                 <li><strong>Data Insertion/Update:</strong> For each record, the function inserts or updates the <code>rekap_harian_provider_partner</code> table with the total clicks and total revenue for that day and partner.</li>
             </ul>
             <pre><code><?php
 rekapHarianProviderPartner($mysqli,$pdo);
 
-// Function to calculate daily recap for partner providers within the past 3 days
+// Function to calculate daily recap for partner providers within the past 300 days
 function rekapHarianProviderPartner($mysqli,$pdo) {
     // Get the current date
     $current_date = date('Y-m-d');
-    
-    // Calculate the date from 3 days ago
-    $three_days_ago = date('Y-m-d', strtotime('-300 days'));
 
-    // Prepare the SQL query to calculate the daily recap within the past 3 days
+    // Calculate the start of the 300-day window
+    $date_window_start = date('Y-m-d', strtotime('-300 days'));
+
+    // Prepare the SQL query to calculate the daily recap within the window above
     $sql = "
-        SELECT 
+        SELECT
             DATE(click_time) as rekap_date,
             ads_providers_domain_url,
             COUNT(*) as total_clicks,
             SUM(revenue_adnetwork_partner) as total_revenue_partner
         FROM ad_clicks
-        WHERE isaudit = 1 
+        WHERE isaudit = 1
         AND is_reject = 0
-        AND revenue_adnetwork_partner >=1 
+        AND revenue_adnetwork_partner >=1
         AND click_time BETWEEN ? AND ?
         GROUP BY rekap_date, ads_providers_domain_url
     ";
 
     if ($stmt = $mysqli->prepare($sql)) {
         // Bind parameters for date range
-        $stmt->bind_param('ss', $three_days_ago, $current_date);
+        $stmt->bind_param('ss', $date_window_start, $current_date);
         $stmt->execute();
         $result = $stmt->get_result();
 

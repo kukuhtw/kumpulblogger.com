@@ -94,22 +94,16 @@ if (isset($data['title_ads']) && isset($data_title_ads)) {
     $budget_allocation = $data['budget_allocation'];
  $current_spending = $data['current_spending'];
 
-    $expected_secret_key = sha1($title_ads . $description_ads .$landingpage_ads.$providers_domain_url);
+    // Otentikasi partner sudah selesai di atas lewat checkProviderCredentials()
+    // (header public_key/secret_key) sebelum baris ini pernah tercapai.
+    $rt = insertOrUpdateAdvertisersAdsPartner($pdo, $local_ads_id, $providers_name, $providers_domain_url, $advertisers_id, $title_ads, $description_ads,
+        $landingpage_ads, $image_url,
+        $ispublished, $total_click, $current_click,$budget_per_click_textads, $is_expired,  $expired_date ,     $is_paused , $paused_date ,   $budget_allocation, $current_spending);
 
-    if (true) {
-        // Process the request 
-
-        $rt = insertOrUpdateAdvertisersAdsPartner($pdo, $local_ads_id, $providers_name, $providers_domain_url, $advertisers_id, $title_ads, $description_ads, 
-            $landingpage_ads, $image_url, 
-            $ispublished, $total_click, $current_click,$budget_per_click_textads, $is_expired,  $expired_date ,     $is_paused , $paused_date ,   $budget_allocation, $current_spending);
-
-       
-        $response = array(
-                    'status' => 'success',
-                    'message' => $rt 
-                );
-
-    }
+    $response = array(
+                'status' => 'success',
+                'message' => $rt
+            );
 
 }
 else {

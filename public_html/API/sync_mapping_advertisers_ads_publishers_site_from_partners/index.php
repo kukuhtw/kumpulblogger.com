@@ -161,54 +161,46 @@ $stmt = $pdo->prepare($sql);
 
 // Process each ad data
 foreach ($ad_data as $ad) {
-    // Check if hash_audit already exists
-    $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM mapping_advertisers_ads_publishers_site_from_partners WHERE id = ?");
-    $stmt_check->execute([$ad['id']]);
-    $exists = $stmt_check->fetchColumn();
+    try {
+        // Insert or update data in mapping_advertisers_ads_publishers_site_from_partners
+        // (ON DUPLICATE KEY UPDATE di $sql di atas sudah menangani kasus baris sudah ada)
+        $stmt->execute([
+            $ad['id'],
+            $ad['rate_text_ads'],
+            $ad['budget_per_click_textads'],
+            $ad['local_ads_id'],
+            $ad['publishers_site_local_id'],
+            $ad['owner_advertisers_id'],
+            $ad['title_ads'],
+            $ad['description_ads'],
+            $ad['landingpage_ads'],
+            $ad['publishers_local_id'],
+            $ad['site_name'],
+            $ad['site_domain'],
+            $ad['site_desc'],
+            $ad['image_url'],
+            $ad['is_published'],
+            $ad['is_paused'],
+            $ad['is_expired'],
+            $ad['is_approved_by_publisher'],
+            $ad['is_approved_by_advertiser'],
+            $ad['published_date'],
+            $ad['paused_date'],
+            $ad['expired_date'],
+            $ad['approval_date_publisher'],
+            $ad['approval_date_advertiser'],
+            $ad['pubs_providers_name'],
+            $ad['pubs_providers_domain_url'],
+            $ad['ads_providers_name'],
+            $ad['ads_providers_domain_url'],
+            $ad['reasons_rejected_by_advertiser'],
+            $ad['reasons_rejected_by_publisher'],
+            $ad['revenue_publishers']
+        ]);
 
-    debug_text("t2.txt", "exists :" . $exists);
-
-    if (true) { // Condition for inserting/updating
-        try {
-            // Insert or update data in mapping_advertisers_ads_publishers_site_from_partners
-            $stmt->execute([
-                $ad['id'],
-                $ad['rate_text_ads'], 
-                $ad['budget_per_click_textads'], 
-                $ad['local_ads_id'], 
-                $ad['publishers_site_local_id'], 
-                $ad['owner_advertisers_id'], 
-                $ad['title_ads'], 
-                $ad['description_ads'], 
-                $ad['landingpage_ads'], 
-                $ad['publishers_local_id'], 
-                $ad['site_name'], 
-                $ad['site_domain'], 
-                $ad['site_desc'], 
-                $ad['image_url'], 
-                $ad['is_published'], 
-                $ad['is_paused'], 
-                $ad['is_expired'], 
-                $ad['is_approved_by_publisher'], 
-                $ad['is_approved_by_advertiser'], 
-                $ad['published_date'], 
-                $ad['paused_date'], 
-                $ad['expired_date'], 
-                $ad['approval_date_publisher'], 
-                $ad['approval_date_advertiser'], 
-                $ad['pubs_providers_name'], 
-                $ad['pubs_providers_domain_url'], 
-                $ad['ads_providers_name'], 
-                $ad['ads_providers_domain_url'], 
-                $ad['reasons_rejected_by_advertiser'], 
-                $ad['reasons_rejected_by_publisher'], 
-                $ad['revenue_publishers']
-            ]);
-
-        } catch (PDOException $e) {
-            error_log("Failed to execute statement: " . $e->getMessage());
-            continue; // Skip this ad if insertion fails
-        }
+    } catch (PDOException $e) {
+        error_log("Failed to execute statement: " . $e->getMessage());
+        continue; // Skip this ad if insertion fails
     }
 }
 
