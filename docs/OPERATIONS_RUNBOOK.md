@@ -47,6 +47,7 @@ sebagai keputusan bisnis yang sudah disetujui.
 - [Render](./operations/RENDER_DEPLOYMENT.md)
 - [Zeabur](./operations/ZEABUR_DEPLOYMENT.md)
 - [Heroku](./operations/HEROKU_DEPLOYMENT.md)
+- [Dokploy](./operations/DOKPLOY_DEPLOYMENT.md)
 
 Semua menggunakan [fondasi Docker](./operations/DOCKER_DEPLOYMENT.md). Produksi
 memerlukan MySQL 8, HTTPS, persistent storage, scheduler, monitoring, dan backup.
@@ -137,6 +138,7 @@ Tanpa scheduler, mapping, audit klik, rekap revenue, dan auto-expire tidak seles
 - Render: cron dari `render.yaml`
 - Zeabur: service kedua dengan `PROCESS_TYPE=cron`
 - Heroku: Heroku Scheduler
+- Dokploy: service `cron` pada `dokploy-compose.yml`
 
 Pahami [urutan pipeline](./guides/11-cronjob-dan-otomatisasi.md) dan
 [fungsi tiap job](./operations/CRONJOB_JOBS.md). Scheduler cloud umumnya UTC.

@@ -84,6 +84,7 @@ dan insiden. Runbook tersebut menjadi penghubung seluruh dokumen di bawah ini.
 - [Railway deployment](operations/RAILWAY_DEPLOYMENT.md)
 - [Render deployment](operations/RENDER_DEPLOYMENT.md)
 - [Zeabur deployment](operations/ZEABUR_DEPLOYMENT.md)
+- [Dokploy deployment](operations/DOKPLOY_DEPLOYMENT.md)
 
 ## Hal yang ditandai "perlu konfirmasi"
 

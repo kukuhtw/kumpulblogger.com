@@ -1,0 +1,88 @@
+x-app-environment: &app-environment
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: ${DB_DATABASE:-myadnetwork}
+  DB_USERNAME: ${DB_USERNAME:-myadnetwork}
+  DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in Dokploy}
+  APP_NAME: ${APP_NAME:-MyAdNetwork}
+  DOMAIN_NAME: ${DOMAIN_NAME:?Set DOMAIN_NAME in Dokploy}
+  PROVIDER_NAME: ${PROVIDER_NAME:-}
+  PROVIDER_DOMAIN_URL: ${PROVIDER_DOMAIN_URL:-}
+  PROVIDER_CONTACT_EMAIL: ${PROVIDER_CONTACT_EMAIL:-}
+  PROVIDER_CONTACT_WHATSAPP: ${PROVIDER_CONTACT_WHATSAPP:-}
+  SMTP_API_KEY: ${SMTP_API_KEY:-}
+  SMTP_API_SECRET: ${SMTP_API_SECRET:-}
+  RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-}
+  RECAPTCHA_SECRET: ${RECAPTCHA_SECRET:-}
+  PAYMENT_INFO: ${PAYMENT_INFO:-}
+  LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  REPLICATE_API_KEY: ${REPLICATE_API_KEY:-}
+  LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-2048}
+  LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.70}
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  OPENROUTER_MODEL: ${OPENROUTER_MODEL:-nvidia/nemotron-nano-12b-v2-vl:free}
+  NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+  NVIDIA_EMBEDDING_MODEL: ${NVIDIA_EMBEDDING_MODEL:-nvidia/nemotron-3-embed-1b}
+  KCE_APP_URL: ${KCE_APP_URL:?Set KCE_APP_URL in Dokploy}
+  KCE_TRACKING_SECRET: ${KCE_TRACKING_SECRET:?Set KCE_TRACKING_SECRET in Dokploy}
+  PORT: "8080"
+  PERSISTENT_DATA_ROOT: /data
+
+x-app-service: &app-service
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  depends_on:
+    db:
+      condition: service_healthy
+  volumes:
+    - app_data:/data
+
+services:
+  web:
+    <<: *app-service
+    environment:
+      <<: *app-environment
+      PROCESS_TYPE: web
+      RUN_DB_PREPARE: "1"
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8080/health.php') === false ? 1 : 0);"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  cron:
+    <<: *app-service
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      <<: *app-environment
+      PROCESS_TYPE: cron
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-myadnetwork}
+      MYSQL_USER: ${DB_USERNAME:-myadnetwork}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in Dokploy}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in Dokploy}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  app_data:

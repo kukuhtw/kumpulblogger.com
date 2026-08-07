@@ -112,3 +112,4 @@ Implementasi Render tersedia di [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md).
 Implementasi Zeabur tersedia di [ZEABUR_DEPLOYMENT.md](./ZEABUR_DEPLOYMENT.md).
 Implementasi DigitalOcean Marketplace tersedia di
 [DIGITALOCEAN_MARKETPLACE.md](./DIGITALOCEAN_MARKETPLACE.md).
+Implementasi Dokploy tersedia di [DOKPLOY_DEPLOYMENT.md](./DOKPLOY_DEPLOYMENT.md).

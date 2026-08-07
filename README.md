@@ -119,10 +119,11 @@ Pilih satu target:
 - [Render](docs/operations/RENDER_DEPLOYMENT.md)
 - [Zeabur](docs/operations/ZEABUR_DEPLOYMENT.md)
 - [Heroku](docs/operations/HEROKU_DEPLOYMENT.md)
+- [Dokploy](docs/operations/DOKPLOY_DEPLOYMENT.md)
 
 Render membutuhkan MySQL eksternal. Template Zeabur memerlukan penggantian
-`GITHUB_REPOSITORY_ID` sebelum diterbitkan. Coolify dan Dokploy belum mempunyai
-manifest/panduan khusus, tetapi dapat menggunakan Dockerfile dengan konfigurasi
+`GITHUB_REPOSITORY_ID` sebelum diterbitkan. Dokploy menggunakan
+`dokploy-compose.yml`; Coolify dapat menggunakan Dockerfile dengan konfigurasi
 database, volume `/data`, health check, dan environment variables yang sama.
 
 ## Konfigurasi
