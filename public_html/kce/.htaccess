@@ -1,0 +1,12 @@
+Options -Indexes
+
+<IfModule mod_headers.c>
+    <Files "stream.php">
+        Header set Cache-Control "no-cache, no-store, no-transform"
+        Header set X-Accel-Buffering "no"
+    </Files>
+</IfModule>
+
+<IfModule mod_setenvif.c>
+    SetEnvIf Request_URI "/kce/api/stream\.php$" no-gzip=1 dont-vary=1
+</IfModule>

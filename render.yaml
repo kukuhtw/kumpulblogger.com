@@ -1,0 +1,72 @@
+services:
+  - type: web
+    name: myadnetwork-web
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health.php
+    preDeployCommand: myadnetwork-db-prepare
+    autoDeployTrigger: commit
+    envVars:
+      - fromGroup: myadnetwork-production
+      - key: PERSISTENT_DATA_ROOT
+        value: /data
+    disk:
+      name: myadnetwork-data
+      mountPath: /data
+      sizeGB: 10
+
+  - type: cron
+    name: myadnetwork-cron
+    runtime: docker
+    plan: starter
+    region: singapore
+    schedule: "* * * * *"
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: php /var/www/html/bin/run-scheduled-jobs.php
+    autoDeployTrigger: commit
+    envVars:
+      - fromGroup: myadnetwork-production
+
+envVarGroups:
+  - name: myadnetwork-production
+    envVars:
+      - key: APP_NAME
+        value: MyAdNetwork
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DOMAIN_NAME
+        sync: false
+      - key: KCE_APP_URL
+        sync: false
+      - key: KCE_TRACKING_SECRET
+        generateValue: true
+      - key: SMTP_API_KEY
+        sync: false
+      - key: SMTP_API_SECRET
+        sync: false
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET
+        sync: false
+      - key: PAYMENT_INFO
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: nvidia/nemotron-nano-12b-v2-vl:free
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: NVIDIA_EMBEDDING_MODEL
+        value: nvidia/nemotron-3-embed-1b

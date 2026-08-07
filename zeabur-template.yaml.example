@@ -1,0 +1,124 @@
+# Replace GITHUB_REPOSITORY_ID before importing this template. Obtain the
+# numeric repository ID from: gh api repos/OWNER/REPOSITORY --jq .id
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: MyAdNetwork
+spec:
+  description: Self-hosted advertising network and blogging platform.
+  tags:
+    - Tool
+  variables:
+    - key: PUBLIC_DOMAIN
+      type: DOMAIN
+      name: Public domain
+      description: Domain used for the MyAdNetwork web service.
+    - key: APP_NAME
+      type: STRING
+      name: Application name
+      description: Public provider and application name.
+  readme: |-
+    # MyAdNetwork
+    Deploys the PHP/Apache application and MySQL 8.4. Database preparation,
+    provider JSON synchronization, and persistent runtime storage are enabled.
+  services:
+    - name: mysql
+      template: PREBUILT
+      spec:
+        source:
+          image: mysql:8.4
+        ports:
+          - id: database
+            port: 3306
+            type: TCP
+        volumes:
+          - id: mysql-data
+            dir: /var/lib/mysql
+        env:
+          MYSQL_DATABASE:
+            default: myadnetwork
+            expose: true
+          MYSQL_USER:
+            default: myadnetwork
+            expose: true
+          MYSQL_PASSWORD:
+            default: ${PASSWORD}
+            expose: true
+          MYSQL_ROOT_PASSWORD:
+            default: ${PASSWORD}
+          MYSQL_HOST:
+            default: ${CONTAINER_HOSTNAME}
+            expose: true
+            readonly: true
+          MYSQL_PORT:
+            default: ${DATABASE_PORT}
+            expose: true
+            readonly: true
+    - name: myadnetwork
+      template: GIT
+      domainKey: PUBLIC_DOMAIN
+      dependencies:
+        - mysql
+      spec:
+        source:
+          type: GITHUB
+          repoID: GITHUB_REPOSITORY_ID
+          branch: main
+        ports:
+          - id: web
+            port: 8080
+            type: HTTP
+        volumes:
+          - id: app-data
+            dir: /data
+        env:
+          PORT:
+            default: "8080"
+          DB_HOST:
+            default: ${MYSQL_HOST}
+          DB_PORT:
+            default: ${MYSQL_PORT}
+          DB_DATABASE:
+            default: ${MYSQL_DATABASE}
+          DB_USERNAME:
+            default: ${MYSQL_USER}
+          DB_PASSWORD:
+            default: ${MYSQL_PASSWORD}
+          DOMAIN_NAME:
+            default: ${PUBLIC_DOMAIN}
+          KCE_APP_URL:
+            default: https://${PUBLIC_DOMAIN}/kce
+          KCE_TRACKING_SECRET:
+            default: ${PASSWORD}
+          PERSISTENT_DATA_ROOT:
+            default: /data
+          RUN_DB_PREPARE:
+            default: "1"
+    - name: cron-worker
+      template: GIT
+      dependencies:
+        - mysql
+      spec:
+        source:
+          type: GITHUB
+          repoID: GITHUB_REPOSITORY_ID
+          branch: main
+        env:
+          DB_HOST:
+            default: ${MYSQL_HOST}
+          DB_PORT:
+            default: ${MYSQL_PORT}
+          DB_DATABASE:
+            default: ${MYSQL_DATABASE}
+          DB_USERNAME:
+            default: ${MYSQL_USER}
+          DB_PASSWORD:
+            default: ${MYSQL_PASSWORD}
+          APP_NAME:
+            default: ${APP_NAME}
+          DOMAIN_NAME:
+            default: ${PUBLIC_DOMAIN}
+          KCE_APP_URL:
+            default: https://${PUBLIC_DOMAIN}/kce
+          PROCESS_TYPE:
+            default: cron

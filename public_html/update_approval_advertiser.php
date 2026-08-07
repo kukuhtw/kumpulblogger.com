@@ -23,9 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $publishers_site_local_id= (int)$_POST['publishers_site_local_id'];
 
     // Update query
-    $query = "UPDATE  mapping_advertisers_ads_publishers_site SET is_approved_by_advertiser = ?, approval_date_advertiser = now() WHERE id = ? AND 	local_ads_id = ? AND publishers_site_local_id = ? " ;
+    $query = "UPDATE mapping_advertisers_ads_publishers_site
+              SET is_approved_by_advertiser = ?,
+                  reasons_rejected_by_advertiser = CASE WHEN ? = 0 THEN 'manual' ELSE '' END,
+                  approval_date_advertiser = NOW()
+              WHERE id = ? AND local_ads_id = ? AND publishers_site_local_id = ?" ;
     $stmt = $conn->prepare($query);
-    $stmt->bind_param('iiii', $is_approved_by_advertiser, $id , $local_ads_id , $publishers_site_local_id);
+    $stmt->bind_param('iiiii', $is_approved_by_advertiser, $is_approved_by_advertiser, $id, $local_ads_id, $publishers_site_local_id);
 
    echo "<br>query: ".$query;
    echo "<br>is_approved_by_advertiser: ".$is_approved_by_advertiser;

@@ -88,8 +88,11 @@ if ($result->num_rows > 0) {
                     // Step 4: Update `is_approved_by_advertiser` and set rejection reason
                     $update_stmt = $mysqli->prepare(
                         "UPDATE mapping_advertisers_ads_publishers_site
-                         SET is_approved_by_advertiser = 0,
-                             reasons_rejected_by_advertiser = 'out of budget',
+                         SET reasons_rejected_by_advertiser = CASE
+                                 WHEN is_approved_by_advertiser = 1 OR reasons_rejected_by_advertiser = 'out of budget'
+                                 THEN 'out of budget' ELSE reasons_rejected_by_advertiser
+                             END,
+                             is_approved_by_advertiser = 0,
                              rate_text_ads = ?
                          WHERE id = ?"
                     );
@@ -114,9 +117,10 @@ if ($result->num_rows > 0) {
                              reasons_rejected_by_advertiser = '',
                              rate_text_ads = ?
                          WHERE id = ?
-                           AND (is_approved_by_advertiser != 1 OR rate_text_ads != ? OR reasons_rejected_by_advertiser != '')"
+                           AND is_approved_by_advertiser = 0
+                           AND reasons_rejected_by_advertiser = 'out of budget'"
                     );
-                    $update_stmt->bind_param("did", $rate_with_margin, $mapping_row['id'], $rate_with_margin);
+                    $update_stmt->bind_param("di", $rate_with_margin, $mapping_row['id']);
                     $update_stmt->execute();
                     $update_stmt->close();
                 }
@@ -181,8 +185,11 @@ if ($result->num_rows > 0) {
                     // Step 4: Update `is_approved_by_publisher` and set rejection reason
                     $update_stmt = $mysqli->prepare(
                         "UPDATE mapping_advertisers_ads_publishers_site
-                         SET is_approved_by_publisher = 0,
-                             reasons_rejected_by_publisher = 'out of budget',
+                         SET reasons_rejected_by_publisher = CASE
+                                 WHEN is_approved_by_publisher = 1 OR reasons_rejected_by_publisher = 'out of budget'
+                                 THEN 'out of budget' ELSE reasons_rejected_by_publisher
+                             END,
+                             is_approved_by_publisher = 0,
                              budget_per_click_textads = ?
                          WHERE id = ?"
                     );
@@ -201,9 +208,10 @@ if ($result->num_rows > 0) {
                              reasons_rejected_by_publisher = '',
                              budget_per_click_textads = ?
                          WHERE id = ?
-                           AND (is_approved_by_publisher != 1 OR budget_per_click_textads != ? OR reasons_rejected_by_publisher != '')"
+                           AND is_approved_by_publisher = 0
+                           AND reasons_rejected_by_publisher = 'out of budget'"
                     );
-                    $update_stmt->bind_param("did", $budget_per_click_textads, $mapping_row['id'], $budget_per_click_textads);
+                    $update_stmt->bind_param("di", $budget_per_click_textads, $mapping_row['id']);
                     $update_stmt->execute();
                     $update_stmt->close();
                 }

@@ -77,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Prepare the update query
     $sql = "UPDATE mapping_advertisers_ads_publishers_site 
-            SET is_approved_by_publisher = ? 
+            SET is_approved_by_publisher = ?,
+                reasons_rejected_by_publisher = CASE WHEN ? = 0 THEN 'manual' ELSE '' END
             WHERE id = ? 
             AND publishers_site_local_id = ?
             AND pubs_providers_domain_url = ?
@@ -91,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $mysqli->prepare($sql);
 
     // Bind the parameters (approval status, ad ID, publisher site local ID, provider domain URL)
-    $stmt->bind_param("iiisi", $is_approved_by_publisher, $ad_id, $publisher_site_local_id, $this_providers_domain_url, $user_id);
+    $stmt->bind_param("iiiisi", $is_approved_by_publisher, $is_approved_by_publisher, $ad_id, $publisher_site_local_id, $this_providers_domain_url, $user_id);
 
     // Execute the statement
     if ($stmt->execute()) {

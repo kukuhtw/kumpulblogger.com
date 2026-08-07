@@ -3,6 +3,7 @@
 
 require_once "../db.php";
 require_once "../config.php";
+require_once "../kce/lib.php";
 include("../../../gtag.js.php");
 
 try {
@@ -64,6 +65,23 @@ if ($result->num_rows === 0) {
 }
 $article = $result->fetch_assoc();
 $stmt->close();
+
+// Gunakan embedding artikel yang sudah tersimpan. Tidak ada panggilan API saat halaman dibuka.
+try {
+    $vectorRelatedArticles = kce_related_articles_by_article($conn, $id, 3);
+} catch (Throwable $relatedError) {
+    error_log('Related article embedding: ' . $relatedError->getMessage());
+    $vectorRelatedArticles = [];
+}
+
+// Sponsored content KCE dicocokkan langsung dengan embedding artikel tersimpan.
+try {
+    $articleSponsors = kce_sponsors_for_article($conn, $id, 2);
+} catch (Throwable $sponsorError) {
+    error_log('Article KCE sponsors: ' . $sponsorError->getMessage());
+    $articleSponsors = [];
+}
+$articlePlacementId = hash('sha256', kce_ip_hash() . '|article|' . $id);
 
 // Konfigurasi iklan harus tersedia saat view_article.php dipanggil langsung oleh rewrite URL.
 //
@@ -369,8 +387,37 @@ body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-syst
 .sidebar-title { margin:0 0 1rem; font-size:1.05rem; font-weight:800; }
 .related-link { display:block; padding:.8rem 0; border-bottom:1px solid #e8efec; color:#30453f; font-weight:650; line-height:1.45; text-decoration:none; }
 .related-link:hover { color:var(--brand); }
+.vector-related { margin:2rem 0 1.25rem; padding-top:1.5rem; border-top:1px solid #e1ebe7; }
+.vector-related-heading { margin-bottom:.35rem; color:var(--brand-dark); font-size:1.35rem; font-weight:850; }
+.vector-related-subtitle { margin-bottom:1rem; color:var(--muted); font-size:.9rem; }
+.vector-related-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; }
+.vector-related-card { display:flex; flex-direction:column; min-width:0; padding:1rem; border:1px solid #deebe6; border-radius:.8rem; background:#f8fcfa; color:inherit; text-decoration:none; transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease; }
+.vector-related-card:hover { color:inherit; transform:translateY(-3px); border-color:#a9d7c7; box-shadow:0 8px 18px rgba(31,101,78,.12); }
+.vector-related-card h3 { margin:0 0 .55rem; color:var(--brand-dark); font-size:1rem; font-weight:800; line-height:1.4; }
+.vector-related-card p { margin:0 0 .8rem; color:var(--muted); font-size:.84rem; line-height:1.55; }
+.vector-related-card span { margin-top:auto; color:var(--brand); font-size:.82rem; font-weight:750; }
+.article-sponsors { margin:2rem 0; padding:1.15rem; border:1px solid #eadca7; border-radius:.9rem; background:#fffaf0; }
+.article-sponsors-heading { margin-bottom:.8rem; color:#80651f; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.article-sponsor-card { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; padding:1rem; border:1px solid #ebdfb7; border-radius:.75rem; background:#fff; }
+.article-sponsor-card + .article-sponsor-card { margin-top:.7rem; }
+.article-sponsor-card h3 { margin:0 0 .35rem; color:#443817; font-size:1.02rem; font-weight:800; }
+.article-sponsor-card h3 a { color:inherit; font-size:inherit; font-weight:inherit; text-decoration:none; }
+.article-sponsor-card h3 a:hover { color:#745b13; text-decoration:underline; }
+.article-sponsor-card p { margin:0 0 .65rem; color:#6c6249; font-size:.88rem; line-height:1.55; }
+.article-sponsor-card a { color:#745b13; font-size:.85rem; font-weight:800; text-decoration:none; }
+.article-sponsor-card a:hover { text-decoration:underline; }
+.article-sponsor-card img { width:150px; height:82px; border-radius:.6rem; object-fit:cover; }
+.article-sponsor-preview { cursor:zoom-in; }
+.sponsor-image-dialog { width:auto; max-width:92vw; padding:0; border:0; border-radius:1rem; background:transparent; box-shadow:0 24px 70px rgba(0,0,0,.38); overflow:visible; }
+.sponsor-image-dialog::backdrop { background:rgba(10,20,17,.78); backdrop-filter:blur(3px); }
+.sponsor-image-dialog-inner { position:relative; display:grid; place-items:center; padding:.65rem; border-radius:1rem; background:#fff; }
+.sponsor-image-dialog img { display:block; width:auto; max-width:88vw; height:auto; max-height:82vh; border-radius:.7rem; object-fit:contain; }
+.sponsor-image-dialog-close { position:absolute; z-index:2; top:-.8rem; right:-.8rem; display:grid; place-items:center; width:2.25rem; height:2.25rem; padding:0; border:2px solid #fff; border-radius:50%; background:#18352c; color:#fff; font-size:1.35rem; line-height:1; box-shadow:0 4px 12px rgba(0,0,0,.25); cursor:pointer; }
+.sponsor-image-dialog-close:hover { background:#087f5b; }
 .back-link { border-color:#b9cac4; color:#40564f; }
 @media (max-width:991.98px) { .sidebar-card { position:static; } }
+@media (max-width:767.98px) { .vector-related-grid { grid-template-columns:1fr; } }
+@media (max-width:575.98px) { .article-sponsor-card { grid-template-columns:1fr; } .article-sponsor-card img { width:100%; height:140px; } }
 /* 1) Kalau mau simpel: biarkan iframe menyesuaikan lebar container */
 .ql-editor .ql-video {
   display: block;
@@ -518,6 +565,44 @@ body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-syst
                 ?>
             </div>
 
+            <?php if (!empty($articleSponsors)): ?>
+                <aside class="article-sponsors" aria-label="Sponsored content KCE">
+                    <div class="article-sponsors-heading">Sponsored Content &middot; Iklan</div>
+                    <?php foreach ($articleSponsors as $articleSponsor): ?>
+                        <?php
+                        $sponsorId = (int) $articleSponsor['id'];
+                        $sponsorToken = kce_sign($sponsorId, $articlePlacementId);
+                        $sponsorClickUrl = '/kce/api/event.php?' . http_build_query([
+                            'id' => $sponsorId,
+                            'type' => 'click',
+                            'conversation_id' => $articlePlacementId,
+                            'token' => $sponsorToken,
+                        ]);
+                        $sponsorBanner = kce_public_url($articleSponsor['banner_url'] ?? null);
+                        ?>
+                        <article class="article-sponsor-card"
+                                 data-kce-sponsor-id="<?php echo $sponsorId; ?>"
+                                 data-kce-placement="<?php echo htmlspecialchars($articlePlacementId, ENT_QUOTES, 'UTF-8'); ?>"
+                                 data-kce-token="<?php echo htmlspecialchars($sponsorToken, ENT_QUOTES, 'UTF-8'); ?>">
+                            <div>
+                                <h3><a href="<?php echo htmlspecialchars($sponsorClickUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener sponsored"><?php echo htmlspecialchars($articleSponsor['title'], ENT_QUOTES, 'UTF-8'); ?></a></h3>
+                                <p><?php echo htmlspecialchars($articleSponsor['body'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                <a href="<?php echo htmlspecialchars($sponsorClickUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener sponsored">Kunjungi sponsor &rarr;</a>
+                            </div>
+                            <?php if ($sponsorBanner): ?>
+                                <img class="article-sponsor-preview" src="<?php echo htmlspecialchars($sponsorBanner, ENT_QUOTES, 'UTF-8'); ?>" alt="Banner <?php echo htmlspecialchars($articleSponsor['title'], ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" tabindex="0" role="button" aria-label="Lihat banner <?php echo htmlspecialchars($articleSponsor['title'], ENT_QUOTES, 'UTF-8'); ?> dalam ukuran penuh">
+                            <?php endif; ?>
+                        </article>
+                    <?php endforeach; ?>
+                </aside>
+                <dialog class="sponsor-image-dialog" id="sponsorImageDialog" aria-label="Pratinjau banner sponsor">
+                    <div class="sponsor-image-dialog-inner">
+                        <button class="sponsor-image-dialog-close" type="button" aria-label="Tutup pratinjau">&times;</button>
+                        <img src="" alt="">
+                    </div>
+                </dialog>
+            <?php endif; ?>
+
             <?php if (!empty($article['wav'])): ?>
    
 
@@ -584,6 +669,22 @@ endif;
                 </div>
             <?php endif; ?>
 
+            <?php if (!empty($vectorRelatedArticles)): ?>
+                <section class="vector-related" aria-labelledby="vectorRelatedTitle">
+                    <h2 id="vectorRelatedTitle" class="vector-related-heading">Artikel relevan untuk Anda</h2>
+                    <p class="vector-related-subtitle">Dipilih berdasarkan kedekatan topik menggunakan vector embedding.</p>
+                    <div class="vector-related-grid">
+                        <?php foreach ($vectorRelatedArticles as $relatedArticle): ?>
+                            <a class="vector-related-card" href="<?php echo htmlspecialchars($relatedArticle['url'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <h3><?php echo htmlspecialchars($relatedArticle['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                                <p><?php echo htmlspecialchars($relatedArticle['excerpt'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                <span>Baca artikel &rarr;</span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
+            <?php endif; ?>
+
 
             <a href="../../../blog/<?php echo htmlspecialchars($user, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary d-block mt-3">Artikel lain dari penulis ini</a>
        
@@ -634,6 +735,55 @@ endif;
     </div>
 </div>
 <script>
+  (function() {
+    const dialog = document.getElementById('sponsorImageDialog');
+    if (!dialog) return;
+    const fullImage = dialog.querySelector('img');
+    const closeButton = dialog.querySelector('.sponsor-image-dialog-close');
+    const openPreview = function(source) {
+      fullImage.src = source.currentSrc || source.src;
+      fullImage.alt = source.alt;
+      if (typeof dialog.showModal === 'function') {
+        if (!dialog.open) dialog.showModal();
+      } else {
+        dialog.setAttribute('open', '');
+      }
+    };
+    const closePreview = function() {
+      if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+      else dialog.removeAttribute('open');
+    };
+    document.querySelectorAll('.article-sponsor-preview').forEach(function(image) {
+      image.addEventListener('mouseenter', function() { openPreview(image); });
+      image.addEventListener('click', function() { openPreview(image); });
+      image.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openPreview(image);
+        }
+      });
+    });
+    closeButton.addEventListener('click', closePreview);
+    dialog.addEventListener('click', function(event) {
+      if (event.target === dialog) closePreview();
+    });
+  })();
+
+  document.querySelectorAll('.article-sponsor-card[data-kce-sponsor-id]').forEach(function(card) {
+    fetch('/kce/api/event.php', {
+      method: 'POST',
+      credentials: 'same-origin',
+      keepalive: true,
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id: Number(card.dataset.kceSponsorId),
+        type: 'impression',
+        conversation_id: card.dataset.kcePlacement,
+        token: card.dataset.kceToken
+      })
+    }).catch(function() {});
+  });
+
   document.getElementById('copyLinkBtn').addEventListener('click', function() {
     const link = '<?php echo $permalink; ?>';
     navigator.clipboard.writeText(link)

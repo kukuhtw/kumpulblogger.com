@@ -1,99 +1,294 @@
-Pendahuluan
+# MyAdNetwork / KumpulBlogger
 
-26 july 2026
+Self-hosted advertising network berbasis PHP dan MySQL untuk menghubungkan
+advertiser, publisher, serta provider partner. Aplikasi menyediakan native ads
+PPC, federasi antarnetwork, blog internal dan AI tools, influencer marketplace,
+serta **Knowledge Commerce Engine (KCE)**.
 
-KumpulBlogger.com hadir kembali dengan konsep revolusioner sebagai platform open-source yang memungkinkan siapa pun memiliki bisnis jaringan iklan Pay Per Click (PPC) digital. Dengan pendekatan desentralisasi, federasi, dan distribusi, KumpulBlogger membuka kesempatan lebih luas untuk kolaborasi dan kemandirian bagi setiap pengusaha jaringan iklan.
+> Untuk menjalankan bisnis dan sistem dari instalasi kosong sampai go-live,
+> mulai dari [Runbook Operasional End-to-End](docs/OPERATIONS_RUNBOOK.md).
 
-1. **Open Source**  
-   Open source berarti bahwa kode sumber platform ini dapat diakses dan dimodifikasi oleh siapa saja. Pengusaha jaringan iklan dapat membangun, menyesuaikan, dan mengembangkan jaringan mereka sendiri tanpa batasan lisensi. Ini memberikan fleksibilitas, inovasi, dan peluang bagi setiap pemilik jaringan untuk menciptakan fitur yang sesuai dengan kebutuhan mereka.
+## Fitur utama
 
-2. **Desentralisasi**  
-   Desentralisasi menjamin bahwa setiap jaringan iklan beroperasi secara mandiri, tanpa kendali dari satu entitas pusat. Pengusaha bebas mengelola pengiklan dan penerbit mereka, menjadikan mereka pengendali penuh atas jaringan yang mereka kembangkan.
+- **Advertiser:** membuat native-ad campaign, budget, bid per click, pause/resume,
+  mapping publisher, laporan klik, dan konfirmasi pembayaran.
+- **Publisher:** mendaftarkan situs atau blog internal, memasang JavaScript
+  ad-tag, melihat performa, dan menerima revenue dari klik valid.
+- **Admin:** moderasi user/situs/iklan, approval pembayaran, fraud rules,
+  payout publisher, settlement provider, dan laporan.
+- **Federasi provider:** pertukaran advertiser, publisher, mapping, klik, dan
+  settlement antar-instance melalui API partner.
+- **KCE:** chat AI yang menemukan artikel serta sponsored content berdasarkan
+  vector embedding, dengan campaign, wallet, impression/click charging, dan
+  dashboard Article Index tersendiri.
+- **Konten dan influencer:** artikel/blog internal, AI tools, dan katalog media
+  influencer.
+- **Otomatisasi:** mapping, audit klik, rekap revenue, budget auto-expire, dan
+  sinkronisasi partner melalui scheduler.
 
-3. **Federasi**  
-   Melalui federasi, jaringan iklan di bawah platform KumpulBlogger dapat saling terhubung dan berkolaborasi. Misalnya, Amir yang mendirikan jaringan *AmirAds* bisa berbagi publisher dan advertiser milik Budi, Cica, Dudung, dan Eman. Publisher yang terdaftar di *AmirAds* akan mendapatkan supply iklan dari jaringan milik Budi, Cica, dan seterusnya. Dengan federasi ini, pengiklan dari satu jaringan bisa menjangkau penerbit di jaringan lainnya, menciptakan jangkauan yang lebih luas dan peluang lebih banyak untuk semua pihak yang terlibat.
+Penjelasan bisnis lengkap tersedia di [indeks dokumentasi](docs/README.md).
 
-4. **Distribusi**  
-   Distribusi berarti bahwa data dan sistem tersebar di berbagai server atau entitas. Platform akan tetap berjalan bahkan jika salah satu jaringan mengalami masalah teknis, menciptakan stabilitas yang lebih kuat dengan menghindari titik kegagalan tunggal.
+## Arsitektur
 
-**Kolaborasi Antar Pemilik Network Ads**  
-Para pemilik jaringan iklan yang menggunakan KumpulBlogger ini akan saling terhubung dalam ekosistem yang terdesentralisasi. Sebagai contoh, Amir yang menjalankan *AmirAds* bisa terhubung dengan jaringan lain seperti *BudiAds*, *CicaAds*, *DudungAds*, dan *EmanAds*. Hal ini memungkinkan publisher yang terdaftar di *AmirAds* untuk menerima iklan dari pengiklan yang tergabung di jaringan *BudiAds*, *CicaAds*, dan sebagainya, menciptakan ekosistem periklanan yang terintegrasi dan saling menguntungkan.
+- PHP 8.4 + Apache, document root `public_html/`.
+- MySQL 8.4 untuk aplikasi utama dan KCE.
+- Dockerfile tunggal untuk web dan cron worker.
+- Persistent storage untuk `uploads`, `ai_images`, `banner_mini`, `voice`,
+  `JSON`, dan `logs`.
+- Environment variables/secret manager untuk database, SMTP, reCAPTCHA, AI,
+  domain, dan tracking secret.
 
-**Fitur AI: Generate Artikel Otomatis**
-Setiap publisher dalam jaringan KumpulBlogger bisa menulis artikel dengan bantuan AI, melalui fitur Blog Engine AI. Cukup pilih topik dan gaya tulisan — mulai dari formal, santai, akademis, SEO-friendly, hingga satire — dan artikel akan dihasilkan secara otomatis dalam hitungan detik. Artikel ini langsung bisa dipasangi iklan PPC yang relevan.
+Lihat [Docker deployment](docs/operations/DOCKER_DEPLOYMENT.md),
+[database ERD](docs/reference/DATABASE_ERD.md), dan
+[referensi API](docs/reference/API_ENDPOINTS.md).
 
-🎯 Fitur ini sangat membantu publisher yang tidak terbiasa menulis, namun ingin memonetisasi blognya dengan cepat.
+## Persyaratan
 
-**System Sharing Revenue Adil dan Transparant**
-Platform KumpulBlogger menerapkan sistem reward yang adil dan transparan untuk setiap jaringan iklan dan publisher yang berkontribusi. Setiap pemilik ad network memiliki kewajiban membayarkan rewards kepada publisher dan partner jaringan iklan. Misalnya, jika seorang publisher A di jaringan *AmirAds* menampilkan iklan dari pengiklan yang berasal dari *BudiAds*, maka *BudiAds* wajib memberikan reward yang adil kepada publisher A dan kepada *AmirAds* sebagai partner network ads.
+Cara yang direkomendasikan:
 
-Dengan sistem ini, KumpulBlogger memastikan bahwa setiap pihak mendapatkan kompensasi sesuai kontribusi mereka dalam ekosistem periklanan yang terdesentralisasi. Ini menciptakan motivasi dan kesempatan lebih besar bagi setiap jaringan untuk memperluas kolaborasi dan menciptakan nilai lebih bagi pengiklan dan publisher di seluruh platform.
+- Docker Engine atau Docker Desktop;
+- Docker Compose v2;
+- OpenSSL untuk installer VPS;
+- minimal 2 GB RAM untuk VPS produksi;
+- domain dan HTTPS untuk deployment publik.
+
+Tanpa Docker, aplikasi memerlukan PHP 8.4 dengan extension `curl`, `gd`,
+`mbstring`, `mysqli`, `pdo_mysql`, dan `zip`, Apache `mod_rewrite`, serta MySQL.
+
+## Quick start lokal dengan Docker
+
+1. Salin konfigurasi contoh:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Isi minimal `DB_*`, `APP_NAME`, `DOMAIN_NAME`, dan secret yang digunakan.
+
+3. Build dan jalankan:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+   Pada volume database kosong, Compose mengimpor:
+
+   - `sql/myadnetwork_db_hanya_structure.sql`
+   - `sql/kce_schema.sql`
+
+4. Buat admin pertama:
+
+   ```bash
+   docker compose exec -T \
+     -e ADMIN_EMAIL=owner@example.com \
+     -e ADMIN_PASSWORD='ganti-password-minimal-12-karakter' \
+     -e ADMIN_NAME='Owner' \
+     -e ADMIN_WHATSAPP='628123456789' \
+     web php bin/create-admin.php
+   ```
+
+5. Verifikasi:
+
+   ```bash
+   curl --fail http://localhost:8080/health.php
+   docker compose logs web
+   ```
+
+6. Buka:
+
+   - aplikasi: `http://localhost:8080/`
+   - login user: `http://localhost:8080/login.php`
+   - login admin: `http://localhost:8080/admin/login.php`
+   - KCE: `http://localhost:8080/kce/`
+
+Saat container mulai, identitas provider dibuat otomatis dari `APP_NAME` dan
+`DOMAIN_NAME`, lalu disinkronkan ke seluruh `providers_data.json`. Override
+opsional tersedia melalui `PROVIDER_NAME` dan `PROVIDER_DOMAIN_URL`.
+
+Panduan lengkap: [Docker deployment](docs/operations/DOCKER_DEPLOYMENT.md).
+
+## Instalasi produksi
+
+Pilih satu target:
+
+- [VPS dengan installer interaktif/noninteraktif](docs/operations/VPS_INSTALLATION.md)
+- [DigitalOcean Marketplace Droplet 1-Click](docs/operations/DIGITALOCEAN_MARKETPLACE.md)
+- [Railway](docs/operations/RAILWAY_DEPLOYMENT.md)
+- [Render](docs/operations/RENDER_DEPLOYMENT.md)
+- [Zeabur](docs/operations/ZEABUR_DEPLOYMENT.md)
+- [Heroku](docs/operations/HEROKU_DEPLOYMENT.md)
+
+Render membutuhkan MySQL eksternal. Template Zeabur memerlukan penggantian
+`GITHUB_REPOSITORY_ID` sebelum diterbitkan. Coolify dan Dokploy belum mempunyai
+manifest/panduan khusus, tetapi dapat menggunakan Dockerfile dengan konfigurasi
+database, volume `/data`, health check, dan environment variables yang sama.
+
+## Konfigurasi
+
+Gunakan [.env.example](.env.example) sebagai referensi. Kelompok utamanya:
+
+| Kelompok | Variable |
+|---|---|
+| Database | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
+| Identitas | `APP_NAME`, `DOMAIN_NAME`, opsional `PROVIDER_NAME`, `PROVIDER_DOMAIN_URL` |
+| Email/captcha | `SMTP_API_KEY`, `SMTP_API_SECRET`, `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET` |
+| Pembayaran | `PAYMENT_INFO` |
+| KCE/chat | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `KCE_APP_URL` |
+| Embedding | `NVIDIA_API_KEY`, `NVIDIA_EMBEDDING_MODEL` |
+| Keamanan KCE | `KCE_TRACKING_SECRET` |
+
+Process environment memiliki prioritas atas `.env`. Jangan commit `.env`, API
+key, password database, atau secret produksi.
+
+## Scheduler wajib
+
+Aplikasi web dapat hidup tanpa scheduler, tetapi proses bisnis tidak akan
+lengkap: mapping, fraud audit, metadata, rekap revenue, dan budget expiry tidak
+berjalan dengan benar.
+
+- [Cara memasang jadwal cron](docs/operations/CRON_SETUP.md)
+- [Fungsi setiap cronjob](docs/operations/CRONJOB_JOBS.md)
+- [Konsep pipeline otomatis](docs/guides/11-cronjob-dan-otomatisasi.md)
+
+Render menyediakan cron lewat `render.yaml`; Zeabur memakai cron worker dengan
+`PROCESS_TYPE=cron`; platform lain mengikuti panduan deployment masing-masing.
+
+## Menjalankan bisnis
+
+Urutan minimum setelah deployment:
+
+1. amankan admin dan isi identitas/rekening provider;
+2. tetapkan harga, payout, moderasi, fraud, dan SLA;
+3. aktifkan scheduler;
+4. uji advertiser hingga iklan paid/published;
+5. uji publisher, mapping, dan ad-tag;
+6. validasi klik hingga spending/revenue;
+7. simulasi payout dan rekonsiliasi;
+8. uji backup/restore sebelum go-live;
+9. aktifkan federasi hanya setelah operasi lokal stabil.
+
+Ikuti langkah dan exit criteria di [runbook operasional](docs/OPERATIONS_RUNBOOK.md).
+
+## Knowledge Commerce Engine
+
+KCE berbeda dari native ads. Pertanyaan pengguna dijawab melalui OpenRouter,
+lalu NVIDIA embedding mencari artikel dan sponsor relevan. Sponsored content
+tidak dimasukkan ke prompt dan ditampilkan terpisah dengan label iklan.
+
+- [Konsep, bisnis, konfigurasi, wallet, dan privasi KCE](docs/guides/13-knowledge-commerce-engine.md)
+- [Manual Admin Article Index dan vector embedding](docs/reference/KCE_ARTICLE_INDEX.md)
+- [README modul KCE](public_html/kce/README.md)
+
+## Pembayaran dan tanggung jawab finansial
+
+Tidak ada payment gateway otomatis. Operator harus memverifikasi transfer di
+luar sistem sebelum mencatat deposit, paid status, payout, refund, adjustment,
+atau settlement.
 
 ### Komitmen Finansial Penyedia Ad Network
 
-Sebelum mengoperasikan atau menghubungkan ad network ke jaringan federasi KumpulBlogger, setiap penyedia ad network harus memahami dan menyetujui tanggung jawab finansial berikut:
+Sebelum mengoperasikan atau menghubungkan ad network ke jaringan federasi
+KumpulBlogger, setiap penyedia ad network harus memahami dan menyetujui
+tanggung jawab finansial berikut.
 
-1. **Membayar publisher pada jaringan sendiri**
-   Setiap penyedia ad network bertanggung jawab membayar publisher yang terdaftar pada jaringannya sesuai jumlah klik valid, tarif, jadwal pembayaran, dan ketentuan yang berlaku pada jaringan tersebut. Kewajiban ini tetap berlaku untuk revenue yang berasal dari iklan lokal maupun iklan partner.
+#### 1. Membayar publisher pada jaringan sendiri
 
-2. **Membayar jaringan partner ketika advertiser lokal memperoleh klik dari publisher partner**
-   Jika advertiser yang terdaftar pada suatu ad network memperoleh klik dari publisher milik ad network partner, maka ad network asal advertiser berkewajiban membayar bagian revenue kepada:
+Setiap penyedia ad network bertanggung jawab membayar publisher yang terdaftar
+pada jaringannya sesuai jumlah klik valid, tarif, jadwal pembayaran, dan
+ketentuan yang berlaku pada jaringan tersebut. Kewajiban ini tetap berlaku
+untuk revenue yang berasal dari iklan lokal maupun iklan partner.
 
-   - admin atau pemilik ad network partner; dan
-   - publisher partner yang menampilkan iklan.
+#### 2. Membayar jaringan partner ketika advertiser lokal memperoleh klik dari publisher partner
 
-   Sistem menyediakan catatan nominal pembayaran kepada admin ad network partner dan publisher partner pada dashboard admin. Catatan tersebut digunakan sebagai dasar rekonsiliasi, verifikasi, dan penyelesaian pembayaran antarpihak.
+Jika advertiser yang terdaftar pada suatu ad network memperoleh klik dari
+publisher milik ad network partner, maka ad network asal advertiser
+berkewajiban membayar bagian revenue kepada:
 
-3. **Berhak menerima pembayaran dari ad network partner**
-   Penyedia ad network juga berkesempatan mendapatkan pembayaran dari admin ad network partner apabila iklan milik advertiser partner mendapatkan klik pada publisher di jaringannya. Dalam kondisi ini, penyedia ad network bertindak sebagai pemilik jaringan publisher dan berhak menerima bagian revenue jaringan, sedangkan publisher yang menghasilkan klik berhak menerima bagian revenue publisher.
+- admin atau pemilik ad network partner; dan
+- publisher partner yang menampilkan iklan.
 
-Contoh: advertiser dari **BudiAdnetwork** memperoleh klik pada publisher milik **AmirAdnetwork**. BudiAdnetwork sebagai jaringan asal advertiser berkewajiban membayar bagian revenue kepada admin AmirAdnetwork dan publisher AmirAdnetwork yang menghasilkan klik. Sebaliknya, apabila advertiser AmirAdnetwork memperoleh klik pada publisher BudiAdnetwork, AmirAdnetwork memiliki kewajiban pembayaran yang sama kepada BudiAdnetwork.
+Sistem menyediakan catatan nominal pembayaran kepada admin ad network partner
+dan publisher partner pada dashboard admin. Catatan tersebut digunakan sebagai
+dasar rekonsiliasi, verifikasi, dan penyelesaian pembayaran antarpihak.
 
-Federasi bukan hanya mekanisme pertukaran iklan dan publisher, tetapi juga komitmen pembayaran antarpelaku jaringan. Setiap penyedia wajib memastikan saldo, pencatatan klik, audit, laporan revenue, dan pembayaran partner dikelola secara transparan serta dapat dipertanggungjawabkan.
+#### 3. Berhak menerima pembayaran dari ad network partner
 
-https://kukuhtw.medium.com/kumpulblogger-com-542f2b01347e - Kumpulblogger.com Dirilis Sebagai Open Source dengan Lisensi Apache 2.0: Membuka Potensi Ad Network Terdesentralisasi di Indonesia
+Penyedia ad network juga berkesempatan mendapatkan pembayaran dari admin ad
+network partner apabila iklan milik advertiser partner mendapatkan klik pada
+publisher di jaringannya. Dalam kondisi ini, penyedia ad network bertindak
+sebagai pemilik jaringan publisher dan berhak menerima bagian revenue jaringan,
+sedangkan publisher yang menghasilkan klik berhak menerima bagian revenue
+publisher.
 
-https://kukuhtw.medium.com/membangun-masa-depan-bisnis-tanpa-batas-sinergi-digital-di-kumpulblogger-com-4507cc922fac
+Contoh: advertiser dari **BudiAdnetwork** memperoleh klik pada publisher milik
+**AmirAdnetwork**. BudiAdnetwork sebagai jaringan asal advertiser berkewajiban
+membayar bagian revenue kepada admin AmirAdnetwork dan publisher AmirAdnetwork
+yang menghasilkan klik. Sebaliknya, apabila advertiser AmirAdnetwork memperoleh
+klik pada publisher BudiAdnetwork, AmirAdnetwork memiliki kewajiban pembayaran
+yang sama kepada BudiAdnetwork.
 
-https://kukuhtw.medium.com/kumpulblogger-com-1f492838054d
+Federasi bukan hanya mekanisme pertukaran iklan dan publisher, tetapi juga
+komitmen pembayaran antarpelaku jaringan. Setiap penyedia wajib memastikan
+saldo, pencatatan klik, audit, laporan revenue, dan pembayaran partner dikelola
+secara transparan serta dapat dipertanggungjawabkan.
 
-Membuka kode sumber KumpulBlogger.com kepada publik memiliki beberapa tujuan strategis:
+Baca [pembayaran dan revenue share](docs/guides/07-pembayaran-dan-revenue-share.md)
+serta [provider partner network](docs/guides/05-provider-partner-network.md).
 
-1. **Mendorong Inovasi dan Kolaborasi**: Dengan kode sumber yang terbuka, pengembang dari berbagai latar belakang dapat berkontribusi, memperbaiki, dan menambahkan fitur baru. Pendekatan ini sering menghasilkan solusi yang lebih kreatif dan efisien dibandingkan pengembangan tertutup. 
+### Artikel dan latar belakang proyek
 
-2. **Meningkatkan Kepercayaan dan Transparansi**: Akses terbuka terhadap kode sumber memungkinkan pengguna dan mitra untuk menilai keamanan dan kualitas platform, membangun kepercayaan yang lebih kuat.
+- [Kumpulblogger.com Dirilis Sebagai Open Source dengan Lisensi Apache 2.0: Membuka Potensi Ad Network Terdesentralisasi di Indonesia](https://kukuhtw.medium.com/kumpulblogger-com-542f2b01347e)
+- [Membangun Masa Depan Bisnis Tanpa Batas: Sinergi Digital di KumpulBlogger.com](https://kukuhtw.medium.com/membangun-masa-depan-bisnis-tanpa-batas-sinergi-digital-di-kumpulblogger-com-4507cc922fac)
+- [KumpulBlogger.com](https://kukuhtw.medium.com/kumpulblogger-com-1f492838054d)
 
-3. **Mempercepat Adopsi dan Penyebaran**: Platform open-source cenderung lebih cepat diadopsi karena fleksibilitas dan biaya yang lebih rendah, memungkinkan KumpulBlogger.com menjangkau audiens yang lebih luas.
+## Struktur repository
 
-Meskipun kode sumbernya gratis, KumpulBlogger.com dapat menghasilkan keuntungan melalui beberapa model bisnis open-source yang telah terbukti efektif:
+```text
+bin/             CLI admin, cron runner, provider sync
+docker/          entrypoint, database prepare, Apache/PHP, cron loop
+docs/            panduan bisnis, referensi teknis, operasi, deployment
+install/         installer VPS
+marketplace/     build DigitalOcean Marketplace
+public_html/     document root aplikasi
+sql/             schema utama dan KCE
+```
 
-1. **Layanan Dukungan dan Konsultasi**: Menawarkan layanan seperti pelatihan, dukungan teknis, dan konsultasi kepada pengguna yang memerlukan bantuan dalam mengimplementasikan atau mengoptimalkan platform. 
+Manifest deployment berada di `app.json`, `heroku.yml`, `railway*.toml`,
+`render.yaml`, dan `zeabur-template.yaml.example`.
 
-2. **Fitur Premium atau "Open-Core"**: Menyediakan fitur tambahan atau versi premium dengan biaya tertentu, sementara versi dasar tetap gratis. Model ini memungkinkan monetisasi tanpa mengorbankan prinsip open-source. 
+## Dokumentasi
 
-3. **Layanan Berbasis Cloud (SaaS)**: Menawarkan platform sebagai layanan berbasis cloud dengan biaya berlangganan, memberikan kemudahan bagi pengguna yang tidak ingin mengelola infrastruktur sendiri. 
+Mulai dari:
 
-4. **Pelatihan dan Sertifikasi**: Menyediakan program pelatihan dan sertifikasi resmi bagi individu atau organisasi yang ingin meningkatkan keterampilan mereka dalam menggunakan platform.
+- [Indeks dokumentasi](docs/README.md)
+- [Runbook operasional end-to-end](docs/OPERATIONS_RUNBOOK.md)
 
-Dengan menggabungkan pendekatan open-source dengan model bisnis yang tepat, KumpulBlogger.com dapat menciptakan ekosistem yang berkelanjutan dan menguntungkan bagi semua pihak yang terlibat. 
+Alur bisnis:
 
+- [Publisher](docs/guides/03-alur-publisher.md)
+- [Advertiser](docs/guides/04-alur-advertiser.md)
+- [Ad serving dan tracking klik](docs/guides/06-ad-serving-dan-tracking-klik.md)
+- [Admin dan approval](docs/guides/10-admin-dan-approval.md)
 
-**CARA PENGGUNAAN**
+Referensi teknis:
 
-1. Clone repo ini ke localhost atau hosting Anda.
-2. Copy `.env.example` menjadi `.env` (diletakkan satu folder di atas `public_html/`, sejajar dengan folder `sql/` — file ini sudah di-`.gitignore`, jangan di-commit). Isi semua nilainya sesuai kebutuhan Anda: `DB_HOST`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` (koneksi database), serta `SMTP_API_KEY`, `DOMAIN_NAME`, `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET`, dan `PAYMENT_INFO` (instruksi pembayaran ke publisher).
-3. Buat database MySQL/MariaDB sesuai `.env` di atas, lalu import skema dari `sql/kumpulbl_kbc_hanya_structure.sql`.
-4. Masuk ke folder `public_html/setup_deletethis_after_setup/`, jalankan `entry_admin_login.php` lewat browser — isi email dan password admin Anda.
-5. Masih di folder yang sama, jalankan `entry_your_provider.php` — isikan nama brand PPC network Anda sendiri dan URL domainnya.
-6. Hapus folder `setup_deletethis_after_setup/` beserta seluruh isinya — folder ini bisa membuat/mengubah akun admin dan identitas provider tanpa perlu login, jadi jangan dibiarkan menempel di server produksi.
-7. Kini Anda siap berbisnis PPC dan berkolaborasi dengan sesama pengusaha digital PPC.
-8. Buat halaman depan sesuai keinginan Anda. Berikan link pendaftaran ke `reg.php`, login user di `login.php`.
-   
-   📣 Stay Connected
-📖 Article: KumpulBlogger.com Dirilis sebagai Open Source
-🌐 Website: https://kumpulblogger.com
-📧 Contact: kukuhtw@gmail.com
-📱 WhatsApp: https://wa.me/628129893706
+- [User dashboard](docs/reference/USER_DASHBOARD.md)
+- [Admin panel](docs/reference/ADMIN_PANEL.md)
+- [Database ERD](docs/reference/DATABASE_ERD.md)
+- [API endpoints](docs/reference/API_ENDPOINTS.md)
 
-https://kumpulblogger.com/blog/kukuhtw
+## Keamanan dan operasi
 
+- Gunakan HTTPS dan secret manager.
+- Jangan mengekspos MySQL secara publik tanpa allowlist.
+- Ganti kredensial bootstrap segera.
+- Pantau health check, error log, cron, kapasitas disk, biaya API, serta fraud.
+- Backup database dan persistent storage; lakukan uji restore berkala.
+- Tinjau temuan kualitas/keamanan pada dokumen referensi sebelum produksi.
+
+## Lisensi
+
+Project ini menggunakan **Apache License 2.0**. Lihat [LICENSE](LICENSE) untuk
+syarat penggunaan, modifikasi, dan distribusi. Pendistribusian ulang atau karya
+turunan tetap harus mematuhi kewajiban notice, atribusi, serta ketentuan lain
+dalam lisensi tersebut.

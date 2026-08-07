@@ -5,7 +5,7 @@ function_ads.php
 
 function insertAdvertiser($conn, $providers_name, $providers_domain_url, $advertisers_name, $advertisers_email, $advertisers_whatsapp, $advertisers_password) {
     // Publisher dan advertiser berbagi satu tabel akun (`msusers`) — lihat
-    // documentation/README.md. `providers_name`/`providers_domain_url` tidak
+    // docs/guides/README.md. `providers_name`/`providers_domain_url` tidak
     // punya kolom padanan di `msusers` (satu instance = satu provider), jadi
     // tidak dipakai di sini; parameter dipertahankan agar signature tetap
     // kompatibel dengan pemanggilnya di API/insert_advertiser/index.php.

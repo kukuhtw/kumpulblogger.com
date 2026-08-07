@@ -1,0 +1,7 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+*/10 * * * * root cd /opt/myadnetwork && docker compose exec -T web php bin/cron.php mapping-local >> /var/log/myadnetwork-cron.log 2>&1
+15 0 * * * root cd /opt/myadnetwork && docker compose exec -T web php bin/cron.php recap-local >> /var/log/myadnetwork-cron.log 2>&1
+30 0 * * * root cd /opt/myadnetwork && docker compose exec -T web php bin/cron.php recap-publisher >> /var/log/myadnetwork-cron.log 2>&1
+45 0 * * * root cd /opt/myadnetwork && docker compose exec -T web php bin/cron.php calculate-budget >> /var/log/myadnetwork-cron.log 2>&1

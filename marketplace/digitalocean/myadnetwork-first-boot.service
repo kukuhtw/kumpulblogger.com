@@ -1,0 +1,16 @@
+[Unit]
+Description=MyAdNetwork Marketplace first boot setup
+Wants=network-online.target docker.service
+After=network-online.target docker.service
+ConditionPathExists=!/var/lib/myadnetwork/first-boot-complete
+
+[Service]
+Type=oneshot
+ExecStart=/opt/myadnetwork/marketplace/digitalocean/first-boot.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,32 @@
+{
+  "name": "MyAdNetwork",
+  "description": "Self-hosted PHP advertising network and blogging platform.",
+  "keywords": ["php", "mysql", "advertising", "blogging", "docker"],
+  "stack": "container",
+  "success_url": "/health.php",
+  "env": {
+    "APP_NAME": { "description": "Nama aplikasi yang ditampilkan.", "value": "MyAdNetwork" },
+    "DB_HOST": { "description": "Hostname MySQL eksternal.", "required": true },
+    "DB_PORT": { "description": "Port MySQL.", "value": "3306" },
+    "DB_DATABASE": { "description": "Nama database MySQL yang sudah dibuat.", "value": "myadnetwork" },
+    "DB_USERNAME": { "description": "Username MySQL.", "required": true },
+    "DB_PASSWORD": { "description": "Password MySQL.", "required": true },
+    "DOMAIN_NAME": { "description": "Domain publik tanpa path, misalnya myadnetwork.example.com.", "required": true },
+    "PROVIDER_NAME": { "description": "Nama identitas provider. Jika kosong, menggunakan APP_NAME.", "required": false },
+    "PROVIDER_DOMAIN_URL": { "description": "URL origin provider, misalnya https://myadnetwork.example.com. Jika kosong, dibuat dari DOMAIN_NAME.", "required": false },
+    "KCE_APP_URL": { "description": "URL lengkap KCE, misalnya https://myadnetwork.example.com/kce.", "required": true },
+    "KCE_TRACKING_SECRET": { "description": "Secret penandatanganan tracking KCE.", "generator": "secret" },
+    "SMTP_API_KEY": { "description": "API key SMTP; opsional saat setup awal.", "required": false },
+    "SMTP_API_SECRET": { "description": "API secret SMTP; opsional saat setup awal.", "required": false },
+    "RECAPTCHA_SITE_KEY": { "description": "reCAPTCHA site key untuk KCE.", "required": false },
+    "RECAPTCHA_SECRET": { "description": "reCAPTCHA secret untuk KCE.", "required": false },
+    "OPENROUTER_API_KEY": { "description": "OpenRouter API key untuk KCE.", "required": false },
+    "OPENROUTER_MODEL": { "description": "Model OpenRouter KCE.", "value": "nvidia/nemotron-nano-12b-v2-vl:free", "required": false },
+    "NVIDIA_API_KEY": { "description": "NVIDIA API key untuk semantic embedding.", "required": false },
+    "NVIDIA_EMBEDDING_MODEL": { "description": "Model embedding NVIDIA.", "value": "nvidia/nemotron-3-embed-1b", "required": false },
+    "PAYMENT_INFO": { "description": "Informasi pembayaran; opsional saat setup awal.", "required": false }
+  },
+  "formation": {
+    "web": { "quantity": 1 }
+  }
+}

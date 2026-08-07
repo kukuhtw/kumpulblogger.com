@@ -48,6 +48,8 @@
         <li><a href="pay_pubs_local.php"><i class="fas fa-money-bill-wave"></i> Pay Pubs Local</a></li>
         
         <li><a href="manage_ads.php"><i class="fas fa-ad"></i> Manage Ads</a></li>
+        <li><a href="kce.php"><i class="fas fa-comments-dollar"></i> Knowledge Commerce Engine</a></li>
+        <li><a href="kce_articles.php"><i class="fas fa-book-open"></i> KCE Article Index</a></li>
 
     <li><a href="manage_ads_partner.php"><i class="fas fa-ad"></i> Manage Ads Partners</a></li>
 

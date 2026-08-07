@@ -1,0 +1,4 @@
+[29-Jul-2026 02:09:16 UTC] KCE chat: Operation timed out after 45000 milliseconds with 1166 bytes received
+[29-Jul-2026 02:53:47 UTC] KCE stream [8013400ccb2d] RuntimeException: OpenRouter HTTP 200 cURL Operation timed out after 120000 milliseconds with 7100 bytes received response 
+[29-Jul-2026 14:32:05 UTC] KCE stream model [8219f8cfbe62][0] HTTP 200 cURL  {"code":504,"message":"Upstream idle timeout exceeded","metadata":{"error_type":"timeout"}}
+[29-Jul-2026 14:34:36 UTC] KCE stream model [03c8066ef2e9][0] HTTP 200 cURL  {"code":504,"message":"Upstream idle timeout exceeded","metadata":{"error_type":"timeout"}}
