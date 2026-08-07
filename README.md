@@ -139,6 +139,12 @@ Gunakan [.env.example](.env.example) sebagai referensi. Kelompok utamanya:
 | Embedding | `NVIDIA_API_KEY`, `NVIDIA_EMBEDDING_MODEL` |
 | Keamanan KCE | `KCE_TRACKING_SECRET` |
 
+Pada startup pertama, installer otomatis membuat data awal `providers`,
+`providers_contact_person`, dan `llm_settings` pada `id=1`. Proses ini
+idempotent: restart atau deploy ulang tidak menimpa data yang sudah ada. Nilai
+opsional `PROVIDER_*`, `OPENAI_API_KEY`, `REPLICATE_API_KEY`, dan `LLM_*` di
+`.env.example` dapat digunakan untuk mengatur seed awal tersebut.
+
 Email transaksional saat ini dikirim melalui API [kirim.email](https://kirim.email/).
 Gunakan API key akun kirim.email pada `SMTP_API_KEY`. `DOMAIN_NAME` tetap berisi
 domain publik AdNetwork tanpa skema atau path (misalnya `ads.example.com`) dan

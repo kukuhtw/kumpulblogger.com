@@ -35,6 +35,7 @@ fi
 # Generate all legacy provider identity files after persistent volumes have
 # been mounted. This runs for every Docker-based one-click deployment.
 php /var/www/html/bin/sync-provider-data.php
+php /var/www/html/bin/bootstrap-install-data.php
 
 if [ "${PROCESS_TYPE:-web}" = "cron" ]; then
     exec /usr/local/bin/myadnetwork-cron-loop
