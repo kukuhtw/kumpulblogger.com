@@ -139,6 +139,11 @@ Gunakan [.env.example](.env.example) sebagai referensi. Kelompok utamanya:
 | Embedding | `NVIDIA_API_KEY`, `NVIDIA_EMBEDDING_MODEL` |
 | Keamanan KCE | `KCE_TRACKING_SECRET` |
 
+Email transaksional saat ini dikirim melalui API [kirim.email](https://kirim.email/).
+Gunakan API key akun kirim.email pada `SMTP_API_KEY`. `DOMAIN_NAME` tetap berisi
+domain publik AdNetwork tanpa skema atau path (misalnya `ads.example.com`) dan
+domain tersebut harus sudah diotorisasi sebagai sending domain di kirim.email.
+
 Process environment memiliki prioritas atas `.env`. Jangan commit `.env`, API
 key, password database, atau secret produksi.
 
