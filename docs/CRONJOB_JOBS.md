@@ -10,9 +10,9 @@ Folder ini berisi 25 entri: 23 skrip PHP, `providers_data.json` (config identita
 
 Karakteristik umum:
 
-- **Tidak ada file crontab/scheduler di repo.** Jadwal eksekusi presisi tiap job (menit/jam/harian) diatur di panel hosting (cPanel Cron Jobs) di luar kode ini — **perlu konfirmasi** ke tim operasional untuk urutan & frekuensi pastinya.
+- **Ada scheduler internal parsial.** `bin/run-scheduled-jobs.php` memilih job berdasarkan menit UTC dan menjalankannya melalui `bin/cron.php`. Cron OS/panel hosting tetap diperlukan untuk memanggil runner. Job partner, outbound, health-check, dan beberapa rekap masih membutuhkan jadwal eksternal.
 - **Output HTML, bukan CLI murni.** Sebagian besar skrip mencetak halaman HTML lengkap dengan styling (Bootstrap/CSS custom) — dirancang supaya bisa dibuka manual di browser untuk debugging langkah-demi-langkah, bukan hanya dijalankan lewat `php script.php` di CLI.
-- **Tidak ada locking/orkestrasi.** Tidak ada mekanisme yang mencegah dua run job yang sama tumpang tindih, atau yang memastikan urutan antar-job (mis. `calculate_budgetspentads.php` idealnya jalan setelah `click_audit.php` selesai) — urutan yang benar sepenuhnya bergantung pada jadwal cron eksternal.
+- **Locking dan orkestrasi parsial.** Dua job mapping memakai MySQL `GET_LOCK()`. Runner internal menjalankan job secara berurutan dan berhenti saat ada kegagalan, tetapi belum ada lock global atau dependency graph untuk seluruh job.
 - **Tiga lapis data yang sama seperti API**: data "lokal" (`advertisers_ads`, `publishers_site`, `ad_clicks`, `mapping_advertisers_ads_publishers_site`) vs cache "partner" (`advertisers_ads_partners`, `publishers_site_partners`, `ad_clicks_partner`, `mapping_advertisers_ads_publishers_site_from_partners`) — hampir tiap modul di bawah punya sepasang file, satu untuk tiap sisi.
 - **Push ke jaringan lewat cURL**, menuju endpoint yang didokumentasikan di [API_ENDPOINTS.md](./API_ENDPOINTS.md), dengan kredensial `public_key`/`secret_key` per baris `providers_partners` (pola header yang sama seperti §3.1 di dokumen itu).
 
@@ -30,7 +30,7 @@ Karakteristik umum:
 | | `calculate_budgetspentads_partner.php` | Sama, tapi sumber klik dari **jaringan partner** → `current_spending_from_partner` | `ad_clicks_partner` → `advertisers_ads` |
 | **D. Rekap Harian / Revenue Rollup** | `rekap_harian_local.php` | Rekap harian spending per iklan, sumber klik lokal | `ad_clicks` → `rekap_harian` |
 | | `rekap_harian_partner.php` | Sama, sumber klik partner | `ad_clicks_partner` → `rekap_harian` |
-| | `rekap_harian_publisher.php` | Rekap harian revenue per publisher (gabung lokal+partner) | `ad_clicks` → `rekap_harian_publishers` |
+| | `rekap_harian_publisher.php` | Rekap harian revenue publisher dari klik lokal; klik partner diproses terpisah | `ad_clicks` → `rekap_harian_publishers` |
 | | `rekapPublisherRevenueHarianPartner.php` | Rekap harian revenue publisher dari klik partner, lalu rollup ke total kumulatif | `ad_clicks_partner` → `rekap_publisher_revenue_harian_partner` → `rekap_total_publisher_partner` |
 | | `rekap_harian_provider_partner.php` | Rekap harian klik & revenue di level provider mitra, lalu recalc `providers.my_revenue*` | `ad_clicks` → `rekap_harian_provider_partner` → `providers` |
 | | `rekap_total_publisher.php` | ⚠️ **Bukan** rollup `rekap_total_publisher_partner` (lihat §5) — recalc `publishers_site.current_site_revenue`/`current_site_revenue_from_partner` langsung dari `ad_clicks` | `ad_clicks` → `publishers_site` |
@@ -83,8 +83,12 @@ flowchart TD
     PP2[push_payment_partner_providers.php] -->|POST| APIPayProv[[API/getinfoPaymentProviderPartner]]
     GO[getinfoOwnerPublisherGlobal.php] -->|POST| APIOwner[[API/getOwnerPublisher]]
 
-    CPC[check_partner_connection.php] -.health check.-> PROV
+    CPC[check_partner_connection.php] -.toggle is_hold.-> PARTNERS[(providers_partners)]
 ```
+
+### Scheduler internal aktual
+
+Runner memakai menit UTC (`gmdate('i')`): setiap invocation menjalankan `click-audit` dan `update-click-metadata`; menit habis dibagi 7 menjalankan `mapping-local`; habis dibagi 9 menjalankan `mapping-rate` dan `recap-local`; habis dibagi 8 menjalankan `recap-publisher`; menit 0/30 menjalankan `recap-total-publisher`, `calculate-budget`, dan `latest-publishers`. Job lain harus dijadwalkan eksternal.
 
 ## 4. Detail per File
 
@@ -111,6 +115,7 @@ flowchart TD
 #### `mapping_ads_publisher_check_rate_partner.php`
 **Fungsi**: Re-validator berkala untuk sisi partner (mengecek `advertisers_ads_partners` + mapping yang bersangkutan), logika sama seperti `mapping_ads_publisher_check_rate.php` (dua tahap: cek dari sisi rate publisher, cek dari sisi budget iklan partner).
 **✅ Sudah diperbaiki**: sama seperti mapping partner di atas — kedua tahap sebelumnya pakai interpolasi string langsung, sekarang sudah dikonversi ke prepared statement.
+**⚠️ Perbedaan threshold aktual**: initial mapping partner memakai 2×, sedangkan re-validator ini memakai `rate_text_ads * 1.5`. Penyamaan nilai memerlukan keputusan bisnis.
 **✅ Sudah diperbaiki (bug perilaku)**: kedua tahap sebelumnya hanya bisa auto-reject (`is_approved_by_*=0` saat harga jelek), tidak pernah auto-approve ulang saat harga membaik — satu-satunya jalan pemulihan otomatis sebelumnya adalah reset paksa di `mapping_ads_publisher_partner.php` (baru saja diperbaiki juga), yang sayangnya ikut menimpa reject berbasis konten. Sekarang kedua tahap punya cabang re-approve eksplisit sendiri, mengikuti pola guard yang sama seperti versi lokal. Detail lengkap di [MAPPING_ADS_PUBLISHER_ENGINE.md](./MAPPING_ADS_PUBLISHER_ENGINE.md) §6 #2.
 **✅ Sudah diperbaiki (tabrakan ID lintas-jaringan)**: sama seperti versi lokal — lookup mapping di Tahap 2 sekarang menyertakan `AND ads_providers_domain_url = ?` (domain diambil dari `advertisers_ads_partners.providers_domain_url`). Detail di [MAPPING_ADS_PUBLISHER_ENGINE.md](./MAPPING_ADS_PUBLISHER_ENGINE.md) §6 #3.
 
@@ -163,7 +168,7 @@ flowchart TD
 
 ### Modul E — Push Sinkronisasi ke Partner (Outbound)
 
-Ketujuh file berikut punya kerangka identik: ambil daftar `providers_partners`, untuk tiap partner bangun `$api_url = $provider['api_endpoint'] . "/<endpoint>/index.php"`, kirim data lewat cURL POST dengan header `public_key`/`secret_key` dari baris partner tsb.
+Ketujuh file berikut memakai pola push serupa, tetapi filter partner berbeda: sync klik dan mapping mensyaratkan `isapproved=1`; sync iklan expired mensyaratkan `is_hold=0`; push lainnya membaca semua baris partner tanpa filter approval/hold.
 
 #### `push_sync_ads.php`
 Push semua `advertisers_ads` dengan `ispublished=1 AND is_expired=0` (tanpa filter perubahan terbaru — **mengirim ulang seluruh katalog aktif di setiap run**) ke `API/sync_ads` tiap partner, plus `secret_key_request = sha1(title+desc+landing+domain)`. **Catatan (diperbarui)**: di sisi penerima (`API/sync_ads`), perhitungan `$expected_secret_key` yang sepadan sudah dihapus karena tidak pernah punya nilai pembanding (lihat [API_ENDPOINTS.md](./API_ENDPOINTS.md)) — otentikasi partner untuk endpoint ini sepenuhnya bertumpu pada header `public_key`/`secret_key` (`checkProviderCredentials()`), bukan pada `secret_key_request` ini. File pengirim ini tidak diubah — field `secret_key_request` tetap dikirim seperti sebelumnya, hanya sekarang jelas bahwa penerima tidak membacanya.
@@ -204,7 +209,7 @@ Temuan dari audit awal, dengan status penanganannya. Item yang masih terbuka tet
 3. **`rekap_total_publisher.php` salah didokumentasikan** di `documentation/11-cronjob-dan-otomatisasi.md` — file ini tidak memanggil `rekapTotalPublisherPartner()` maupun menyentuh `rekap_total_publisher_partner`; fungsinya menghitung ulang `publishers_site.current_site_revenue*` langsung dari `ad_clicks`. *(Ini koreksi dokumentasi, bukan bug kode — tidak ada yang perlu diperbaiki di kode.)*
 4. **✅ Diperbaiki (sebagian)** — variabel/komentar jendela waktu yang menyesatkan: `rekap_harian_local.php`/`rekap_harian_partner.php` (`$date_two_days_ago` → `$date_window_start`, 200 hari) dan `rekap_harian_provider_partner.php` (`$three_days_ago` → `$date_window_start`, 300 hari) sudah di-rename beserta teksnya, **nilai hari itu sendiri sengaja tidak diubah** (keputusan bisnis, di luar scope). `push_sync_publishers.php` (~27 tahun) dan `rekap_total_publisher.php` (~13.7 tahun) **belum disentuh** — di situ intervalnya inline di SQL tanpa nama variabel yang salah label, jadi bukan kasus "penamaan menyesatkan" yang sama; kalau nilainya mau dikecilkan itu perlu keputusan bisnis tersendiri.
 5. **✅ Diperbaiki** — SQL raw-interpolated tanpa sanitasi tanda kutip di `mapping_ads_publisher_partner.php` dan `mapping_ads_publisher_check_rate_partner.php`, berbeda dari pasangan versi lokalnya yang sudah pakai prepared statement. Semua query di kedua file sudah dikonversi ke `mysqli->prepare()`/`bind_param()`.
-6. **Markup rate berbeda tanpa penjelasan eksplisit**: mapping lokal (`mapping_ads_publisher.php`) memakai markup 1.5×, sedangkan mapping partner (`mapping_ads_publisher_partner.php`) memakai 2× — perbedaan bisnis yang nyata di kode, dipertahankan apa adanya, hanya didokumentasikan di sini.
+6. **Markup rate tidak konsisten**: mapping lokal memakai 1.5× dan initial mapping partner memakai 2×, tetapi re-validator partner memakai 1.5×. Perilaku aktual dipertahankan; perubahan threshold membutuhkan keputusan bisnis.
 7. **✅ Diperbaiki** — nama fungsi kembar `calculate_budgetspentads_partner()` sebelumnya didefinisikan identik-mirip di `calculate_budgetspentads.php` dan `calculate_budgetspentads_partner.php`. Fungsi di `calculate_budgetspentads.php` (yang memproses klik **lokal**, bukan partner) sudah di-rename jadi `calculate_budgetspentads_local()`.
 8. **✅ Diperbaiki** — kode mati yang berpura-pura memvalidasi, dicatat juga di [API_ENDPOINTS.md](./API_ENDPOINTS.md): `API/update_key/index.php` (`$expected_secret_key` + `if(1==1)`) dan `API/sync_ads/index.php` (`$expected_secret_key` + `if(true)`) dihitung dari data yang dikirim sendiri tanpa ada nilai tersimpan/terkirim lain untuk dibandingkan — bukan validasi yang dimatikan, tapi kode mati sejak awal. Sudah dihapus (tidak ada perubahan perilaku — otorisasi sesungguhnya untuk kedua endpoint itu tetap di tempat lain: WHERE clause `updateKeysByDomainAndSignature()` dan header-based `checkProviderCredentials()`). `API/sync_mapping_advertisers_ads_publishers_site_from_partners/index.php` juga dibersihkan dari pengecekan `$exists` yang hasilnya tak pernah dipakai (redundan dengan `ON DUPLICATE KEY UPDATE`). File pengirim (`push_sync_ads.php`, `push_sync_ads_expired.php`) tidak diubah — masih mengirim `secret_key_request` seperti biasa, hanya penerimanya yang sudah tidak berpura-pura memeriksanya.
 9. **✅ Diperbaiki**: `API/getinfoPaymentPubsPartner/index.php` sekarang memanggil `checkProviderCredentials()` dan menolak credential tidak valid dengan HTTP 401.
@@ -216,4 +221,4 @@ Dokumen tsb tetap berguna sebagai peta cepat, tapi dua detail di dalamnya perlu 
 - **`rekap_total_publisher.php`**: bukan pemanggil `rekapTotalPublisherPartner()` — lihat temuan #3 di atas.
 - **Perbedaan `mapping_ads_publisher.php` vs `mapping_ads_publisher_check_rate.php`**: sudah terjawab — yang pertama adalah mesin pencocokan awal (insert baru + auto-approve), yang kedua adalah re-validator berkala (approve/reject ulang berdasarkan rate/budget terkini). Pola yang sama berlaku untuk pasangan versi partner-nya.
 
-Selebihnya (daftar file, arah sinkronisasi high-level, catatan "perlu konfirmasi" soal jadwal cron) masih akurat dan tidak diubah.
+Selebihnya, daftar file dan arah sinkronisasi high-level masih sesuai kode. Jadwal merupakan gabungan scheduler internal parsial dan cron eksternal.
