@@ -182,7 +182,7 @@ Push klik yang `isaudit=1 AND is_reject=0` dan belum pernah sync, dalam window 1
 Push baris `mapping_advertisers_ads_publishers_site` yang `last_updated` dalam 2400 jam (100 hari) terakhir dan cocok arah `(pubs_providers_domain_url, ads_providers_domain_url)` untuk partner tsb, ke `API/sync_mapping_advertisers_ads_publishers_site_from_partners`.
 
 #### `push_payment_partner_pubs.php`
-Push baris `payment_partner_pubs` (7 hari terakhir) untuk tiap partner ke `API/getinfoPaymentPubsPartner` — endpoint tujuan ini yang di [API_ENDPOINTS.md](./API_ENDPOINTS.md) dicatat **tidak memvalidasi** `public_key`/`secret_key` di sisi penerima, meski pengirimnya (file ini) tetap mengirim header itu seperti biasa.
+Push baris `payment_partner_pubs` (7 hari terakhir) untuk tiap partner ke `API/getinfoPaymentPubsPartner`. Pengirim dan penerima sekarang sama-sama memakai header `public_key`/`secret_key` untuk autentikasi partner.
 
 #### `push_payment_partner_providers.php`
 Push baris `payment_partner_providers` (7 hari terakhir) ke `API/getinfoPaymentProviderPartner`. Ada baris debug `$sqlCheck_r = str_replace(":target", $target, $sqlCheck)` yang dibuang setelah dicetak (tidak dieksekusi) — murni untuk menampilkan query final di log HTML, eksekusi sebenarnya tetap lewat prepared statement `$stmt_ads`.
@@ -207,7 +207,7 @@ Temuan dari audit awal, dengan status penanganannya. Item yang masih terbuka tet
 6. **Markup rate berbeda tanpa penjelasan eksplisit**: mapping lokal (`mapping_ads_publisher.php`) memakai markup 1.5×, sedangkan mapping partner (`mapping_ads_publisher_partner.php`) memakai 2× — perbedaan bisnis yang nyata di kode, dipertahankan apa adanya, hanya didokumentasikan di sini.
 7. **✅ Diperbaiki** — nama fungsi kembar `calculate_budgetspentads_partner()` sebelumnya didefinisikan identik-mirip di `calculate_budgetspentads.php` dan `calculate_budgetspentads_partner.php`. Fungsi di `calculate_budgetspentads.php` (yang memproses klik **lokal**, bukan partner) sudah di-rename jadi `calculate_budgetspentads_local()`.
 8. **✅ Diperbaiki** — kode mati yang berpura-pura memvalidasi, dicatat juga di [API_ENDPOINTS.md](./API_ENDPOINTS.md): `API/update_key/index.php` (`$expected_secret_key` + `if(1==1)`) dan `API/sync_ads/index.php` (`$expected_secret_key` + `if(true)`) dihitung dari data yang dikirim sendiri tanpa ada nilai tersimpan/terkirim lain untuk dibandingkan — bukan validasi yang dimatikan, tapi kode mati sejak awal. Sudah dihapus (tidak ada perubahan perilaku — otorisasi sesungguhnya untuk kedua endpoint itu tetap di tempat lain: WHERE clause `updateKeysByDomainAndSignature()` dan header-based `checkProviderCredentials()`). `API/sync_mapping_advertisers_ads_publishers_site_from_partners/index.php` juga dibersihkan dari pengecekan `$exists` yang hasilnya tak pernah dipakai (redundan dengan `ON DUPLICATE KEY UPDATE`). File pengirim (`push_sync_ads.php`, `push_sync_ads_expired.php`) tidak diubah — masih mengirim `secret_key_request` seperti biasa, hanya penerimanya yang sudah tidak berpura-pura memeriksanya.
-9. **Masih terbuka**: `API/getinfoPaymentPubsPartner/index.php` masih **tidak memanggil `checkProviderCredentials()` sama sekali** (beda dari endpoint sejenisnya) — lihat [API_ENDPOINTS.md](./API_ENDPOINTS.md) §6. Belum diminta untuk diperbaiki di sesi ini.
+9. **✅ Diperbaiki**: `API/getinfoPaymentPubsPartner/index.php` sekarang memanggil `checkProviderCredentials()` dan menolak credential tidak valid dengan HTTP 401.
 
 ## 6. Ringkasan Koreksi terhadap `documentation/11-cronjob-dan-otomatisasi.md`
 

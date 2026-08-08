@@ -102,7 +102,8 @@ function UpdateProviderPartner($pdo,
                                time_epoch_approveddate = :time_epoch_approveddate, 
                                secret_key = :secret_key, 
                                public_key = :public_key ,
-                               is_followup = 1
+                               is_followup = 1,
+                               isapproved = :isapproved
                            WHERE providers_domain_url = :providers_domain_url";
             
             $update_stmt = $pdo->prepare($update_sql);
@@ -110,6 +111,7 @@ function UpdateProviderPartner($pdo,
             $update_stmt->bindParam(':time_epoch_approveddate', $time_epoch_approveddate, PDO::PARAM_INT);
             $update_stmt->bindParam(':secret_key', $secret_key, PDO::PARAM_STR);
             $update_stmt->bindParam(':public_key', $public_key, PDO::PARAM_STR);
+            $update_stmt->bindParam(':isapproved', $isapproved, PDO::PARAM_INT);
             $update_stmt->bindParam(':providers_domain_url', $providers_domain_url, PDO::PARAM_STR);
             
             $update_stmt->execute();

@@ -8,21 +8,21 @@
 
 Folder `public_html/API/` bukan API publik untuk browser pengguna akhir — ini adalah API **machine-to-machine antar-provider ad-network** (federasi). Provider lain yang sudah/ingin jadi partner memanggil endpoint-endpoint ini untuk gabung jaringan, sinkronisasi katalog iklan/publisher, dan melaporkan klik & pembayaran.
 
-Karakteristik yang sama di semua 14 endpoint:
+Karakteristik yang sama di semua 15 endpoint:
 
 - **1 folder = 1 endpoint = 1 file `index.php`.** Tidak ada router pusat; tiap file berdiri sendiri dan meng-`include("../../db.php")` + `include("../../function.php")` masing-masing.
 - **Request**: selalu raw JSON di body (`file_get_contents('php://input')` → `json_decode`), bukan form-urlencoded/query string.
-- **Response**: selalu JSON `{"status": "success"|"error"|"info", "message": "...", ...}`.
+- **Response normal**: JSON `{"status": "success"|"error"|"info", "message": "...", ...}`. Beberapa kegagalan koneksi database lama masih berhenti dengan respons teks polos `Database connection failed.`.
 - **Koneksi DB ganda**: hampir semua file membuka koneksi PDO *dan* MySQLi sekaligus di awal file — PDO dipakai untuk query prepared-statement, MySQLi seringkali dibuka tapi tidak dipakai (sisa refactor).
 - **Baris komentar pertama** tiap file mencantumkan path lengkapnya sendiri, contoh `// {BASE_END_POINT}API/insert_ads/index.php` — ini konvensi placeholder untuk base URL yang dipakai peserta federasi lain saat menyusun endpoint tujuan.
 
-## 2. Tabel Ringkas 14 Endpoint
+## 2. Tabel Ringkas 15 Endpoint
 
 | Endpoint | Dipanggil oleh | Cara autentikasi | Tabel utama yang disentuh |
 |---|---|---|---|
 | `request_join` | Provider **lain** (pemohon) | `providers_code` tujuan cocok | INSERT `providers_request`, `providers_partners` (pending) |
 | `approve_request_partnership` | Sistem provider **ini** (setelah admin approve) | `signature` tersimpan + `providers_code` sendiri | UPDATE `providers_partners` (approve + terbitkan key) |
-| `update_key` | Partner (rotasi kredensial) | `providers_domain_url` + `signature` cocok (WHERE clause) | UPDATE `providers_partners` |
+| `update_key` | Partner (rotasi kredensial) | header key aktif + `providers_domain_url` + `signature` | UPDATE `providers_partners` |
 | `insert_advertiser` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | INSERT `msusers` |
 | `insert_ads` | Front-end provider sendiri | `secret_key` = secret_key sendiri | INSERT/UPDATE `advertisers_ads` |
 | `insert_pubs` | Front-end provider sendiri | `secret_key_provider` = secret_key sendiri | INSERT `msusers` |
@@ -30,7 +30,7 @@ Karakteristik yang sama di semua 14 endpoint:
 | `approval_advertiser_partner` | Partner | header `public_key`+`secret_key` | UPDATE `mapping_advertisers_ads_publishers_site` |
 | `pushInfoAccountBankProvider` | Partner | header `public_key`+`secret_key` | UPSERT `providers_contact_person_sync` |
 | `getinfoPaymentProviderPartner` | Partner | header `public_key`+`secret_key` | UPSERT (dedup) `payment_partner_providers_sync` |
-| `getinfoPaymentPubsPartner` | Partner | ⚠️ **tidak ada validasi key** | UPSERT (dedup) `payment_partner_pubs_sync` |
+| `getinfoPaymentPubsPartner` | Partner | header `public_key`+`secret_key` | UPSERT (dedup) `payment_partner_pubs_sync` |
 | `sync_ads` | Partner | header `public_key`+`secret_key` | UPSERT `advertisers_ads_partners` |
 | `sync_publisher` | Partner | header `public_key`+`secret_key` | UPSERT `publishers_site_partners` |
 | `sync_clicks` | Partner | header `public_key`+`secret_key` | UPSERT massal `ad_clicks_partner` |
@@ -38,9 +38,9 @@ Karakteristik yang sama di semua 14 endpoint:
 
 ## 3. Pola Autentikasi
 
-Ada tiga pola berbeda yang dipakai bergantian di 14 endpoint ini — penting untuk dipahami sebelum mengintegrasikan partner baru.
+Ada tiga pola utama yang dipakai bergantian di 15 endpoint ini — penting untuk dipahami sebelum mengintegrasikan partner baru. `update_key` memakai kombinasi pola header partner dan signature.
 
-### 3.1 Header `public_key` + `secret_key` (pola paling umum — 8 endpoint)
+### 3.1 Header `public_key` + `secret_key` (pola paling umum — 9 endpoint rutin)
 
 Dipakai oleh semua endpoint **sinkronisasi rutin** (`sync_*`, `getinfo*`, `getOwnerPublisher`, `approval_advertiser_partner`, `pushInfoAccountBankProvider`). Kredensial dikirim lewat **HTTP header**, bukan body, lalu divalidasi via `checkProviderCredentials()` (`function_provider.php:228`):
 
@@ -74,20 +74,21 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Fungsi**: Menyetujui permintaan yang sudah tercatat lewat `request_join`, lalu menerbitkan `public_key` + `secret_key` baru untuk partner tersebut.
 **Body**: `providers_domain_url`, `providers_code`, `signature`.
 **Auth**: (a) `signature` harus sama dengan yang tersimpan di `providers_partners` untuk `providers_domain_url` itu (`getSignatureByDomainUrl()`), DAN (b) `providers_code` harus sama dengan kode provider **ini sendiri** (id=1). Karena syarat (b) mengharuskan pemanggil tahu kode provider ini sendiri, endpoint ini realistisnya dipicu oleh sistem/admin provider ini sendiri, bukan langsung oleh pemohon.
-**Efek**: generate `public_key`/`secret_key` acak (`sha1(rand() . kode . domain)`), lalu `UpdateProviderPartner()` → UPDATE `providers_partners` (`isapproved=1`, `is_followup=1`, key baru tersimpan).
+**Efek**: generate `public_key`/`secret_key` cryptographically secure dengan `bin2hex(random_bytes(32))`, lalu `UpdateProviderPartner()` memperbarui key, `is_followup=1`, `isapproved=1`, dan waktu approval.
 **Response sukses**: `{status:"success", public_key, secret_key, message}` — kunci baru dikembalikan langsung di body respons, harus diteruskan ke partner lewat jalur lain.
 
 ### `update_key/index.php`
 **Fungsi**: Rotasi `public_key`/`secret_key` sebuah partner yang sudah disetujui.
 **Body**: `providers_domain_url`, `signature`, `newPublicKey`, `newSecretKey`.
-**Efek**: `updateKeysByDomainAndSignature()` → UPDATE `providers_partners` berdasarkan kecocokan `providers_domain_url` + `signature`.
-**✅ Sudah diperbaiki**: kode sebelumnya menghitung `$expected_secret_key = sha1($signature.$providers_domain_url.$newPublicKey.$newSecretKey)` di dalam percabangan `if (1==1) { ...proses... }` — kondisi selalu benar, dan `$expected_secret_key` tidak pernah dibandingkan ke nilai apa pun (tidak ada nilai tersimpan/terkirim untuk dicocokkan dengannya), jadi bukan validasi yang "dimatikan" melainkan kode mati sejak awal. Sudah dihapus. Otorisasi sesungguhnya tetap sama seperti sebelumnya: `providers_domain_url` dan `signature` yang harus cocok di `WHERE` UPDATE (kalau tidak cocok baris manapun, `rowCount()==0` dan pesannya "No matching provider found").
+**Auth**: wajib mengirim header `public_key` dan `secret_key` yang masih aktif untuk domain tersebut. Signature tetap harus cocok pada query UPDATE.
+**Validasi**: kedua key baru minimal 32 karakter. Credential aktif yang salah menghasilkan HTTP 401; signature yang tidak mengotorisasi update menghasilkan HTTP 403.
+**Efek**: `updateKeysByDomainAndSignature()` → UPDATE `providers_partners` berdasarkan kecocokan `providers_domain_url` + `signature`, setelah credential aktif tervalidasi.
 
 ### `insert_advertiser/index.php`
 **Fungsi**: Mendaftarkan advertiser baru.
 **Body**: `providers_name`, `providers_domain_url`, `advertisers_name`, `advertisers_email`, `advertisers_whatsapp`, `secret_key_provider`.
 **Auth**: `secret_key_provider` == `providers.secret_key` milik provider ini (id=1).
-**Efek**: generate password acak (`sha1(rand+nama+email)` dipotong 8 karakter, di-hash lagi `sha1()` sebelum dikirim ke fungsi), cek duplikasi email, lalu `insertAdvertiser()` (`function_ads.php`) mem-`password_hash()`-kannya dengan BCRYPT dan **INSERT ke tabel `msusers`** (`loginemail`, `passwords`, `whatsapp`, `realname`, `regdate`).
+**Efek**: generate password acak dengan `bin2hex(random_bytes(16))`, cek duplikasi email, lalu `insertAdvertiser()` (`function_ads.php`) mem-`password_hash()`-kannya dan **INSERT ke tabel `msusers`** (`loginemail`, `passwords`, `whatsapp`, `realname`, `regdate`).
 **✅ Sudah diperbaiki**: sebelumnya cek duplikasi dan INSERT sama-sama menunjuk tabel `advertisers` yang **tidak ada** di `sql/myadnetwork_db_hanya_structure.sql` (sisa kode lama dari sebelum publisher/advertiser disatukan jadi satu tabel akun). Ditelusuri lewat git history: baris INSERT itu tidak berubah sejak commit pertama repo ini, dan tidak ada file lain di seluruh riwayat repo yang pernah mengasumsikan tabel `advertisers` ada — jadi endpoint ini kemungkinan besar tidak pernah benar-benar berfungsi. Sekarang `insertAdvertiser()` di `function_ads.php` retarget ke `msusers`, mengikuti pola yang sama seperti alur signup normal di `reg.php` (lihat `docs/guides/README.md`: publisher & advertiser berbagi satu tabel akun). `providers_name`/`providers_domain_url` tidak lagi disimpan (tidak ada kolom padanan di `msusers`).
 
 ### `insert_ads/index.php`
@@ -95,13 +96,13 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 **Body**: `providers_name`, `providers_domain_url`, `advertisers_id`, `title_ads`, `description_ads`, `landingpage_ads`, `total_click`, `secret_key`.
 **Auth**: `secret_key` == `providers.secret_key` milik provider ini (id=1).
 **Efek**: `insertAdvertisersAds()` → INSERT ke `advertisers_ads`, lalu langsung `updateAdvertisersAds($lastInsertId, 0)` → UPDATE baris yang sama untuk set `current_click=0` **dan** `local_ads_id = id` (menyalin id auto-increment ke kolom `local_ads_id` miliknya sendiri — pola "local_ads_id == id sendiri" untuk baris lokal, berbeda dari baris `_partners` yang `local_ads_id`-nya menunjuk ke id di server asal).
-**Catatan**: menulis file debug `tra46.txt`, `tra47.txt`, `tra52.txt` di direktori kerja lewat `debug_text()` (lihat §6).
+**Catatan**: pemanggilan legacy `debug_text()` masih ada, tetapi fungsi tersebut sekarang no-op dan tidak lagi membuat file di document root.
 
 ### `insert_pubs/index.php`
 **Fungsi**: Mendaftarkan publisher baru.
 **Body**: `publishers_name`, `publishers_email`, `publishers_whatsapp`, `publishers_bank`, `publishers_account_name`, `publishers_account_number`, `secret_key_provider`.
 **Auth**: `secret_key_provider` == `providers.secret_key` milik provider ini (id=1).
-**Efek**: cek duplikasi `loginemail`, generate password acak (sama pola seperti `insert_advertiser`), lalu **INSERT ke tabel `msusers`** (`loginemail`, `passwords` di-`password_hash()` BCRYPT, `whatsapp`, `realname`, `bank`, `account_name`, `account_number`, `regdate`). Response menyertakan `id` (auto-increment `msusers.id`).
+**Efek**: cek duplikasi `loginemail`, generate password dengan `bin2hex(random_bytes(16))`, lalu **INSERT ke tabel `msusers`** (`loginemail`, `passwords` di-`password_hash(PASSWORD_DEFAULT)`, `whatsapp`, `realname`, `bank`, `account_name`, `account_number`, `regdate`). Response menyertakan `id` (auto-increment `msusers.id`).
 **✅ Sudah diperbaiki**: sebelumnya SQL (ditulis inline di file ini, bukan lewat fungsi di `function_*.php`) menunjuk **tabel `publishers`** yang tidak ada di skema (yang ada `publishers_site`/`publishers_site_partners`/`publisher_partner` — tabel *situs*, bukan tabel *akun*), lalu UPDATE baris itu supaya `publishers_local_id = id` — pola self-reference yang juga tidak relevan untuk `msusers`. Password sebelumnya cuma di-`sha1()` (tidak akan pernah cocok dengan `password_verify()` di `login.php`), dan **tidak ada pengecekan email duplikat sama sekali** (`msusers.loginemail` tidak unique di level database) — keduanya sudah diperbaiki sekaligus.
 
 ### `getOwnerPublisher/index.php`
@@ -133,8 +134,8 @@ Dipakai hanya oleh `request_join` dan `approve_request_partnership` — lihat de
 ### `getinfoPaymentPubsPartner/index.php`
 **Fungsi**: Sinkron catatan pembayaran **ke publisher milik partner** (analog dengan endpoint di atas, tapi level publisher perorangan).
 **Body**: `id`, `publisher_local_id`, `providers_domain_url`, `email_pubs`, `nominal`, `payment_description`, `payment_date`, `payment_by`.
+**Auth**: header `public_key`+`secret_key`, divalidasi terhadap `providers_domain_url`; kegagalan menghasilkan HTTP 401.
 **Efek**: cek duplikasi via `local_id` + `publisher_local_id` + `pubs_providers_domain_url`; kalau belum ada, INSERT ke `payment_partner_pubs_sync`.
-**⚠️ Catatan**: endpoint ini **tidak memanggil `checkProviderCredentials()` sama sekali** — tidak ada pengecekan header `public_key`/`secret_key`, berbeda dari endpoint kembarannya (`getinfoPaymentProviderPartner`) yang strukturnya nyaris identik tapi memvalidasi kredensial. Ini kemungkinan celah otorisasi yang tidak disengaja, bukan desain yang disengaja.
 
 ### `sync_ads/index.php`
 **Fungsi**: Partner mendorong (push) katalog iklan mereka supaya di-cache lokal.
@@ -182,7 +183,7 @@ sequenceDiagram
 
     AdminB->>B: POST /API/approve_request_partnership<br/>{domain A, signature, providers_code B}
     B->>B: cocokkan signature tersimpan + providers_code sendiri
-    B-->>B: UPDATE providers_partners<br/>(isapproved=1, generate public_key+secret_key)
+    B-->>B: UPDATE providers_partners<br/>(key baru + is_followup=1 + isapproved=1)
     B-->>AdminB: {public_key, secret_key}
 
     Note over AdminB,A: public_key/secret_key diteruskan ke A di luar sistem ini
@@ -195,7 +196,7 @@ sequenceDiagram
     end
 
     opt Rotasi kredensial
-        A->>B: POST /API/update_key {domain, signature, newKeys}
+        A->>B: POST /API/update_key {domain, signature, newKeys}<br/>header: public_key + secret_key aktif
         B-->>B: UPDATE providers_partners
     end
 ```
@@ -205,9 +206,10 @@ sequenceDiagram
 Ringkasan hal-hal yang ditemukan saat menyusun dokumentasi ini — bukan perbaikan, murni observasi supaya diketahui:
 
 1. **✅ Diperbaiki** — dua endpoint sebelumnya menunjuk tabel yang tidak ada di skema: `insert_advertiser` → tabel `advertisers`, `insert_pubs` → tabel `publishers`. Ditelusuri lewat git history: kedua INSERT itu tidak berubah sejak commit pertama repo ini dan tidak ada file lain di seluruh riwayat repo yang pernah mengasumsikan kedua tabel itu ada — jadi bukan regresi skema, melainkan kode yang sejak awal tidak pernah cocok dengan skema project ini (kemungkinan sisa dari skema lama sebelum publisher/advertiser disatukan jadi satu tabel akun). Keduanya sudah di-retarget ke `msusers`, tabel akun yang benar-benar dipakai (`reg.php`, `login.php`) — lihat detail di `insert_advertiser`/`insert_pubs` §4.
-2. **`getinfoPaymentPubsPartner` tidak memvalidasi `public_key`/`secret_key`** sama sekali, berbeda dari endpoint sejenis lainnya.
-3. **✅ Diperbaiki** — tiga tempat sebelumnya menghitung nilai bergaya "validasi" tapi dilewati oleh kondisi yang selalu benar: `update_key` (`if (1==1)`), `sync_ads` (`if (true)`), dan pengecekan `$exists` yang tidak dipakai di `sync_mapping_advertisers_ads_publishers_site_from_partners`. Setelah dibaca lebih teliti, ketiganya bukan validasi yang "dimatikan" — nilai yang dihitung (`$expected_secret_key`, `$exists`) tidak pernah punya nilai tersimpan/terkirim lain untuk dibandingkan, jadi sejak awal memang kode mati. Sudah dihapus di ketiga file tanpa mengubah perilaku; otorisasi sesungguhnya untuk `update_key` (WHERE clause `signature`) dan `sync_ads` (header `checkProviderCredentials()`) tidak berubah.
-4. **`debug_text()`** (`function.php:367`) menulis isi mentah request (kadang termasuk seluruh JSON payload) ke file `.txt` di direktori kerja endpoint yang memanggilnya (mis. `API/insert_ads/tra46.txt`) — dipakai secara tidak konsisten (aktif di beberapa endpoint, dikomentari di endpoint lain). Karena file ini ditulis langsung di dalam folder `public_html/API/<endpoint>/`, filenya berpotensi bisa diakses langsung lewat URL kalau nama filenya diketahui.
-5. Query kedua di `getOwnerPublisher` menyisipkan variabel langsung ke string SQL alih-alih parameter terikat (lihat catatan di bagian endpoint tsb).
+2. **✅ Diperbaiki** — `getinfoPaymentPubsPartner` sekarang memvalidasi header `public_key`/`secret_key`, sama seperti endpoint pembayaran provider.
+3. **✅ Diperbaiki** — `update_key` sekarang memerlukan credential partner aktif selain domain+signature; `sync_ads` tetap memakai header credential; pengecekan `$exists` redundan di endpoint mapping sudah dihapus.
+4. **✅ Diperbaiki** — `debug_text()` sekarang no-op. Pemanggilan legacy masih ada, tetapi request body, key, dan data pribadi tidak lagi ditulis ke file publik.
+5. **✅ Diperbaiki** — `UpdateProviderPartner()` sekarang mengikat `$isapproved` dan menulis `isapproved=1` bersama key, waktu approval, dan `is_followup=1`.
+6. Query kedua di `getOwnerPublisher` menyisipkan variabel langsung ke string SQL alih-alih parameter terikat (lihat catatan di bagian endpoint tsb).
 
 Semua koneksi PDO/MySQLi dibuka ulang di tiap file tanpa connection pooling — wajar untuk API request-per-invocation seperti ini, tapi berarti tiap panggilan endpoint = minimal 1–2 koneksi DB baru.
