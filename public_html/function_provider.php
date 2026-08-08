@@ -200,13 +200,13 @@ function updateKeysByDomainAndSignature($pdo, $domainUrl, $signature, $newPublic
         
         // Check if any row was updated
         if ($stmt->rowCount() > 0) {
-            return "Public key and secret key updated successfully.";
+            return true;
         } else {
-            return "No matching provider found or keys are the same.";
+            return false;
         }
     } catch (PDOException $e) {
-        // Handle any errors
-        return "Error updating keys: " . $e->getMessage();
+        error_log('Provider key rotation failed.');
+        return false;
     }
 }
 

@@ -42,9 +42,9 @@ if (isset($data['providers_code']) && isset($data['providers_domain_url'])) {
 
 	$reason_error="";
 	$keep_going=1;    
-    if ($signature != $verifying_signature) {
+    if (!is_string($verifying_signature) || !hash_equals($verifying_signature, (string) $signature)) {
 		$keep_going=0;
-		$reason_error .="<br>Wrong signature. should be: ".$verifying_signature. "insta: ".$signature. " providers_domain_url: ".$providers_domain_url ;
+		$reason_error .= "Invalid partnership credentials.";
 
     }
     if ($signature == '') {
@@ -58,11 +58,8 @@ if (isset($data['providers_code']) && isset($data['providers_domain_url'])) {
 
 
 
-	$number_random = rand(111111,99999999).$providers_code .$providers_domain_url;
-	$number_random2 = rand(111111,99999999).$providers_code .$providers_domain_url;
-	
-	$public_key = sha1($number_random);
-	$secret_key = sha1($number_random2);
+	$public_key = bin2hex(random_bytes(32));
+	$secret_key = bin2hex(random_bytes(32));
 
 	$isapproved=1;
 	
@@ -72,7 +69,7 @@ if (isset($data['providers_code']) && isset($data['providers_domain_url'])) {
 	// Get the current URL of the application
 	$source_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 	
-	if ($verifying_providers_code != $providers_code) {
+	if (!is_string($verifying_providers_code) || !hash_equals($verifying_providers_code, (string) $providers_code)) {
 		$keep_going=0;
 
 

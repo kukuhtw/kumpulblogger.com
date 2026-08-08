@@ -55,10 +55,8 @@ if (isset($data['publishers_email']) && isset($data['publishers_name'])) {
         } else {
             $check_stmt->close();
 
-            $number_random = rand(111111, 99999999) . $publishers_name . $publishers_email;
-            $publishers_password = sha1($number_random);
-            $publishers_password = substr($publishers_password, 0, 8);
-            $hash_publishers_password = password_hash($publishers_password, PASSWORD_BCRYPT);
+            $publishers_password = bin2hex(random_bytes(16));
+            $hash_publishers_password = password_hash($publishers_password, PASSWORD_DEFAULT);
 
             $regdate = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
             $formatted_regdate = $regdate->format('Y-m-d H:i:s');

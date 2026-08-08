@@ -9,7 +9,6 @@ ini_set("error_log", "errr_.txt");
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
-debug_text('tra1.txt',$json);
 
 // Check if all required parameters are present in the array
 if (
@@ -52,6 +51,16 @@ try {
     );
     header('Content-Type: application/json');
     echo json_encode($response);
+    exit();
+}
+
+$headers = array_change_key_case(getallheaders(), CASE_LOWER);
+$publicKey = $headers['public_key'] ?? null;
+$secretKey = $headers['secret_key'] ?? null;
+if (!$publicKey || !$secretKey || !checkProviderCredentials($providers_domain_url, $publicKey, $secretKey, $pdo)) {
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'error', 'message' => 'Invalid provider credentials.']);
     exit();
 }
 

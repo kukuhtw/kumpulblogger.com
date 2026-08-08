@@ -41,19 +41,12 @@ if (isset($data['advertisers_email']) && isset($data['advertisers_name'])) {
     $verifying_secret_key_provider = getSecretKeyById($conn, $id);
 
 
-    $number_random = rand(111111,99999999).$advertisers_name .$advertisers_email;
-
-
-    $advertisers_password= sha1($number_random) ;
-    $advertisers_password = substr($advertisers_password, 0,8);
-    $hash_advertisers_password=sha1($advertisers_password);
-
-    $expected_secret_key = sha1($advertisers_email . $providers_domain_url .$providers_name.$advertisers_whatsapp);
+    $advertisers_password = bin2hex(random_bytes(16));
 
    if ($secret_key_provider === $verifying_secret_key_provider) {
         // Process the request
 
-        $rt = insertAdvertiser($conn, $providers_name, $providers_domain_url, $advertisers_name, $advertisers_email, $advertisers_whatsapp, $hash_advertisers_password);
+        $rt = insertAdvertiser($conn, $providers_name, $providers_domain_url, $advertisers_name, $advertisers_email, $advertisers_whatsapp, $advertisers_password);
         $response = array(
                     'status' => 'success',
                     'message' => $rt 

@@ -231,9 +231,7 @@ function getSignatureByDomainUrl($conn, $domain_url) {
     // Fetch the result
     if ($stmt->fetch()) {
         // Return the `signature`
-       debug_text('getSignatureByDomainUrl_12.txt',$signature);
-     
-        return $signature;
+       return $signature;
     } else {
         // Return null if no result found
         return null;
@@ -385,9 +383,10 @@ function getProvidersCodeById($conn, $id) {
 
 
 function debug_text($namafile,$contentdebug) {
-  $myfile = fopen($namafile, "w") or die("Unable to open file!");
-   fwrite($myfile, $contentdebug);
-   fclose($myfile);
+  // Legacy API callers used to write request bodies and credentials to files
+  // below the public document root. Keep the function as a no-op so those
+  // callers remain compatible without persisting secrets or personal data.
+  return false;
 }
 
 ?>
