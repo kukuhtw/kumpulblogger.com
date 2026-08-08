@@ -141,8 +141,9 @@ Gunakan [.env.example](.env.example) sebagai referensi. Kelompok utamanya:
 | Keamanan KCE | `KCE_TRACKING_SECRET` |
 
 Pada startup pertama, installer otomatis membuat data awal `providers`,
-`providers_contact_person`, dan `llm_settings` pada `id=1`. Proses ini
-idempotent: restart atau deploy ulang tidak menimpa data yang sudah ada. Nilai
+`providers_contact_person`, `llm_settings` pada `id=1`, serta 16 aturan bawaan
+`setting_rule_clicks`. Proses ini idempotent: restart atau deploy ulang tidak
+menimpa data yang sudah ada, termasuk threshold klik yang telah diubah admin. Nilai
 opsional `PROVIDER_*`, `OPENAI_API_KEY`, `REPLICATE_API_KEY`, dan `LLM_*` di
 `.env.example` dapat digunakan untuk mengatur seed awal tersebut.
 

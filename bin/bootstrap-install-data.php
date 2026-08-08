@@ -105,11 +105,41 @@ try {
     $llmInserted = $stmt->affected_rows === 1;
     $stmt->close();
 
+    $clickRules = [
+        ['aa', 2, 'Max clicks by same IP and user cookie in 1 minute / Jumlah klik maksimum oleh IP dan cookie pengguna yang sama dalam 1 menit'],
+        ['ab', 2, 'Max clicks by same IP and browser in 2 minutes / Jumlah klik maksimum oleh IP dan browser yang sama dalam 2 menit'],
+        ['ac', 3, 'Max clicks by same IP and browser in 5 minutes / Jumlah klik maksimum oleh IP dan browser yang sama dalam 5 menit'],
+        ['ad', 3, 'Max clicks by same IP and user cookie in 10 minutes / Jumlah klik maksimum oleh IP dan cookie pengguna yang sama dalam 10 menit'],
+        ['ae', 4, 'Max clicks by same IP and browser in 15 minutes / Jumlah klik maksimum oleh IP dan browser yang sama dalam 15 menit'],
+        ['af', 4, 'Max clicks by same IP and browser in 20 minutes / Jumlah klik maksimum oleh IP dan browser yang sama dalam 20 menit'],
+        ['ag', 4, 'Max clicks by same IP and user cookie in 25 minutes / Jumlah klik maksimum oleh IP dan cookie pengguna yang sama dalam 25 menit'],
+        ['ah', 5, 'Max clicks by same IP and browser in 30 minutes / Jumlah klik maksimum oleh IP dan browser yang sama dalam 30 menit'],
+        ['ai', 5, 'Max clicks by same IP and user cookie in 35 minutes / Jumlah klik maksimum oleh IP dan cookie pengguna yang sama dalam 35 menit'],
+        ['aj', 1, 'Max clicks by same IP and user cookie in 20 seconds / Jumlah klik maksimum oleh IP dan cookie pengguna yang sama dalam 20 detik'],
+        ['ak', 5, 'Max clicks by same IP and browser in 1 hour / Jumlah klik maksimum oleh IP dan browser yang sama dalam 1 jam'],
+        ['al', 6, 'Max clicks by same IP and browser in 2 hours / Jumlah klik maksimum oleh IP dan browser yang sama dalam 2 jam'],
+        ['am', 6, 'Max clicks by same IP and browser in 4 hours / Jumlah klik maksimum oleh IP dan browser yang sama dalam 4 jam'],
+        ['an', 5, 'Max clicks by same IP and browser in 6 hours / Jumlah klik maksimum oleh IP dan browser yang sama dalam 6 jam'],
+        ['ao', 2, 'Max clicks by same IP and browser in 12 hours / Jumlah klik maksimum oleh IP dan browser yang sama dalam 12 jam'],
+        ['ap', 5, 'Max clicks by same IP and browser in 24 hours / Jumlah klik maksimum oleh IP dan browser yang sama dalam 24 jam'],
+    ];
+    $stmt = $db->prepare(
+        'INSERT IGNORE INTO setting_rule_clicks (rule_name, threshold, description) VALUES (?, ?, ?)'
+    );
+    $clickRulesInserted = 0;
+    foreach ($clickRules as [$ruleName, $threshold, $description]) {
+        $stmt->bind_param('sis', $ruleName, $threshold, $description);
+        $stmt->execute();
+        $clickRulesInserted += $stmt->affected_rows;
+    }
+    $stmt->close();
+
     fwrite(STDOUT, sprintf(
-        "Bootstrap instalasi: providers=%s, providers_contact_person=%s, llm_settings=%s.\n",
+        "Bootstrap instalasi: providers=%s, providers_contact_person=%s, llm_settings=%s, setting_rule_clicks=%d-dibuat.\n",
         $providerInserted ? 'dibuat' : 'sudah-ada',
         $contactInserted ? 'dibuat' : 'sudah-ada',
-        $llmInserted ? 'dibuat' : 'sudah-ada'
+        $llmInserted ? 'dibuat' : 'sudah-ada',
+        $clickRulesInserted
     ));
 } catch (Throwable $exception) {
     fwrite(STDERR, "Bootstrap data instalasi gagal: {$exception->getMessage()}\n");
